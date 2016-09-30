@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+set -e
+
+echo ""
+echo "docker kill ${ServiceName}"
+docker kill "${ServiceName}" || echo "no need to kill"
+
+echo ""
+echo "docker rm -f ${ServiceName}"
+docker rm -f "${ServiceName}" || echo "no need to remove"

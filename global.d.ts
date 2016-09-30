@@ -1,4 +1,4 @@
-declare const t: (s: string) => string;
+declare const JsonEnv: any;
 
 interface Console {
 	assert(test?: boolean, message?: string, ...optionalParams: any[]): void;
@@ -29,16 +29,30 @@ declare namespace NodeJS {
 	}
 }
 
+declare interface KVP<V> {
+	[id: string]: V;
+}
+
 declare interface IPackageJson {
-	name: string;
-	description: string;
-	repository: string;
+	name?: string;
+	version?: string;
+	description?: string;
+	repository?: any;
+	bin?: {
+		[id: string]: string;
+	}
+	scripts?: {
+		start: string;
+		build: string;
+		service: string;
+		"post-install": string;
+	},
 	dependencies?: {
 		[name: string]: string;
-	}
+	};
 	devDependencies?: {
 		[name: string]: string;
-	}
+	};
 }
 
 interface WritableStream {

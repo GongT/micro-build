@@ -41,6 +41,14 @@ export abstract class BaseFile<ContentType> {
 		this._exists = true;
 	}
 	
+	writeTo(otherFilePath: string) {
+		writeFileSync(otherFilePath, this.stringify_file() + '\n', 'utf-8');
+	}
+	
+	get fileName() {
+		return this._fileName;
+	}
+	
 	get content(): ContentType {
 		return this._content;
 	}

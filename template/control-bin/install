@@ -1,0 +1,70 @@
+#!/bin/bash
+set -e
+
+if [ `id -u` -ne "0" ]; then
+	echo "Error: you must have root access" > /dev/stderr
+	exit
+fi
+
+source ./bin/control/set_env
+
+if [ -z "${BASE_DOMAIN_NAME}" ]; then
+	echo "no  BASE_DOMAIN_NAME  environment"
+	exit 1
+fi
+
+WD=`pwd`
+
+COMMAND_LINE="${WD}/bin/run $@"
+
+echo -e "install service:
+   base domain:    ${BASE_DOMAIN_NAME}
+   domain:         ${ServiceName}.${BASE_DOMAIN_NAME}
+   working dir:    ${WD}
+   command line:   .${COMMAND_LINE#${WD}}
+   "
+sleep 2
+echo ""
+
+echo -n "is systemd running? "
+if ps -p1 | grep systemd ; then
+	# new system
+	echo "current system detected!"
+	echo ""
+	echo "copy ${ServiceName}.service to ${TARGET}"
+	cat ${SourceFile} \
+		| sed "s#\${DOMAIN_NAME}#${ServiceName}.${BASE_DOMAIN_NAME}#g" \
+		| sed "s#\${PWD}#${WD}#g" \
+		| sed "s#\${BASE_DOMAIN_NAME}#${BASE_DOMAIN_NAME}#g" \
+		| sed "s#\${COMMAND_LINE}#${COMMAND_LINE}#g" \
+		> ${TargetFile}
+else
+	# old ubuntu
+	echo "legacy system detected!"
+	echo ""
+	echo "copy ${ServiceName}.conf to /etc/init"
+	cat ${UpstartSourceFile} \
+		| sed "s#\${DOMAIN_NAME}#${ServiceName}.${BASE_DOMAIN_NAME}#g" \
+		| sed "s#\${PWD}#${WD}#g" \
+		| sed "s#\${BASE_DOMAIN_NAME}#${BASE_DOMAIN_NAME}#g" \
+		| sed "s#\${COMMAND_LINE}#${COMMAND_LINE}#g" \
+		> ${UpstartFinalFile}
+fi
+
+echo "ensure ${FINAL}"
+mkdir -p ${FINAL}
+
+if [ -f ${FinalFile} ]; then
+	echo "unlink ${FinalFile}"
+	unlink ${FinalFile}
+fi
+
+echo "create link from ${TargetFile} to ${FINAL}"
+ln -s ${TargetFile} ${FINAL}
+
+if [ -f '/bin/systemctl' ]; then
+	echo "daemon-reload..."
+	systemctl daemon-reload
+fi
+
+echo -e "\x1B[38;5;10mcomplete.\x1B[0m"

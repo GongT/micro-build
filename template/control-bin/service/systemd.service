@@ -1,0 +1,14 @@
+[Unit]
+Description=@{DOMAIN_NAME} server instance
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=Simple
+Restart=always
+WorkingDirectory=@{PWD}
+ExecStart=@{PWD}/start.sh
+ExecStop=@{PWD}/stop.sh
+
+[Install]
+WantedBy=multi-user.target

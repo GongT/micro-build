@@ -1,0 +1,20 @@
+if [ -d /lib/systemd/system ]; then
+	# ubuntu
+	TARGET=/lib/systemd/system
+elif [ -d /usr/lib/systemd/system ]; then
+	# centos
+	TARGET=/usr/lib/systemd/system
+else
+	echo "Error: can't found systemd service dir." > /dev/stderr
+	exit 1
+fi
+
+FINAL=/etc/systemd/system/multi-user.target.wants
+
+ServiceName=accounts
+
+FinalFile=${FINAL}/${ServiceName}.service
+TargetFile=${TARGET}/${ServiceName}.service
+SourceFile=./bin/control/_systemd.service
+UpstartSourceFile=./bin/control/_upstart.conf
+UpstartFinalFile=/etc/init/${ServiceName}.conf
