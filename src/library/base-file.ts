@@ -37,7 +37,14 @@ export abstract class BaseFile<ContentType> {
 	}
 	
 	write() {
-		writeFileSync(this._fileName, this.stringify_file() + '\n', 'utf-8');
+		let content;
+		try {
+			content = this.stringify_file();
+		} catch (e) {
+			console.log(this._content);
+			throw new Error(`can't stringify file content, file: ${this._fileName}.`);
+		}
+		writeFileSync(this._fileName, content + '\n', 'utf-8');
 		this._exists = true;
 	}
 	

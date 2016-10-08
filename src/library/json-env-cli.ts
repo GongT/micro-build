@@ -7,6 +7,14 @@ export function injectJsonEnv() {
 	if (global['JsonEnv']) {
 		return global['JsonEnv'];
 	}
+	if (process.env.JENV_FILE_NAME) {
+		console.log('read json-env from file %s', process.env.JENV_FILE_NAME);
+		require('json-env-data/global');
+		return global['JsonEnv'];
+	}
+	
+	console.log('require json env, not configure.');
+	
 	const ret = spawnSync('jenv', ['--status', '--json'], {
 		cwd: getProjectPath(),
 		stdio: ['ignore', 'pipe', 'inherit'],
@@ -29,8 +37,6 @@ export function injectJsonEnv() {
 	if (!status.env) {
 		select_env();
 	}
-	
-	update_cache();
 	
 	process.env.JENV_FILE_NAME = resolve(getProjectPath(), '.jsonenv', '_current_result.json');
 	
@@ -82,6 +88,7 @@ export function update_cache() {
 	if (cache) {
 		return cache;
 	}
+	console.log('update json-env cache.');
 	const ret = spawnSync('jenv', ['--show'], {
 		cwd: getProjectPath(),
 		stdio: ['ignore', 'pipe', 'ignore'],

@@ -5,6 +5,7 @@ import {TemplateVariables} from "./base";
 import {renderTemplate, renderFile} from "./replace-dockerfile";
 import {EPlugins} from "../library/microbuild-config";
 import {tempDirName} from "../library/file-paths";
+import {dirname} from "path";
 
 const nextGuid = createGuid();
 
@@ -34,30 +35,29 @@ export class CustomInstructions extends TemplateVariables {
 	
 	BUILD_ARGUMENTS() {
 		return this.walk(this.config.toJSON().arguments, (v, k) => {
-			if (v === null) {
+			const def = v.defaultValue;
+			if (v.runArg) {
+				return '';
+			}
+			if (def === null) {
 				return `ARG ${k}`;
 			} else {
-				return `ARG ${k}=${v}`;
+				return `ARG ${k}=${def}`;
 			}
 		});
 	}
 	
-	walk(vars: any, cb: Function) {
-		let list;
-		if (Array.isArray(vars)) {
-			list = vars.map((val, index) => {
-				return cb(val, index);
-			});
-		} else {
-			list = Object.keys(vars).map((name) => {
-				return cb(vars[name], name);
-			});
-		}
-		if (list.length) {
-			return list.join('\n').trim() + '\n';
-		} else {
-			return '';
-		}
+	VOLUMES() {
+		return this.walk(this.config.toJSON().volume, (v, k) => {
+			let createIns;
+			if (v.isFolder) {
+				createIns = 'mkdir -p ' + JSON.stringify(k);
+			} else {
+				createIns = 'mkdir -p ' + JSON.stringify(dirname(k));
+			}
+			return `RUN ${createIns} 
+VOLUME ${k}`;
+		});
 	}
 	
 	CUSTOM_BUILD_BEFORE() {
@@ -134,18 +134,6 @@ export class CustomInstructions extends TemplateVariables {
 			return npmInstallInstruction.join('\n\n');
 		} else {
 			return '# no npm install required';
-		}
-	}
-	
-	private wrapJson(v: any) {
-		if (v === false || v === undefined || v === null) {
-			return '';
-		} else if (v === true) {
-			return 'yes';
-		} else if (typeof v === 'object') {
-			return JSON.stringify(v);
-		} else {
-			return v.toString();
 		}
 	}
 }

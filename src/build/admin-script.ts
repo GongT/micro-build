@@ -5,6 +5,9 @@ import {renderTemplate} from "../replace/replace-scripts";
 
 export function createAdminScript(config: MicroBuildConfig) {
 	let adminScript;
-	adminScript = renderTemplate('building', 'build.sh', new ScriptVariables(config));
+	adminScript = renderTemplate('run-control', 'build.sh', new ScriptVariables(config));
 	saveFile('build.sh', adminScript, '755');
+	
+	adminScript = renderTemplate('run-control', 'arg-parse.sh', new ScriptVariables(config));
+	saveFile('arg-parse.sh', adminScript);
 }

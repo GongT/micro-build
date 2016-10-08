@@ -12,5 +12,5 @@ export default function debug(this: any) {
 	
 	createDebugScript(builder);
 	
-	return spawnMainCommand('debug.sh');
+	return spawnMainCommand('debug.sh', args);
 }

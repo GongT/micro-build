@@ -10,6 +10,11 @@ const {version} = require("../package.json");
 
 const requiredItems = [];
 
+let currentActionName;
+export function currentAction() {
+	return currentActionName;
+}
+
 commander.version(version);
 commander.usage('<command> [arguments...]');
 commander.allowUnknownOption(false);
@@ -49,6 +54,11 @@ commander.command('mkconfig [args...]')
          .description('create build script for debug.')
          .action(call_command);
 
+commander.command('clean')
+         .allowUnknownOption(false)
+         .description('remove temp files.')
+         .action(call_command);
+
 commander.action(function (command) {
 	commander.unknownOption(command);
 });
@@ -60,7 +70,7 @@ process.exit(1);
 
 function call_command(...args) {
 	const command = args.pop();
-	const commandName = command.name();
+	const commandName = currentActionName = command.name();
 	
 	requiredItems.forEach((item) => {
 		if (!command[item]) {

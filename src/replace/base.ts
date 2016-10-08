@@ -13,12 +13,15 @@ export class TemplateRender {
 	}
 	
 	render(ins: TemplateVariables) {
-		return this.tpl.replace(/(^#|@)\{([A-Z_0-9]+)}/gm, (m0, m1, name) => {
+		return this.tpl.replace(/(^#|@)\{([A-Z_0-9]+)}/gm, (m0, type, name) => {
 			if (!this.saved[name]) {
 				if (!ins[name]) {
 					throw new Error(`unknown variable ${name} in template ${this.fileName}`);
 				}
 				this.saved[name] = ins[name]();
+				if (type === '#') {
+					this.saved[name] = '# INSTRUCTION ' + name + '\n' + this.saved[name];
+				}
 			}
 			return this.saved[name];
 		});
@@ -26,7 +29,7 @@ export class TemplateRender {
 }
 
 export class TemplateVariables {
-	protected config;
+	protected config: MicroBuildConfig;
 	protected jsonEnvEnabled = false;
 	
 	constructor(config: MicroBuildConfig, extra: KVP<Function> = {}) {
@@ -47,16 +50,48 @@ export class TemplateVariables {
 		});
 	}
 	
-	COMMANDS() {
-		return `CMD ${this.COMMAND()}
-ENTRYPOINT ${this.SHELL()}`;
-	}
-	
 	SHELL() {
 		return this.config.toJSON().shell;
 	}
 	
 	COMMAND() {
 		return this.config.toJSON().command;
+	}
+	
+	protected walk(vars: any, cb: Function, split = '\n') {
+		let list;
+		if (Array.isArray(vars)) {
+			list = vars.map((val, index) => {
+				return cb(val, index);
+			});
+		} else {
+			list = Object.keys(vars).map((name) => {
+				return cb(vars[name], name);
+			});
+		}
+		list = list.filter((s) => {
+			return s !== undefined && s !== null;
+		});
+		if (list.length) {
+			let ret = list.join(split).trim();
+			if (split === '\n') {
+				ret += split;
+			}
+			return ret;
+		} else {
+			return '';
+		}
+	}
+	
+	protected wrapJson(v: any) {
+		if (v === false || v === undefined || v === null) {
+			return '';
+		} else if (v === true) {
+			return 'yes';
+		} else if (typeof v === 'object') {
+			return JSON.stringify(JSON.stringify(v));
+		} else {
+			return JSON.stringify(v);
+		}
 	}
 }

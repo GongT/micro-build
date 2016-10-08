@@ -29,7 +29,10 @@ export default function update() {
 	
 	console.log('update .dockerignore file');
 	const dockerIgnore = projectFileObject('.dockerignore');
+	dockerIgnore.uniqueAppend(tempDirName);
 	dockerIgnore.uniqueAppend(defaultIgnores);
+	dockerIgnore.uniqueAppend(`!${tempDirName}/packagejson`);
+	dockerIgnore.uniqueAppend(`!${tempDirName}/json-env-data.json`);
 	dockerIgnore.write();
 	
 	console.log('update microbuild-config.d.ts file');

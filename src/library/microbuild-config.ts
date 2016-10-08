@@ -1,6 +1,9 @@
-import {existsSync} from "fs";
+import {existsSync, lstatSync} from "fs";
 export interface MicroServiceConfig {
-	volume: KeyValueObject<string>;
+	volume: KeyValueObject<{
+		path: string,
+		isFolder: boolean,
+	}>;
 	command: string;
 	shell: string;
 	port: number[];
@@ -10,7 +13,11 @@ export interface MicroServiceConfig {
 	projectName: string;
 	plugins: KeyValueObject<any>;
 	base: string;
-	arguments: KeyValueObject<string|null>;
+	arguments: KeyValueObject<{
+		defaultValue: string,
+		runArg: boolean,
+		desc?: string,
+	}>;
 	serviceDependencies: KeyValueObject<string>;
 	containerDependencies: KeyValueObject<{imageName: string, runCommandline: string}>;
 	environments: KeyValueObject<string>;
@@ -119,8 +126,14 @@ export class MicroBuildConfig {
 		this.storage.containerDependencies[containerName] = {imageName, runCommandline};
 	}
 	
-	volume(hostFodler: string, imageMountpoint: string) {
-		this.storage.volume[imageMountpoint] = hostFodler;
+	volume(hostFodler: string, imageMountpoint?: string) {
+		if (!existsSync(hostFodler)) {
+			throw new Error(`volumn is not exists: ${hostFodler}`);
+		}
+		this.storage.volume[imageMountpoint || hostFodler] = {
+			path: hostFodler,
+			isFolder: lstatSync(hostFodler).isDirectory(),
+		};
 	}
 	
 	install(packageJsonRelativePath: string) {
@@ -136,8 +149,12 @@ export class MicroBuildConfig {
 		this.storage.plugins[name] = options;
 	}
 	
-	buildArgument(name: string, defaultValue: string = null) {
-		this.storage.arguments[name] = defaultValue;
+	buildArgument(name: string, description: string, defaultValue: string = null) {
+		this.storage.arguments[name] = {runArg: true, defaultValue, desc: description};
+	}
+	
+	runArgument(name: string, description: string, defaultValue: string = null) {
+		this.storage.arguments[name] = {runArg: false, defaultValue, desc: description};
 	}
 	
 	environmentVariable(name: string, value: string) {

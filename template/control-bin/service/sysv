@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+
+### BEGIN INIT INFO
+# Provides:           @{SERVICE_NAME}
+# Required-Start:     docker
+# Required-Stop:      docker
+# Default-Start:      2 3 4 5
+# Default-Stop:       0 1 6
+# chkconfig:          2345 50 50
+# Short-Description:  micro service "@{DOMAIN_NAME}" provider
+# Description:
+#	micro service "@{DOMAIN_NAME}" provider
+### END INIT INFO
+
+set -e
+
+export PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin
+
+SERVICE_DESC="@{DOMAIN_NAME}"
+PID_FILE="/var/run/@{DOMAIN_NAME}.pid"
+EXEC="@{PWD}/start.sh"
+
+#{DETECT_CURRENT}
+
+. /lib/lsb/init-functions
+
+case "$1" in
+start)
+	log_begin_msg "Starting ${SERVICE_DESC}: "
+	start-stop-daemon --start \
+					--no-close \
+					--exec "${EXEC}" \
+					--pidfile "${PID_FILE}" 2>&1
+	log_end_msg $?
+;;
+stop)
+	log_begin_msg "Stopping ${SERVICE_DESC}: "
+	start-stop-daemon --stop --pidfile "${PID_FILE}" --retry 10
+	log_end_msg $?
+;;
+restart)
+	s_restart
+;;
+status)
+	status_of_proc -p "${PID_FILE}" "${EXEC}" "@{SERVICE_NAME}"
+;;
+*)
+	echo "Usage: service @{SERVICE_NAME} {start|stop|restart|status}"
+	exit 1
+;;
+esac
