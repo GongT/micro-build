@@ -57,6 +57,10 @@ export class ScriptVariables extends TemplateVariables {
 		}, ' ');
 	}
 	
+	STOP_COMMAND() {
+		return this.config.toJSON().stopcommand.length? 'yes' : 'no';
+	}
+	
 	RUN_MOUNT_VOLUMES() {
 		return this.walk(this.config.toJSON().volume, (hostFolder, mountPoint: string)=> {
 			return `--volume ${this.wrap(hostFolder.path)}:${this.wrap(mountPoint)}`

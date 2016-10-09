@@ -9,6 +9,7 @@ export interface MicroServiceConfig {
 	}>;
 	command: string[];
 	shell: string[];
+	stopcommand: string[];
 	port: number[];
 	domain: string;
 	appendDockerFile: string[];
@@ -49,6 +50,7 @@ export class MicroBuildConfig {
 		volume: {},
 		port: [80],
 		forwardPort: {},
+		stopcommand: ['echo', 'no stop command.'],
 		domain: '',
 		projectName: '',
 		command: ['npm', 'start'],
@@ -108,6 +110,10 @@ export class MicroBuildConfig {
 	
 	shellCommand(...shell: string[]) {
 		this.storage.shell = shell;
+	}
+	
+	stopCommand(...stop: string[]) {
+		this.storage.stopcommand = stop;
 	}
 	
 	dependService(otherService: string, otherServiceGitUrl?: string) {
@@ -186,7 +192,7 @@ export class MicroBuildConfig {
 	}
 	
 	/** getters **/
-	toJSON() {
+	toJSON(): MicroServiceConfig {
 		if (!this.storage.projectName) {
 			throw new Error(`project name is not defined in build script`);
 		}

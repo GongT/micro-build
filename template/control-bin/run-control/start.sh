@@ -3,7 +3,14 @@
 cd "@{PWD}/.."
 
 source "@{PWD}/functions.sh"
-source "@{PWD}/stop.sh"
+
+if is_container_running "@{SERVICE_NAME}" ; then
+	echo "service is already started"
+	exit 2
+fi
+if is_container_exists "@{SERVICE_NAME}" ; then
+	source "@{PWD}/stop.sh"
+fi
 
 #{START_DEPENDENCY}
 #{DEPENDENCY_CHECK_EXTERNAL}

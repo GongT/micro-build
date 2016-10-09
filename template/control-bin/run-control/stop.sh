@@ -4,9 +4,21 @@ cd "@{PWD}/.."
 
 source "@{PWD}/functions.sh"
 
+STOP_COMMAND="@{STOP_COMMAND}"
+
 if is_container_running "@{SERVICE_NAME}" ; then
-	echo "try to stop (or kill) running service"
-	docker stop --time=5 "@{SERVICE_NAME}"
+	if [ "${STOP_COMMAND}" == "yes" ]; then
+		echo "executing stop command"
+		microbuild stop-command
+		sleep 2
+		if is_container_running "@{SERVICE_NAME}" ; then
+			echo "stop command failed (container not stopped)"
+			docker stop --time=2 "@{SERVICE_NAME}"
+		fi
+	else
+		echo "try to stop (or kill) running service"
+		docker stop --time=5 "@{SERVICE_NAME}"
+	fi
 fi
 
 if is_container_exists "@{SERVICE_NAME}" ; then

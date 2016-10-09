@@ -9,4 +9,8 @@ if ! is_container_running "@{SERVICE_NAME}" ; then
 	exit 2
 fi
 
-docker exec -it "@{SERVICE_NAME}" "$@"
+if [ -t 1 ] ; then
+	docker exec -it "@{SERVICE_NAME}" "$@"
+else
+	docker exec "@{SERVICE_NAME}" "$@"
+fi

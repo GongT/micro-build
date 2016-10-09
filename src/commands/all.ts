@@ -8,6 +8,7 @@ import control from "./control";
 import foreground from "./foreground";
 import run from "./run";
 import script from "./script";
+import stop_command from "./stop_command";
 
 export const commandList = {
 	init,
@@ -27,4 +28,5 @@ export const commandList = {
 	enable: control,
 	disable: control,
 	script: script,
+	'stop-command': stop_command,
 };

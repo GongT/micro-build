@@ -5,6 +5,17 @@
 case $@ in
 start)
 	s_start
+	
+	if [ -t 1 ] ; then
+		sleep 2
+		docker logs -f "@{SERVICE_NAME}" || exit 2 &
+		PID=$!
+		
+		sleep 3
+		
+		kill ${PID}
+	fi
+	
 	;;
 stop)
 	s_stop

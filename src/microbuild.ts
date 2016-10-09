@@ -99,6 +99,11 @@ commander.command('clean')
          .description('remove temp files.')
          .action(call_command);
 
+commander.command('stop-command')
+         .allowUnknownOption(false)
+         .description('internal command, run stop command.')
+         .action(call_command);
+
 commander.action(function (command) {
 	commander.unknownOption(command);
 });

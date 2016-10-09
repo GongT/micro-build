@@ -21,6 +21,7 @@ build.install('./package.json');
 
 // build.startupCommand('command other than npm', 'some', 'argument');
 // build.shellCommand('/bin/sh', '-c');
+// build.stopCommand('stop.sh');
 
 // build.buildArgument('SOME_ARG', defaultValue);
 
