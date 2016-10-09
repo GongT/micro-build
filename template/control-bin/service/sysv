@@ -18,7 +18,8 @@ export PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin
 
 SERVICE_DESC="@{DOMAIN_NAME}"
 PID_FILE="/var/run/@{DOMAIN_NAME}.pid"
-EXEC="@{PWD}/start.sh"
+EXEC="@{PWD}/start.sh --rm --restart=no"
+export DOCKER_START_ARGS="--rm --restart=no"
 
 #{DETECT_CURRENT}
 

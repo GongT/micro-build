@@ -42,4 +42,5 @@ function s_uninstall {
 	if [ -e "/usr/lib/systemd/system/@{SERVICE_NAME}.service" ]; then
 		rm "/usr/lib/systemd/system/@{SERVICE_NAME}.service"
 	fi
+	systemctl daemon-reload
 }

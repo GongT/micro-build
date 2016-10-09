@@ -16,10 +16,11 @@ build.projectName(projectName);
 build.domainName(projectName + '.' + JsonEnv.baseDomainName);
 build.install('./package.json');
 
-// build.exposePort(80, 8080);
+// build.exposePort(22, 8080, 12300);
+// build.forwardPort(80, 8080);
 
-// build.startupCommand('command other than npm start');
-// build.entrypoint('/bin/sh -c');
+// build.startupCommand('command other than npm', 'some', 'argument');
+// build.shellCommand('/bin/sh', '-c');
 
 // build.buildArgument('SOME_ARG', defaultValue);
 

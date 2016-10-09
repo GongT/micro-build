@@ -18,7 +18,12 @@ export class TemplateRender {
 				if (!ins[name]) {
 					throw new Error(`unknown variable ${name} in template ${this.fileName}`);
 				}
-				this.saved[name] = ins[name]();
+				try {
+					this.saved[name] = ins[name]();
+				} catch (e) {
+					e.message += ` (in file ${this.fileName})`;
+					throw e;
+				}
 				if (type === '#') {
 					this.saved[name] = '# INSTRUCTION ' + name + '\n' + this.saved[name];
 				}
@@ -50,14 +55,6 @@ export class TemplateVariables {
 		});
 	}
 	
-	SHELL() {
-		return this.config.toJSON().shell;
-	}
-	
-	COMMAND() {
-		return this.config.toJSON().command;
-	}
-	
 	protected walk(vars: any, cb: Function, split = '\n') {
 		let list;
 		if (Array.isArray(vars)) {
@@ -83,7 +80,7 @@ export class TemplateVariables {
 		}
 	}
 	
-	protected wrapJson(v: any) {
+	protected wrap(v: any) {
 		if (v === false || v === undefined || v === null) {
 			return '';
 		} else if (v === true) {

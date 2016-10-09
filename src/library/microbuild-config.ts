@@ -1,11 +1,14 @@
-import {existsSync, lstatSync} from "fs";
+import {existsSync, lstatSync, mkdirSync} from "fs";
+import {getProjectPath} from "./file-paths";
+import {resolve} from "path";
 export interface MicroServiceConfig {
+	forwardPort: KeyValueObject<number>;
 	volume: KeyValueObject<{
 		path: string,
 		isFolder: boolean,
 	}>;
-	command: string;
-	shell: string;
+	command: string[];
+	shell: string[];
 	port: number[];
 	domain: string;
 	appendDockerFile: string[];
@@ -19,7 +22,7 @@ export interface MicroServiceConfig {
 		desc?: string,
 	}>;
 	serviceDependencies: KeyValueObject<string>;
-	containerDependencies: KeyValueObject<{imageName: string, runCommandline: string}>;
+	containerDependencies: KeyValueObject<{imageName: string, runCommandline: string|string[]}>;
 	environments: KeyValueObject<string>;
 	labels: KeyValueObject<string|Object|any[]>;
 	nagLabels: KeyValueObject<string|Object|any[]>;
@@ -45,10 +48,11 @@ export class MicroBuildConfig {
 	private storage: MicroServiceConfig = {
 		volume: {},
 		port: [80],
+		forwardPort: {},
 		domain: '',
 		projectName: '',
-		command: 'npm start',
-		shell: '/bin/sh',
+		command: ['npm', 'start'],
+		shell: ['/bin/sh', '-c'],
 		appendDockerFile: [],
 		prependDockerFile: [],
 		plugins: {},
@@ -70,6 +74,10 @@ export class MicroBuildConfig {
 	
 	exposePort(...ports: number[]) {
 		this.storage.port = ports;
+	}
+	
+	forwardPort(hostPort: number, mapTo: number) {
+		this.storage.forwardPort[hostPort] = mapTo;
 	}
 	
 	baseAlpine(baseImage: string) {
@@ -94,16 +102,20 @@ export class MicroBuildConfig {
 		this.storage.domain = name;
 	}
 	
-	startupCommand(command: string) {
+	startupCommand(...command: string[]) {
 		this.storage.command = command;
 	}
 	
-	shellCommand(shell: string) {
+	shellCommand(...shell: string[]) {
 		this.storage.shell = shell;
 	}
 	
-	dependService(otherService: string, otherServiceGitUrl: string) {
-		this.storage.serviceDependencies[otherService] = otherServiceGitUrl;
+	dependService(otherService: string, otherServiceGitUrl?: string) {
+		this.storage.serviceDependencies[otherService] = otherServiceGitUrl || null;
+	}
+	
+	dependIsolate(containerName: string, imageName: string, runCommandline: string|string[]) {
+		this.storage.containerDependencies[containerName] = {imageName, runCommandline};
 	}
 	
 	prependDockerFile(filePath: string) {
@@ -122,11 +134,15 @@ export class MicroBuildConfig {
 		}
 	}
 	
-	dependDocker(containerName: string, imageName: string, runCommandline: string) {
-		this.storage.containerDependencies[containerName] = {imageName, runCommandline};
-	}
-	
 	volume(hostFodler: string, imageMountpoint?: string) {
+		if (/^\./.test(hostFodler)) {
+			hostFodler = resolve(getProjectPath(), hostFodler);
+			if (hostFodler.indexOf(getProjectPath()) === 0) {
+				if (!existsSync(hostFodler)) { // auto create volume folder if in current project
+					mkdirSync(hostFodler);
+				}
+			}
+		}
 		if (!existsSync(hostFodler)) {
 			throw new Error(`volumn is not exists: ${hostFodler}`);
 		}
@@ -150,11 +166,11 @@ export class MicroBuildConfig {
 	}
 	
 	buildArgument(name: string, description: string, defaultValue: string = null) {
-		this.storage.arguments[name] = {runArg: true, defaultValue, desc: description};
+		this.storage.arguments[name] = {runArg: false, defaultValue, desc: description};
 	}
 	
 	runArgument(name: string, description: string, defaultValue: string = null) {
-		this.storage.arguments[name] = {runArg: false, defaultValue, desc: description};
+		this.storage.arguments[name] = {runArg: true, defaultValue, desc: description};
 	}
 	
 	environmentVariable(name: string, value: string) {

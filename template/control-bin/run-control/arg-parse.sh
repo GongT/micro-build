@@ -92,7 +92,7 @@ function push_run_argument { # name value
 	
 	echo "run argument: ${NAME} -> ${VALUE}" >&2
 	
-	RUN_ARGUMENTS="${RUN_ARGUMENTS} --${NAME}=\"${VALUE}\""
+	RUN_ARGUMENTS="${RUN_ARGUMENTS}${ARGUMENT_DELIMITER- }\"--${NAME}=${VALUE}\""
 }
 
 function test_all_finished_run {
@@ -102,7 +102,7 @@ function test_all_finished_run {
 			push_run_argument "${i}" `default_value "${i}"`
 		else
 			if ! echo "${GOTTEN_RUN_ARGUMENT}" | grep -q ":${i}:" ; then
-				help_message "missing required argument: ${i}";
+				help_message "missing required run argument: ${i}";
 			fi
 		fi
 	done
@@ -114,7 +114,7 @@ function test_all_finished_build {
 			push_build_argument "${i}" `default_value "${i}"`
 		else
 			if ! echo "${GOTTEN_BUILD_ARGUMENT}" | grep -q ":${i}:" ; then
-				help_message "missing required argument: ${i}";
+				help_message "missing required build argument: ${i}";
 			fi
 		fi
 	done

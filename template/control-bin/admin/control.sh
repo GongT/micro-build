@@ -32,6 +32,8 @@ disable)
 	s_disable
 	;;
 *)
-	echo "$0 <start|stop|restart|status>" >&2
+	echo "Unknown action: ${1}
+  Usage:
+   $0 <start|stop|restart|status>" >&2
 	exit 1
 esac

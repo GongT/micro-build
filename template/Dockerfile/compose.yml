@@ -1,0 +1,17 @@
+version: '2'
+
+services:
+  @{SERVICE_NAME}:
+	build:
+	  context: ..
+	  dockerfile: Dockerfile
+	  args:
+		@{BUILD_ARGUMENTS}
+	  container_name: @{SERVICE_NAME}
+    networks:
+     - internal
+	depends_on:
+	  @{INTERNAL_DEPENDS}
+	external_links:
+	  @{EXTERNAL_DEPENDS}
+	network_mode: "bridge"

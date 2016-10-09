@@ -6,6 +6,10 @@ cd "@{PWD}"
 source "./arg-parse.sh"
 cd ..
 
+source "@{PWD}/functions.sh"
+#{START_DEPENDENCY}
+#{DEPENDENCY_CHECK_EXTERNAL}
+
 trap '[ -n "$(jobs -p)" ] && kill $(jobs -p)' EXIT
 export CONFIG_FILE="@{PWD}/json-env-data.json"
 

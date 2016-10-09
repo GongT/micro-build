@@ -4,8 +4,9 @@ Requires=docker.service
 After=docker.service
 
 [Service]
-Type=Simple
+Type=simple
 Restart=always
+Environment='DOCKER_START_ARGS=--rm --restart=no'
 WorkingDirectory=@{PWD}
 ExecStart=@{PWD}/start.sh
 ExecStop=@{PWD}/stop.sh

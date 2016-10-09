@@ -8,6 +8,8 @@ RUN mkdir -p /data
 
 #{JSON_ENV_PASS}
 
+#{ENVIRONMENT_VARS}
+
 #{BUILD_ARGUMENTS}
 
 #{LABEL_INSTRUCTIONS}
@@ -23,7 +25,8 @@ WORKDIR /data
 #{CUSTOM_BUILD_AFTER}
 #{PORTS}
 
-ARG COMMAND_LINE_ARGS
-CMD "@{COMMAND}" $COMMAND_LINE_ARGS
-
-ENTRYPOINT @{SHELL}
+# ARG COMMAND_LINE_ARGS
+ENV PATH /usr/sbin:/usr/bin:/data/scripts:/sbin:/bin
+RUN [ -e /data/scripts ] && chmod a+x /data/scripts/*
+ENTRYPOINT [@{SHELL}]
+CMD [@{COMMAND}${COMMAND_LINE_ARGS}]

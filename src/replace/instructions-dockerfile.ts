@@ -10,6 +10,24 @@ import {dirname} from "path";
 const nextGuid = createGuid();
 
 export class CustomInstructions extends TemplateVariables {
+	SHELL() {
+		return this.config.toJSON().shell.map((v) => {
+			return JSON.stringify(v);
+		}).join(', ');
+	}
+	
+	COMMAND() {
+		return this.config.toJSON().command.map((v) => {
+			return JSON.stringify(v);
+		}).join(', ');
+	}
+	
+	ENVIRONMENT_VARS() {
+		return this.walk(this.config.toJSON().environments, (v, n) => {
+			return `ENV ${n} ${v}`;
+		});
+	}
+	
 	JSON_ENV_PASS() {
 		if (!this.jsonEnvEnabled) {
 			return '# no json env';
@@ -23,13 +41,13 @@ export class CustomInstructions extends TemplateVariables {
 	
 	NSG_LABEL_INSTRUCTIONS() {
 		return this.walk(this.config.toJSON().nagLabels, (v, k) => {
-			return `LABEL org.nsg.${k.toLowerCase()}=${this.wrapJson(v)}`;
+			return `LABEL org.nsg.${k.toLowerCase()}=${this.wrap(v)}`;
 		});
 	}
 	
 	LABEL_INSTRUCTIONS() {
 		return this.walk(this.config.toJSON().labels, (v, k) => {
-			return `LABEL ${k}=${this.wrapJson(v)}`;
+			return `LABEL ${k}=${this.wrap(v)}`;
 		});
 	}
 	

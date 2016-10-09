@@ -1,9 +1,21 @@
 import {TemplateVariables} from "./base";
 import {getTempPath} from "../library/file-paths";
 import {resolve} from "path";
-import {help_message} from "../library/parse-build-arguments";
+import {renderTemplate} from "./replace-scripts";
 
 export class ScriptVariables extends TemplateVariables {
+	SHELL() {
+		return this.config.toJSON().shell.map((v) => {
+			return JSON.stringify(v);
+		}).join(' ');
+	}
+	
+	COMMAND() {
+		return this.config.toJSON().command.map((v) => {
+			return JSON.stringify(v);
+		}).join(' ');
+	}
+	
 	SERVICE_NAME() {
 		return this.config.toJSON().projectName;
 	}
@@ -12,20 +24,15 @@ export class ScriptVariables extends TemplateVariables {
 		return this.config.toJSON().domain;
 	}
 	
-	JENV_FILE_NAME_REL() {
-		if (this.jsonEnvEnabled) {
-			return JsonEnv.JENV_FILE_NAME_REL;
-		} else {
-			throw new Error('json env error: used but not enable');
+	JSON_ENV_HASH() {
+		if (!this.jsonEnvEnabled) {
+			return '# no json env';
 		}
-	}
-	
-	JENV_FILE_NAME() {
-		if (this.jsonEnvEnabled) {
-			return resolve(getTempPath(), 'json-env-data.json');
-		} else {
-			throw new Error('json env error: used but not enable');
-		}
+		return renderTemplate('plugin', 'json-env.sh', new ScriptVariables(this.config, {
+			JENV_FILE_NAME() {
+				return resolve(getTempPath(), 'json-env-data.json');
+			}
+		}));
 	}
 	
 	BASE_DOMAIN_NAME() {
@@ -36,70 +43,63 @@ export class ScriptVariables extends TemplateVariables {
 		return getTempPath();
 	}
 	
-	ARGUMENT_HELP_MESSAGE() {
-		return help_message(this.config);
+	BUILD_DEPEND_SERVICE() {
+		return '';
 	}
 	
-	private walkArg(run: boolean|undefined, fn: Function, split = '\n') {
-		return this.walk(this.config.toJSON().arguments, function (d, n) {
-			if (run === undefined || run === d.runArg) {
-				return fn(d, n);
-			}
-		}, split);
+	PULL_DEPEND_IMAGES() {
+		return '';
 	}
 	
-	RUN_ARGUMENTS_ONE_ITEM() {
-		return this.walkArg(true, function (d, n) {
-				return `--${n}=*`;
-			}, '|') || 'no-value';
-	}
-	
-	RUN_ARGUMENTS() {
-		return this.walkArg(true, function (d, n) {
-				return `--${n}|-${n}`;
-			}, '|') || 'no-value';
-	}
-	
-	BUILD_ARGUMENTS_ONE_ITEM() {
-		return this.walkArg(false, function (d, n) {
-				return `--${n}=*`;
-			}, '|') || 'no-value';
-	}
-	
-	BUILD_ARGUMENTS() {
-		return this.walkArg(false, function (d, n) {
-				return `--${n}|-${n}`;
-			}, '|') || 'no-value';
-	}
-	
-	RUN_ARGUMENT_CHECK() {
-		return this.walkArg(true, function (d, n) {
-			return n;
+	EXTERNAL_PORTS() {
+		return this.walk(this.config.toJSON().forwardPort, (internalPort, hostPort)=> {
+			return `--port ${hostPort}:${internalPort}`
 		}, ' ');
 	}
 	
-	BUILD_ARGUMENT_CHECK() {
-		return this.walkArg(false, function (d, n) {
-			return n;
+	RUN_MOUNT_VOLUMES() {
+		return this.walk(this.config.toJSON().volume, (hostFolder, mountPoint: string)=> {
+			return `--volume ${this.wrap(hostFolder.path)}:${this.wrap(mountPoint)}`
 		}, ' ');
 	}
 	
-	OPTIONAL_ARGUMENTS() {
-		return this.walkArg(undefined, function (d, n) {
-			if (d.defaultValue !== null) {
-				return n;
-			}
-		}, '|');
+	DEPEND_LINKS() {
+		const d = this.config.toJSON();
+		const allServiceContainers = [].concat(Object.keys(d.serviceDependencies), Object.keys(d.containerDependencies));
+		return this.walk(allServiceContainers, (containerName) => {
+			return `--link ${containerName}`;
+		}, ' ');
 	}
 	
-	OPTIONAL_ARGUMENTS_VALUE_MAP() {
-		return this.walkArg(undefined, function (d, n) {
-			if (d.defaultValue !== null) {
-				return `${n})
-			echo ${JSON.stringify(d.defaultValue)}
-			echo -n "using default " >&2
-		;;`;
-			}
+	DEPENDENCY_CHECK_EXTERNAL() {
+		return this.walk(this.config.toJSON().serviceDependencies, (_, containerName) => {
+			return renderTemplate('depend', 'check.sh', new ScriptVariables(this.config, {
+				CONTAINER_NAME() {
+					return containerName;
+				},
+			}));
+		});
+	}
+	
+	START_DEPENDENCY() {
+		return this.walk(this.config.toJSON().containerDependencies, ({imageName, runCommandline}, containerName) => {
+			return renderTemplate('depend', 'start-service.sh', new ScriptVariables(this.config, {
+				CONTAINER_NAME() {
+					return containerName;
+				},
+				IMAGE_NAME() {
+					return imageName;
+				},
+				COMMAND_LINE() {
+					if (Array.isArray(runCommandline)) {
+						return runCommandline.map((str) => {
+							return JSON.stringify(str);
+						}).join(' ');
+					} else {
+						return runCommandline;
+					}
+				},
+			}));
 		});
 	}
 }
