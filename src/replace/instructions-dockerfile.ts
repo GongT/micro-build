@@ -40,7 +40,7 @@ export class CustomInstructions extends TemplateVariables {
 	}
 	
 	NSG_LABEL_INSTRUCTIONS() {
-		return this.walk(this.config.toJSON().nsgLabels, (v, k) => {
+		return this.walk(this.config.getNsgLabelList(), (v, k) => {
 			return `LABEL org.nsg.${k.toLowerCase()}=${this.wrap(v)}`;
 		});
 	}
@@ -135,25 +135,16 @@ VOLUME ${k}`;
 	NPM_INSTALL_INSTRUCTIONS() {
 		const npmInstallInstruction = this.config.toJSON().install.map((packagejsonPath) => {
 			const pkg = new PackageJsonFile(packagejsonPath);
+			const targetPath = packagejsonPath.replace(/^\.\//, '').replace(/\/?package\.json$/, '');
 			const dependencies = pkg.content.dependencies;
+			const name = pkg.content.name || 'noname-' + nextGuid();
 			
-			const tempFile = createTempPackageFile({dependencies});
+			const tempFile = createTempPackageFile({name, dependencies});
 			
-			const vars = {
-				TEMP_FILE() {
-					return tempFile
-				},
-				RAND_ID: nextGuid,
-				TARGET_DIR() {
-					return packagejsonPath.replace(/^\.\//, '').replace(/\/?package\.json$/, '');
-				},
-			};
-			
-			return renderTemplate('npm-install.Dockerfile', new CustomInstructions(this.config, vars));
+			return `RUN /npm-install/installer "${name}" "${tempFile}" "${targetPath}"`;
 		});
 		if (npmInstallInstruction.length) {
-			const aliasNpmInstall = npm_install_command(this.config);
-			npmInstallInstruction.unshift(aliasNpmInstall);
+			npmInstallInstruction.unshift(npm_install_command(this.config));
 			return npmInstallInstruction.join('\n\n');
 		} else {
 			return '# no npm install required';

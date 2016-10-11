@@ -234,4 +234,13 @@ export class MicroBuildConfig {
 	getNsgLabel(name: ELabelNames) {
 		return this.storage.nsgLabels[name];
 	}
+	
+	getNsgLabelList(): KeyValueObject<any> {
+		const ret = {};
+		Object.keys(this.storage.nsgLabels).forEach((n) => {
+			ret[ELabelNames[n]] = this.storage.nsgLabels[n];
+		});
+		
+		return ret;
+	}
 }

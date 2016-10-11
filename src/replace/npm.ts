@@ -1,26 +1,29 @@
-import {resolve, join} from "path";
+import {resolve} from "path";
 import {existsSync, writeFileSync} from "fs";
 import {sync as mkdirpSync} from "mkdirp";
 import {MicroBuildConfig, EPlugins} from "../library/microbuild-config";
-import {getTempPath, tempDirName} from "../library/file-paths";
+import {getTempPath} from "../library/file-paths";
 import createGuid from "../library/guid";
 import {injectJsonEnv} from "../library/json-env-cli";
+import {saveFile} from "../build/all";
+import {ScriptVariables} from "./instructions-scripts";
+import {renderTemplate} from "./replace-scripts";
 
 const guid = createGuid();
 
 const china = `npm install
---progress=force
 --registry=https://registry.npm.taobao.org
---cache=/cache/cnpm
+--cache=/npm-install/cnpm-cache
 --disturl=https://npm.taobao.org/dist
---userconfig=/cache/cnpmrc`.replace(/\n/g, ' ');
+--userconfig=/npm-install/config/cnpmrc`.replace(/\n/g, ' ');
 
 const normal = `npm install
---progress=force
---cache=/cache/npm
---userconfig=/cache/npmrc`.replace(/\n/g, ' ');
+--cache=/npm-install/npm-cache
+--userconfig=/npm-install/config/npmrc`.replace(/\n/g, ' ');
 
 export function npm_install_command(config: MicroBuildConfig) {
+	let helperScript;
+	
 	const isJsonEnvEnabled = config.getPlugin(EPlugins.jenv);
 	if (isJsonEnvEnabled) {
 		injectJsonEnv();
@@ -30,16 +33,19 @@ export function npm_install_command(config: MicroBuildConfig) {
 	
 	let cmd;
 	if (isJsonEnvEnabled) {
-		cmd = JSON.stringify(JsonEnv.isChina? china : normal);
+		cmd = JsonEnv.isChina? china : normal;
 	} else {
 		cmd = `$( [[ "$IS_CHINA" == "yes" ]] && echo ${JSON.stringify(china)} || echo ${JSON.stringify(normal)})`;
 	}
 	
-	return `RUN T=/bin/npm-install ; \\
-	echo '#!/bin/sh' >$T ; \\
-	echo '[ -n "$@" ] && cd $@' >>$T ; \\
-	echo ${cmd} >>$T ; \\
-	chmod a+x $T`;
+	helperScript = renderTemplate('plugin', 'npm-installer.sh', new ScriptVariables(config, {
+		NPM_INSTALL () {
+			return cmd;
+		},
+	}));
+	saveFile('packagejson/installer', helperScript, '755');
+	
+	return "COPY .micro-build/packagejson /npm-install";
 }
 
 export function createTempPackageFile(json: IPackageJson) {
@@ -49,12 +55,11 @@ export function createTempPackageFile(json: IPackageJson) {
 	}
 	const fileName = `${guid()}.json`;
 	
-	json.name = 'xxx';
 	json.version = '1.0.0';
 	json.description = 'xxx';
 	json.repository = 'xxx';
 	
 	writeFileSync(resolve(dir, fileName), JSON.stringify(json, null, 8), 'utf-8');
 	
-	return join(tempDirName, 'packagejson', fileName);
+	return fileName;
 }

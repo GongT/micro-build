@@ -1,5 +1,5 @@
-import {resolve} from "path";
-import {writeFileSync, readFileSync, chmodSync} from "fs";
+import {resolve, dirname} from "path";
+import {writeFileSync, readFileSync, chmodSync, existsSync} from "fs";
 import {MicroBuildConfig, ELabelNames, EPlugins} from "../library/microbuild-config";
 import {getTempPath, getConfigPath} from "../library/file-paths";
 import {run_script} from "../library/shim-require-file";
@@ -9,6 +9,7 @@ import {createServiceFile} from "./system-service";
 import {createAdminScript} from "./admin-script";
 import {createDebugScript} from "./debug-script";
 import {ConfigJsonFile} from "../library/config-json-file";
+import {sync as mkdirpSync} from "mkdirp";
 
 export function createBuildTempFiles(builder: MicroBuildConfig) {
 	createDockerfile(builder);
@@ -27,6 +28,9 @@ export function saveJsonFile(file, content: any) {
 export function saveFile(file, content: string, mode: string = '') {
 	console.error('saving file %s...', file);
 	const path = resolve(getTempPath(), file);
+	if (!existsSync(dirname(path))) {
+		mkdirpSync(dirname(path))
+	}
 	writeFileSync(path, content, 'utf8');
 	if (mode) {
 		chmodSync(path, mode);
