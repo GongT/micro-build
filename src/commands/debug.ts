@@ -1,6 +1,5 @@
-import {createDebugScript} from "../build/debug-script";
-import {readBuildConfig} from "../build/all";
 import {spawnMainCommand} from "../library/spawn-child";
+import mkconfig from "./mkconfig";
 
 export default function debug(this: any) {
 	const args = Array.prototype.slice.call(this.parent.rawArgs);
@@ -8,9 +7,7 @@ export default function debug(this: any) {
 	args.shift(); // microbuild
 	args.shift(); // debug
 	
-	const builder = readBuildConfig();
-	
-	createDebugScript(builder);
+	mkconfig.apply({}, arguments);
 	
 	return spawnMainCommand('debug.sh', args);
 }

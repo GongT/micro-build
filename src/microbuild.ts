@@ -54,6 +54,11 @@ commander.command('restart')
          .description('restart service.')
          .action(call_command);
 
+commander.command('reload')
+         .allowUnknownOption(false)
+         .description('run reload command (if have).')
+         .action(call_command);
+
 commander.command('status')
          .allowUnknownOption(false)
          .description('check service status.')

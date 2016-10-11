@@ -9,6 +9,7 @@ import foreground from "./foreground";
 import run from "./run";
 import script from "./script";
 import stop_command from "./stop_command";
+import reload from "./reload_command";
 
 export const commandList = {
 	init,
@@ -22,6 +23,7 @@ export const commandList = {
 	install: control,
 	uninstall: control,
 	restart: control,
+	reload: reload,
 	start: control,
 	stop: control,
 	status: control,

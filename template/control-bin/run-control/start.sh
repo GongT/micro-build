@@ -18,6 +18,7 @@ fi
 echo ""
 echo "docker run '@{SERVICE_NAME}' from '@{BASE_DOMAIN_NAME}/@{SERVICE_NAME}'"
 echo docker run \
+	@{DOCKER_ARGS} \
 	${DOCKER_START_ARGS} \
 	-t \
 	@{EXTERNAL_PORTS} \
@@ -26,6 +27,7 @@ echo docker run \
 	--name "@{SERVICE_NAME}" \
 	"@{BASE_DOMAIN_NAME}/@{SERVICE_NAME}"
 docker run \
+	@{DOCKER_ARGS} \
 	${DOCKER_START_ARGS} \
 	-t \
 	@{EXTERNAL_PORTS} \

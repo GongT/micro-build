@@ -27,6 +27,6 @@ WORKDIR /data
 
 # ARG COMMAND_LINE_ARGS
 ENV PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/data/scripts:/sbin:/bin
-RUN [ -e /data/scripts ] && chmod a+x /data/scripts/*
+RUN [ -e /data/scripts ] && chmod a+x /data/scripts/* || true
 ENTRYPOINT [@{SHELL}]
 CMD [@{COMMAND}${COMMAND_LINE_ARGS}]

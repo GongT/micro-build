@@ -15,6 +15,7 @@ BUILD_DOCKER_ARGUMENTS=
 get_run_build_arguments "$@"
 
 source "@{PWD}/functions.sh"
+#{DETECT_CURRENT}
 #{BUILD_DEPEND_SERVICE}
 #{PULL_DEPEND_IMAGES}
 

@@ -9,14 +9,14 @@ import {injectJsonEnv} from "../library/json-env-cli";
 const guid = createGuid();
 
 const china = `npm install
---loglevel warn
+--progress=force
 --registry=https://registry.npm.taobao.org
 --cache=/cache/cnpm
 --disturl=https://npm.taobao.org/dist
 --userconfig=/cache/cnpmrc`.replace(/\n/g, ' ');
 
 const normal = `npm install
---loglevel warn
+--progress=force
 --cache=/cache/npm
 --userconfig=/cache/npmrc`.replace(/\n/g, ' ');
 

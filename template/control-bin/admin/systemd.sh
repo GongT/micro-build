@@ -11,6 +11,9 @@ function s_disable {
 function s_start {
 	systemctl start "@{SERVICE_NAME}"
 }
+function sys_start {
+	systemctl start $1
+}
 function s_stop {
 	systemctl stop "@{SERVICE_NAME}"
 }

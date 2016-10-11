@@ -13,6 +13,9 @@ function s_disable {
 function s_start {
 	service "@{SERVICE_NAME}" start
 }
+function sys_start {
+	service $1 start
+}
 function s_stop {
 	service "@{SERVICE_NAME}" stop
 }

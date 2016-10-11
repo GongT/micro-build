@@ -1,4 +1,5 @@
 import {MicroBuildConfig, ELabelNames, EPlugins} from "./x/microbuild-config";
+import {JsonEnv} from "../.jsonenv/_current_result.json.d.ts";
 declare const build: MicroBuildConfig;
 /*
  +==================================+

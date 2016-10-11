@@ -40,7 +40,7 @@ export class CustomInstructions extends TemplateVariables {
 	}
 	
 	NSG_LABEL_INSTRUCTIONS() {
-		return this.walk(this.config.toJSON().nagLabels, (v, k) => {
+		return this.walk(this.config.toJSON().nsgLabels, (v, k) => {
 			return `LABEL org.nsg.${k.toLowerCase()}=${this.wrap(v)}`;
 		});
 	}
@@ -108,7 +108,12 @@ VOLUME ${k}`;
 	}
 	
 	PORTS() {
-		return this.config.toJSON().port.map(p => `EXPOSE ${p}`).join('\n');
+		const ports = this.config.toJSON().port;
+		if (ports.length) {
+			return 'EXPOSE  ' + ports.join(' ');
+		} else {
+			return '# no exposed port';
+		}
 	}
 	
 	COMPILE_PLUGIN() {

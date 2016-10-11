@@ -9,7 +9,9 @@ export interface MicroServiceConfig {
 	}>;
 	command: string[];
 	shell: string[];
-	stopcommand: string[];
+	debugStartCommand: string[];
+	reloadCommand: string[];
+	stopCommand: string[];
 	port: number[];
 	domain: string;
 	appendDockerFile: string[];
@@ -17,6 +19,7 @@ export interface MicroServiceConfig {
 	projectName: string;
 	plugins: KeyValueObject<any>;
 	base: string;
+	dockerRunArguments: string[];
 	arguments: KeyValueObject<{
 		defaultValue: string,
 		runArg: boolean,
@@ -26,7 +29,7 @@ export interface MicroServiceConfig {
 	containerDependencies: KeyValueObject<{imageName: string, runCommandline: string|string[]}>;
 	environments: KeyValueObject<string>;
 	labels: KeyValueObject<string|Object|any[]>;
-	nagLabels: KeyValueObject<string|Object|any[]>;
+	nsgLabels: KeyValueObject<string|Object|any[]>;
 	install: string[];
 }
 
@@ -50,7 +53,9 @@ export class MicroBuildConfig {
 		volume: {},
 		port: [80],
 		forwardPort: {},
-		stopcommand: ['echo', 'no stop command.'],
+		stopCommand: ['echo', 'no stop command.'],
+		reloadCommand: [],
+		debugStartCommand: [],
 		domain: '',
 		projectName: '',
 		command: ['npm', 'start'],
@@ -59,12 +64,13 @@ export class MicroBuildConfig {
 		prependDockerFile: [],
 		plugins: {},
 		base: 'node:latest',
+		dockerRunArguments: [],
 		arguments: {},
 		serviceDependencies: {},
 		containerDependencies: {},
 		environments: {},
 		labels: {},
-		nagLabels: {},
+		nsgLabels: {},
 		install: [],
 	};
 	
@@ -113,7 +119,15 @@ export class MicroBuildConfig {
 	}
 	
 	stopCommand(...stop: string[]) {
-		this.storage.stopcommand = stop;
+		this.storage.stopCommand = stop;
+	}
+	
+	reloadCommand(...command: string[]) {
+		this.storage.reloadCommand = command;
+	}
+	
+	debugCommand(...command: string[]) {
+		this.storage.debugStartCommand = command;
 	}
 	
 	dependService(otherService: string, otherServiceGitUrl?: string) {
@@ -140,7 +154,7 @@ export class MicroBuildConfig {
 		}
 	}
 	
-	volume(hostFodler: string, imageMountpoint?: string) {
+	volume(hostFodler: string, imageMountpoint: string = '') {
 		if (/^\./.test(hostFodler)) {
 			hostFodler = resolve(getProjectPath(), hostFodler);
 			if (hostFodler.indexOf(getProjectPath()) === 0) {
@@ -152,6 +166,12 @@ export class MicroBuildConfig {
 		if (!existsSync(hostFodler)) {
 			throw new Error(`volumn is not exists: ${hostFodler}`);
 		}
+		if (imageMountpoint) {
+			if (!/^\//.test(imageMountpoint)) {
+				imageMountpoint = resolve('/data', imageMountpoint);
+			}
+		}
+		
 		this.storage.volume[imageMountpoint || hostFodler] = {
 			path: hostFodler,
 			isFolder: lstatSync(hostFodler).isDirectory(),
@@ -175,6 +195,10 @@ export class MicroBuildConfig {
 		this.storage.arguments[name] = {runArg: false, defaultValue, desc: description};
 	}
 	
+	dockerRunArgument(...args: string[]) {
+		this.storage.dockerRunArguments = args;
+	}
+	
 	runArgument(name: string, description: string, defaultValue: string = null) {
 		this.storage.arguments[name] = {runArg: true, defaultValue, desc: description};
 	}
@@ -188,7 +212,7 @@ export class MicroBuildConfig {
 	}
 	
 	nsgLabel(name: ELabelNames, value: any) {
-		this.storage.nagLabels[ELabelNames[name]] = value;
+		this.storage.nsgLabels[name] = value;
 	}
 	
 	/** getters **/
@@ -208,6 +232,6 @@ export class MicroBuildConfig {
 	}
 	
 	getNsgLabel(name: ELabelNames) {
-		return this.storage.nagLabels[name];
+		return this.storage.nsgLabels[name];
 	}
 }

@@ -1,5 +1,5 @@
 import {TemplateVariables} from "./base";
-import {getTempPath} from "../library/file-paths";
+import {getTempPath, getProjectPath} from "../library/file-paths";
 import {resolve} from "path";
 import {renderTemplate} from "./replace-scripts";
 
@@ -11,9 +11,31 @@ export class ScriptVariables extends TemplateVariables {
 	}
 	
 	COMMAND() {
-		return this.config.toJSON().command.map((v) => {
-			return JSON.stringify(v);
+		return this.scriptArgsWrap(this.config.toJSON().command);
+	}
+	
+	private scriptArgsWrap(arr: string[]) {
+		return arr.map((v) => {
+			return JSON.stringify(v).replace(/^"|"$/g, "'");
 		}).join(' ');
+	}
+	
+	DEBUG_COMMAND() {
+		const debugCmd = this.config.toJSON().debugStartCommand;
+		if (debugCmd.length) {
+			return this.scriptArgsWrap(debugCmd);
+		} else {
+			return this.COMMAND();
+		}
+	}
+	
+	RELOAD_COMMAND() {
+		const reloadCmd = this.config.toJSON().reloadCommand;
+		if (reloadCmd.length) {
+			return this.scriptArgsWrap(reloadCmd);
+		} else {
+			return '';
+		}
 	}
 	
 	SERVICE_NAME() {
@@ -22,6 +44,16 @@ export class ScriptVariables extends TemplateVariables {
 	
 	DOMAIN_NAME() {
 		return this.config.toJSON().domain;
+	}
+	
+	DETECT_CURRENT() {
+		return renderTemplate('admin', 'detect-current.sh', this);
+	}
+	
+	ENVIRONMENT_VARS() {
+		return this.walk(this.config.toJSON().environments, (v, n) => {
+			return `export ${n}=${this.wrap(v)}`;
+		});
 	}
 	
 	JSON_ENV_HASH() {
@@ -43,22 +75,20 @@ export class ScriptVariables extends TemplateVariables {
 		return getTempPath();
 	}
 	
-	BUILD_DEPEND_SERVICE() {
-		return '';
-	}
-	
-	PULL_DEPEND_IMAGES() {
-		return '';
-	}
-	
 	EXTERNAL_PORTS() {
 		return this.walk(this.config.toJSON().forwardPort, (internalPort, hostPort)=> {
-			return `--port ${hostPort}:${internalPort}`
+			return `--publish ${hostPort}:${internalPort}`
 		}, ' ');
 	}
 	
 	STOP_COMMAND() {
-		return this.config.toJSON().stopcommand.length? 'yes' : 'no';
+		return this.config.toJSON().stopCommand.length? 'yes' : 'no';
+	}
+	
+	DOCKER_ARGS() {
+		return this.walk(this.config.toJSON().dockerRunArguments, (arg)=> {
+			return JSON.stringify(arg);
+		}, ' ');
 	}
 	
 	RUN_MOUNT_VOLUMES() {
@@ -73,6 +103,26 @@ export class ScriptVariables extends TemplateVariables {
 		return this.walk(allServiceContainers, (containerName) => {
 			return `--link ${containerName}`;
 		}, ' ');
+	}
+	
+	BUILD_DEPEND_SERVICE() {
+		return this.walk(this.config.toJSON().serviceDependencies, (gitUrl, containerName) => {
+			return renderTemplate('depend', 'pull-build.sh', new ScriptVariables(this.config, {
+				CONTAINER_NAME() {
+					return containerName;
+				},
+				GIT_URL() {
+					return gitUrl;
+				},
+				SAVE_PATH() {
+					return resolve(getProjectPath(), '..');
+				},
+			}));
+		});
+	}
+	
+	PULL_DEPEND_IMAGES() {
+		return '';
 	}
 	
 	DEPENDENCY_CHECK_EXTERNAL() {
