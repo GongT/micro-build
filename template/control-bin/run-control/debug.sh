@@ -13,10 +13,10 @@ source "@{PWD}/functions.sh"
 trap '[ -n "$(jobs -p)" ] && kill $(jobs -p)' EXIT
 export CONFIG_FILE="@{PWD}/json-env-data.json"
 
-SHELL="@{SHELL}"
+SHELL="@{SHELL_COMMAND}"
 COMMAND="@{DEBUG_COMMAND}"
 
-#{SCSS_PLUGIN}
+#{DEBUG_PLUGIN_WATCHES}
 
 jenv --hint &> /dev/null
 

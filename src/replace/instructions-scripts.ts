@@ -4,10 +4,8 @@ import {resolve} from "path";
 import {renderTemplate} from "./replace-scripts";
 
 export class ScriptVariables extends TemplateVariables {
-	SHELL() {
-		return this.config.toJSON().shell.map((v) => {
-			return JSON.stringify(v);
-		}).join(' ');
+	SHELL_COMMAND() {
+		return this.scriptArgsWrap(this.config.toJSON().shell);
 	}
 	
 	COMMAND() {

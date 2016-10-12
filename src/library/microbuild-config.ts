@@ -17,7 +17,7 @@ export interface MicroServiceConfig {
 	appendDockerFile: string[];
 	prependDockerFile: string[];
 	projectName: string;
-	plugins: KeyValueObject<any>;
+	plugins: any[];
 	base: string;
 	dockerRunArguments: string[];
 	arguments: KeyValueObject<{
@@ -42,6 +42,7 @@ export enum ELabelNames{
 export enum EPlugins{
 	jenv,
 	node_scss,
+	typescript,
 }
 
 export interface KeyValueObject<T> {
@@ -62,7 +63,7 @@ export class MicroBuildConfig {
 		shell: ['/bin/sh', '-c'],
 		appendDockerFile: [],
 		prependDockerFile: [],
-		plugins: {},
+		plugins: [],
 		base: 'node:latest',
 		dockerRunArguments: [],
 		arguments: {},
@@ -188,7 +189,7 @@ export class MicroBuildConfig {
 	}
 	
 	addPlugin(name: EPlugins, options: any = true) {
-		this.storage.plugins[name] = options;
+		this.storage.plugins.push({options, name});
 	}
 	
 	buildArgument(name: string, description: string, defaultValue: string = null) {
@@ -227,8 +228,10 @@ export class MicroBuildConfig {
 		return this.storage.domain.replace(this.storage.projectName, '').replace(/^\./, '');
 	}
 	
-	getPlugin(name: EPlugins) {
-		return this.storage.plugins[name];
+	getPlugin(name: EPlugins): any[] {
+		return this.storage.plugins.filter((opt) => {
+			return opt.name === name;
+		});
 	}
 	
 	getNsgLabel(name: ELabelNames) {

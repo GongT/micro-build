@@ -3,9 +3,10 @@ import {npm_install_command, createTempPackageFile} from "./npm";
 import createGuid from "../library/guid";
 import {TemplateVariables} from "./base";
 import {renderTemplate, renderFile} from "./replace-dockerfile";
-import {EPlugins} from "../library/microbuild-config";
 import {tempDirName} from "../library/file-paths";
 import {dirname} from "path";
+import scss from "./plugin/scss";
+import typescript from "./plugin/typescript";
 
 const nextGuid = createGuid();
 
@@ -117,19 +118,10 @@ VOLUME ${k}`;
 	}
 	
 	COMPILE_PLUGIN() {
-		const scss_plugin = this.config.getPlugin(EPlugins.node_scss);
-		
-		if (!scss_plugin) {
-			return '# scss plugin not enabled';
-		}
-		return renderTemplate('node-scss-compile.Dockerfile', new CustomInstructions(this.config, {
-			SOURCE() {
-				return scss_plugin.source;
-			},
-			TARGET() {
-				return scss_plugin.target;
-			}
-		}));
+		return [
+			scss(this.config),
+			typescript(this.config)
+		].join('\n');
 	}
 	
 	NPM_INSTALL_INSTRUCTIONS() {
