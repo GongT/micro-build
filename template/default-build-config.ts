@@ -17,8 +17,7 @@ build.projectName(projectName);
 build.domainName(projectName + '.' + JsonEnv.baseDomainName);
 build.install('./package.json');
 
-// build.exposePort(22, 8080, 12300);
-// build.forwardPort(80, 8080);
+// build.forwardPort(80, 'tcp').publish(8080);
 
 // build.startupCommand('command other than npm', 'some', 'argument');
 // build.shellCommand('/bin/sh', '-c');

@@ -83,17 +83,17 @@ export class MicroBuildConfig {
 		}
 	}
 	
-	forwardPort(hostPort: number, method?: string) {
+	forwardPort(clientPort: number, method?: string) {
 		const obj = {
-			host: hostPort,
-			client: null,
+			host: null,
+			client: clientPort,
 			method: method || '',
 		};
 		
 		this.storage.forwardPort.push(obj);
 		return {
-			publish(mapTo: number){
-				obj.client = mapTo;
+			publish(hostPort: number){
+				obj.host = hostPort;
 			}
 		}
 	}

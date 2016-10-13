@@ -111,7 +111,7 @@ VOLUME ${k}`;
 	PORTS() {
 		const ports = this.config.toJSON().forwardPort;
 		if (ports.length) {
-			return 'EXPOSE  ' + this.walk(ports, ({client, method}) => {
+			return 'EXPOSE ' + this.walk(ports, ({client, method}) => {
 					return client + (method? '/' + method : '');
 				}, ' ')
 		} else {
