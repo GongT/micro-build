@@ -5,13 +5,18 @@ cd "@{PWD}/.."
 source "@{PWD}/functions.sh"
 
 if is_container_running "@{SERVICE_NAME}" ; then
-	echo "service is already started"
+	echo "service is already started.
+
+stop it with:
+	docker rm -f @{SERVICE_NAME}
+"
 	exit 2
 fi
 if is_container_exists "@{SERVICE_NAME}" ; then
 	source "@{PWD}/stop.sh"
 fi
 
+#{DETECT_CURRENT}
 #{START_DEPENDENCY}
 #{DEPENDENCY_CHECK_EXTERNAL}
 

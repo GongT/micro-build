@@ -9,6 +9,10 @@ export class ConfigJsonFile<T> extends BaseFile<T> {
 		return <any>{};
 	}
 	
+	set_tab(t: string) {
+		this._tab = t.substr(0, 1);
+	}
+	
 	parse_file(content: string): T {
 		const tabcfg = re.exec(content);
 		if (tabcfg && tabcfg[1]) {

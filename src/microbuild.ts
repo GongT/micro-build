@@ -2,7 +2,7 @@
 /// <reference path="../global.d.ts" />
 
 import "source-map-support/register";
-import * as commander from "commander";
+import {Command} from "commander";
 import {commandList} from "./commands/all";
 import {tempDirName} from "./library/file-paths";
 
@@ -15,6 +15,7 @@ export function currentAction() {
 	return currentActionName;
 }
 
+const commander = new Command;
 commander.version(version);
 commander.usage('<command> [arguments...]');
 commander.allowUnknownOption(false);
@@ -27,6 +28,12 @@ commander.command('init [target]')
 commander.command('build [args...]')
          .allowUnknownOption(true)
          .description('build image in current working dir')
+         .action(call_command);
+
+commander.command('deploy <git-url> [save-path]')
+         .allowUnknownOption(false)
+         .option('-s', 'auto start after build', 'yes')
+         .description('download service files from [git-url].\n\t\tsave to /data/services or /opt/services or [save-path]\n\t\tthen build it.')
          .action(call_command);
 
 commander.command('install')
@@ -147,7 +154,7 @@ function call_command(...args) {
 			process.exit(ret || 0);
 		}
 	} catch (e) {
-		console.error(e.message);
+		console.error(e.stack);
 		process.exit(9);
 	}
 }

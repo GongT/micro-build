@@ -2,7 +2,11 @@ import {existsSync, lstatSync, mkdirSync} from "fs";
 import {getProjectPath} from "./file-paths";
 import {resolve} from "path";
 export interface MicroServiceConfig {
-	forwardPort: KeyValueObject<number>;
+	forwardPort: {
+		host: number,
+		client: number,
+		method: string,
+	}[];
 	volume: KeyValueObject<{
 		path: string,
 		isFolder: boolean,
@@ -12,7 +16,6 @@ export interface MicroServiceConfig {
 	debugStartCommand: string[];
 	reloadCommand: string[];
 	stopCommand: string[];
-	port: number[];
 	domain: string;
 	appendDockerFile: string[];
 	prependDockerFile: string[];
@@ -52,8 +55,7 @@ export interface KeyValueObject<T> {
 export class MicroBuildConfig {
 	private storage: MicroServiceConfig = {
 		volume: {},
-		port: [80],
-		forwardPort: {},
+		forwardPort: [],
 		stopCommand: ['echo', 'no stop command.'],
 		reloadCommand: [],
 		debugStartCommand: [],
@@ -81,12 +83,19 @@ export class MicroBuildConfig {
 		}
 	}
 	
-	exposePort(...ports: number[]) {
-		this.storage.port = ports;
-	}
-	
-	forwardPort(hostPort: number, mapTo: number) {
-		this.storage.forwardPort[hostPort] = mapTo;
+	forwardPort(hostPort: number, method?: string) {
+		const obj = {
+			host: hostPort,
+			client: null,
+			method: method || '',
+		};
+		
+		this.storage.forwardPort.push(obj);
+		return {
+			publish(mapTo: number){
+				obj.client = mapTo;
+			}
+		}
 	}
 	
 	baseAlpine(baseImage: string) {
@@ -228,7 +237,11 @@ export class MicroBuildConfig {
 		return this.storage.domain.replace(this.storage.projectName, '').replace(/^\./, '');
 	}
 	
-	getPlugin(name: EPlugins): any[] {
+	getPlugin(name: EPlugins): any {
+		return this.getPluginList(name).pop();
+	}
+	
+	getPluginList(name: EPlugins): any[] {
 		return this.storage.plugins.filter((opt) => {
 			return opt.name === name;
 		});

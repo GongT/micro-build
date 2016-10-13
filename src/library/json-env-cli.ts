@@ -13,6 +13,9 @@ export function injectJsonEnv() {
 		return global['JsonEnv'];
 	}
 	
+	// console.trace();
+	// console.log();
+	
 	console.log('require json env, not configure.');
 	
 	const ret = spawnSync('jenv', ['--status', '--json'], {

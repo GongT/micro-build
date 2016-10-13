@@ -16,7 +16,7 @@ export default function build(this: any) {
 	
 	const ret = spawnMainCommand('build.sh', args);
 	if (ret !== 0) {
-		console.error('\x1B[38;5;9mbuild failed...\x1B[0m');
+		console.error('\x1B[38;5;9m%s build failed...\x1B[0m', builder.toJSON().projectName);
 	}
 	return ret;
 }

@@ -2,6 +2,8 @@ import {ScriptVariables} from "./instructions-scripts";
 import {EPlugins} from "../library/microbuild-config";
 import {resolve} from "path";
 import {PackageJsonFile} from "../library/package-json-file";
+import {CustomInstructions} from "./instructions-dockerfile";
+import {renderTemplate} from "./replace-scripts";
 
 export class ScriptVariablesPlugins extends ScriptVariables {
 	DEBUG_PLUGIN_WATCHES() {
@@ -12,19 +14,23 @@ export class ScriptVariablesPlugins extends ScriptVariables {
 	}
 	
 	private typescript() {
-		return this.walk(this.config.getPlugin(EPlugins.typescript), (opt) => {
+		return this.walk(this.config.getPluginList(EPlugins.typescript), (opt) => {
 				return `tsc -w -p ${opt.source || './src'} --outDir ${opt.target || './dist'} &`
 			})
 		       || '# typescript plugin not enabled';
 	}
 	
 	private scss() {
-		return this.walk(this.config.getPlugin(EPlugins.node_scss), (opt) => {
-				return `node-sass --watch --recursive ${opt.source} \\
-	--output ${opt.target} \\
-	--source-map true --source-map-contents scss &`
-			})
-		       || '# scss plugin not enabled';
+		return this.walk(this.config.getPluginList(EPlugins.node_scss), (opt) => {
+				return renderTemplate('plugin','scss.sh', new ScriptVariables(this.config, {
+					SOURCE() {
+						return opt.source || './public/scss';
+					},
+					TARGET() {
+						return opt.target || './public/stylesheets';
+					}
+				}));
+			}) || '# scss plugin not enabled';
 	}
 	
 	NODEMON_BIN() {

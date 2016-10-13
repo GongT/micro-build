@@ -4,18 +4,21 @@
 
 case $@ in
 start)
-	s_start
-	
 	if [ -t 1 ] ; then
-		sleep 2
-		docker logs -f "@{SERVICE_NAME}" || exit 2 &
+		trap '[ -n "$(jobs -p)" ] && kill $(jobs -p)' EXIT
+		
+		journalctl -u "@{SERVICE_NAME}" -f &
 		PID=$!
 		
-		sleep 3
+		s_start
+		sleep 5
 		
 		kill ${PID}
+		
+		echo "view log with \`journalctl -u '@{SERVICE_NAME}' -f\`"
+	else
+		s_start
 	fi
-	
 	;;
 stop)
 	s_stop

@@ -109,9 +109,11 @@ VOLUME ${k}`;
 	}
 	
 	PORTS() {
-		const ports = this.config.toJSON().port;
+		const ports = this.config.toJSON().forwardPort;
 		if (ports.length) {
-			return 'EXPOSE  ' + ports.join(' ');
+			return 'EXPOSE  ' + this.walk(ports, ({client, method}) => {
+					return client + (method? '/' + method : '');
+				}, ' ')
 		} else {
 			return '# no exposed port';
 		}

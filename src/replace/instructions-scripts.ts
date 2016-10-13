@@ -74,8 +74,10 @@ export class ScriptVariables extends TemplateVariables {
 	}
 	
 	EXTERNAL_PORTS() {
-		return this.walk(this.config.toJSON().forwardPort, (internalPort, hostPort)=> {
-			return `--publish ${hostPort}:${internalPort}`
+		return this.walk(this.config.toJSON().forwardPort, ({host, client, method})=> {
+			if (client !== null) {
+				return `--publish ${host}:${client}` + (method? '/' + method : '');
+			}
 		}, ' ');
 	}
 	
@@ -110,7 +112,7 @@ export class ScriptVariables extends TemplateVariables {
 					return containerName;
 				},
 				GIT_URL() {
-					return gitUrl;
+					return gitUrl === null? '' : gitUrl;
 				},
 				SAVE_PATH() {
 					return resolve(getProjectPath(), '..');

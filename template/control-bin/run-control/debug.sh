@@ -7,7 +7,9 @@ cd "@{PWD}/.."
 source "@{PWD}/arg-parse.sh"
 source "@{PWD}/functions.sh"
 
+#{DETECT_CURRENT}
 #{START_DEPENDENCY}
+#{BUILD_DEPEND_SERVICE}
 #{DEPENDENCY_CHECK_EXTERNAL}
 
 trap '[ -n "$(jobs -p)" ] && kill $(jobs -p)' EXIT

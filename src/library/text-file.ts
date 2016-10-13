@@ -39,4 +39,8 @@ export class TextFile extends BaseFile<string[]> {
 			this.append('');
 		}
 	}
+	
+	hasLine(line: string) {
+		return this._content.indexOf(line) !== -1
+	}
 }

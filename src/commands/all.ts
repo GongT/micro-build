@@ -10,6 +10,7 @@ import run from "./run";
 import script from "./script";
 import stop_command from "./stop_command";
 import reload from "./reload_command";
+import deploy from "./deploy";
 
 export const commandList = {
 	init,
@@ -31,4 +32,5 @@ export const commandList = {
 	disable: control,
 	script: script,
 	'stop-command': stop_command,
+	deploy: deploy,
 };

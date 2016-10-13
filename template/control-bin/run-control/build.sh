@@ -4,6 +4,8 @@ set -e
 
 cd "@{PWD}/.."
 
+echo -e "start build \e[38;5;14m@{SERVICE_NAME}...\e[0m"
+
 ARGUMENT_DELIMITER=", "
 source "@{PWD}/arg-parse.sh"
 RUN_ARGUMENTS=
@@ -19,8 +21,6 @@ source "@{PWD}/functions.sh"
 #{BUILD_DEPEND_SERVICE}
 #{PULL_DEPEND_IMAGES}
 
-echo "start build..."
-
 cat "@{PWD}/Dockerfile"| \
 	sed "s/\${COMMAND_LINE_ARGS}/${RUN_ARGUMENTS}/g" > "@{PWD}/Dockerfile.args"
 
@@ -31,6 +31,6 @@ docker build \
 	-t="@{BASE_DOMAIN_NAME}/@{SERVICE_NAME}" \
 	.
 
-echo "build complete..."
+echo -e "\e[38;5;14m@{SERVICE_NAME}\e[0m build complete..."
 
 exit 0

@@ -60,9 +60,11 @@ export function readBuildConfig(): MicroBuildConfig {
 	};
 	
 	try {
+		console.log('include config file...');
 		run_script(code, filename, context);
 	} catch (e) {
 		if (e.message.indexOf('JsonEnv is not defined') !== -1) {
+			console.log('used json env, retry...');
 			context.JsonEnv = injectJsonEnv();
 			builder.addPlugin(EPlugins.jenv);
 			run_script(code, filename, context);
@@ -70,6 +72,8 @@ export function readBuildConfig(): MicroBuildConfig {
 			throw e;
 		}
 	}
+	
+	console.log('config success!');
 	
 	const labelArr: string[] = <string[]>builder.getNsgLabel(ELabelNames.alias) || [];
 	labelArr.push(builder.toJSON().projectName);
