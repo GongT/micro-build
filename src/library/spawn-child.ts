@@ -11,7 +11,8 @@ export function spawnMainCommand(command, args: string[] = []) {
 		cwd: getProjectPath(),
 		stdio: 'inherit',
 		env: process.env,
-		encoding: 'utf8'
+		encoding: 'utf8',
+		shell: '/bin/bash',
 	});
 	if (ret.error) {
 		console.error(ret.error.message);
@@ -29,7 +30,8 @@ export function spawnRun(docker_env: string, args: string[] = []) {
 		env: extend({}, process.env, {
 			DOCKER_START_ARGS: docker_env
 		}),
-		encoding: 'utf8'
+		encoding: 'utf8',
+		shell: '/bin/bash',
 	});
 	if (ret.error) {
 		console.error(ret.error.message);
