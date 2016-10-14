@@ -1,3 +1,5 @@
+echo "checking service @{CONTAINER_NAME}...."
+
 if is_container_running "@{CONTAINER_NAME}" ; then
 	echo " >>> dependence service @{CONTAINER_NAME} running"
 else

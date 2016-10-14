@@ -1,3 +1,5 @@
+echo "checking service @{CONTAINER_NAME}...."
+
 if sys_exists "@{CONTAINER_NAME}" ; then
 	echo "tried sys_exists @{CONTAINER_NAME}..."
 	echo " >>> dependence service @{CONTAINER_NAME} exists"

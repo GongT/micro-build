@@ -16,6 +16,7 @@ function sys_start {
 	sudo systemctl start $1
 }
 function sys_exists {
+	echo "/usr/lib/systemd/system/${1}.service" >&2
 	[ -e "/usr/lib/systemd/system/${1}.service" ]
 }
 function s_stop {

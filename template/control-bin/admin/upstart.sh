@@ -18,6 +18,7 @@ function sys_start {
 	sudo service $1 start
 }
 function sys_exists {
+	echo "/etc/init/${1}.conf" >&2
 	[ -e "/etc/init/${1}.conf" ]
 }
 function s_stop {

@@ -1,3 +1,5 @@
+echo "checking container @{CONTAINER_NAME}...."
+
 if is_container_running "@{CONTAINER_NAME}" ; then
 	echo " >>> dependence @{CONTAINER_NAME} running"
 elif is_container_exists "@{CONTAINER_NAME}" ; then
