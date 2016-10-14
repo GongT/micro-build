@@ -19,14 +19,14 @@ export function createBuildTempFiles(builder: MicroBuildConfig) {
 }
 
 export function saveJsonFile(file, content: any) {
-	console.error('saving file %s...', file);
+	// console.error('saving file %s...', file);
 	const cfg = new ConfigJsonFile(resolve(getTempPath(), file), true);
 	cfg.replaceContent(content);
 	cfg.write();
 }
 
 export function saveFile(file, content: string, mode: string = '') {
-	console.error('saving file %s...', file);
+	// console.error('saving file %s...', file);
 	const path = resolve(getTempPath(), file);
 	if (!existsSync(dirname(path))) {
 		mkdirpSync(dirname(path))
