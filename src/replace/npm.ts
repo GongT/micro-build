@@ -33,7 +33,7 @@ export function npm_install_command(config: MicroBuildConfig) {
 	
 	let cmd;
 	if (isJsonEnvEnabled) {
-		cmd = JsonEnv.isChina? china : normal;
+		cmd = JsonEnv.isInChina? china : normal;
 	} else {
 		cmd = `$( [[ "$IS_CHINA" == "yes" ]] && echo ${JSON.stringify(china)} || echo ${JSON.stringify(normal)})`;
 	}

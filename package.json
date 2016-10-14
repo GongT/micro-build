@@ -1,6 +1,6 @@
 {
 	"name": "micro-build",
-	"version": "1.2.4",
+	"version": "1.2.5",
 	"description": "simple micro service builder system with nodejs & docker",
 	"bin": {
 		"microbuild": "./bin/microbuild"
@@ -23,6 +23,8 @@
 	},
 	"homepage": "https://github.com/GongT/micro-build#readme",
 	"dependencies": {
+		"nodemon": "^1.10.2",
+		"json-env-data": "*",
 		"commander": "^2.9.0",
 		"extend": "^3.0.0",
 		"json-env-cli": "*",
