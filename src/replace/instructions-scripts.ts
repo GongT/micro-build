@@ -156,4 +156,16 @@ export class ScriptVariables extends TemplateVariables {
 			}));
 		});
 	}
+	
+	DEPEND_SERVICES_UPSTART() {
+		return this.walk(this.config.toJSON().serviceDependencies, (_, serviceName) => {
+			return ' and started ' + serviceName;
+		}, ' ');
+	}
+	
+	DEPEND_SERVICES_SYSTEMD() {
+		return this.walk(this.config.toJSON().serviceDependencies, (_, serviceName) => {
+			return serviceName + '.service';
+		}, ' ');
+	}
 }

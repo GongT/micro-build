@@ -1,6 +1,6 @@
 [Unit]
 Description=@{DOMAIN_NAME} server instance
-Requires=docker.service
+Requires=docker.service @{DEPEND_SERVICES_SYSTEMD}
 After=docker.service
 
 [Service]

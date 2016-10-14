@@ -2,35 +2,31 @@
 
 function s_enable {
 	echo "enabling service @{SERVICE_NAME} thru systemctl"
-	systemctl enable "@{SERVICE_NAME}"
+	sudo systemctl enable "@{SERVICE_NAME}"
 }
 function s_disable {
 	echo "disabling service @{SERVICE_NAME} thru systemctl"
-	systemctl disable "@{SERVICE_NAME}"
+	sudo systemctl disable "@{SERVICE_NAME}"
 }
 function s_start {
-	systemctl start "@{SERVICE_NAME}"
+	sudo systemctl start "@{SERVICE_NAME}"
 }
 function sys_start {
-	systemctl start $1
+	echo "sudo systemctl start $1"
+	sudo systemctl start $1
+}
+function sys_exists {
+	[ -e "/usr/lib/systemd/system/${1}.service" ]
 }
 function s_stop {
-	systemctl stop "@{SERVICE_NAME}"
+	sudo systemctl stop "@{SERVICE_NAME}"
 }
 function s_status {
 	systemctl status "@{SERVICE_NAME}"
 }
 function s_install {
 	echo "installing service @{SERVICE_NAME} to systemd"
-	if [ -e /lib/systemd/system ]; then
-		TARGET="/lib/systemd/system/@{SERVICE_NAME}.service"
-	elif [ -e /usr/lib/systemd/system ]; then
-		TARGET="/usr/lib/systemd/system/@{SERVICE_NAME}.service"
-	else
-		echo "no systemd config folder."
-		exit 2
-	fi
-	cat "@{PWD}/systemd.service" > "${TARGET}"
+	cat "@{PWD}/systemd.service" | sudo tee "/usr/lib/systemd/system/@{SERVICE_NAME}.service" >/dev/null
 	systemctl daemon-reload
 	s_enable
 }
@@ -39,11 +35,8 @@ function s_uninstall {
 	s_disable 2>/dev/null
 	
 	echo "uninstalling service @{SERVICE_NAME} from systemd"
-	if [ -e "/lib/systemd/system/@{SERVICE_NAME}.service" ]; then
-		rm "/lib/systemd/system/@{SERVICE_NAME}.service"
-	fi
 	if [ -e "/usr/lib/systemd/system/@{SERVICE_NAME}.service" ]; then
-		rm "/usr/lib/systemd/system/@{SERVICE_NAME}.service"
+		sudo rm "/usr/lib/systemd/system/@{SERVICE_NAME}.service"
+		systemctl daemon-reload
 	fi
-	systemctl daemon-reload
 }
