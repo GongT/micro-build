@@ -20,12 +20,16 @@ fi
 #{START_DEPENDENCY}
 #{DEPENDENCY_CHECK_EXTERNAL}
 
+#{NETWORKING_ENVIRONMENTS_VARS}
+
 echo ""
 echo "docker run '@{SERVICE_NAME}' from '@{BASE_DOMAIN_NAME}/@{SERVICE_NAME}'"
 echo docker run \
 	@{DOCKER_ARGS} \
+	@{NETWORKING_ENVIRONMENTS_ARGS} \
 	${DOCKER_START_ARGS} \
 	-t \
+	-e HAS_RUN=yes \
 	@{EXTERNAL_PORTS} \
 	@{RUN_MOUNT_VOLUMES} \
 	@{DEPEND_LINKS} \
@@ -34,7 +38,9 @@ echo docker run \
 docker run \
 	@{DOCKER_ARGS} \
 	${DOCKER_START_ARGS} \
+	@{NETWORKING_ENVIRONMENTS_ARGS} \
 	-t \
+	-e HAS_RUN=yes \
 	@{EXTERNAL_PORTS} \
 	@{RUN_MOUNT_VOLUMES} \
 	@{DEPEND_LINKS} \

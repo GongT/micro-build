@@ -40,7 +40,6 @@ build.addPlugin(EPlugins.jenv);
  });
  */
 
-build.environmentVariable('RUN_IN_DOCKER', 'yes');
 build.environmentVariable('DEBUG', 'some-tag:*');
 
 // build.volume('/host/folder/path', '/mnt/in/container');

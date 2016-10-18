@@ -33,7 +33,7 @@ export class CustomInstructions extends TemplateVariables {
 		if (!this.jsonEnvEnabled) {
 			return '# no json env';
 		}
-		return renderTemplate('json_env.Dockerfile', new CustomInstructions(this.config, {
+		return renderTemplate('json_env.Dockerfile', new CustomInstructions(this, {
 			JENV_FILE_NAME_REL() {
 				return `./${tempDirName}/json-env-data.json`;
 			}
@@ -90,7 +90,7 @@ VOLUME ${k}`;
 	private custom_build(arr: string[]) {
 		const dockerfile = this.walk(arr, (fileName) => {
 			try {
-				return renderFile(fileName, new CustomInstructions(this.config));
+				return renderFile(fileName, this);
 			} catch (e) {
 				e.stack = '' + e.stack;
 				e.message += ` (in file ${fileName})`;

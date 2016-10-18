@@ -18,8 +18,8 @@ get_run_build_arguments "$@"
 
 source "@{PWD}/functions.sh"
 #{DETECT_CURRENT}
-#{BUILD_DEPEND_SERVICE}
 #{PULL_DEPEND_IMAGES}
+#{BUILD_DEPEND_SERVICE}
 
 cat "@{PWD}/Dockerfile"| \
 	sed "s/\${COMMAND_LINE_ARGS}/${RUN_ARGUMENTS}/g" > "@{PWD}/Dockerfile.args"

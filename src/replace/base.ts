@@ -4,7 +4,6 @@ import {MicroBuildConfig, EPlugins} from "../library/microbuild-config";
 
 export class TemplateRender {
 	private tpl;
-	private saved = {};
 	private fileName;
 	
 	constructor(fileName: string) {
@@ -14,31 +13,38 @@ export class TemplateRender {
 	
 	render(ins: TemplateVariables) {
 		return this.tpl.replace(/(^#|@)\{([A-Z_0-9]+)}/gm, (m0, type, name) => {
-			if (!this.saved[name]) {
+			if (!ins.saved[name]) {
 				if (!ins[name]) {
 					throw new Error(`unknown variable ${name} in template ${this.fileName}`);
 				}
 				try {
-					this.saved[name] = ins[name]();
+					ins.saved[name] = ins[name]();
+					// console.log('instruction: %s -> %s', name, ins.saved[name].split(/\n/)[0]);
 				} catch (e) {
 					e.message += ` (in file ${this.fileName})`;
 					throw e;
 				}
 				if (type === '#') {
-					this.saved[name] = '# INSTRUCTION ' + name + '\n' + this.saved[name];
+					ins.saved[name] = '# INSTRUCTION ' + name + '\n' + ins.saved[name];
 				}
 			}
-			return this.saved[name];
+			return ins.saved[name];
 		});
 	}
 }
 
-export class TemplateVariables {
+export abstract class TemplateVariables {
 	protected config: MicroBuildConfig;
 	protected jsonEnvEnabled = false;
+	public saved: any = {};
 	
-	constructor(config: MicroBuildConfig, extra: KVP<Function> = {}) {
-		this.config = config;
+	constructor(config: MicroBuildConfig|TemplateVariables, extra: KVP<Function> = {}) {
+		if (config instanceof MicroBuildConfig) {
+			this.config = config;
+		} else if (config instanceof TemplateVariables) {
+			this.saved = config.saved;
+			this.config = config.config;
+		}
 		
 		if (!global.hasOwnProperty('JsonEnv')) {
 			const options = this.config.getPlugin(EPlugins.jenv);

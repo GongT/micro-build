@@ -4,14 +4,14 @@ import {ScriptVariables} from "../replace/instructions-scripts";
 import {renderTemplate} from "../replace/replace-scripts";
 
 export function createServiceFile(config: MicroBuildConfig) {
-	const upstartFile = renderTemplate('service', 'upstart.conf', new ScriptVariables(config));
+	const replacer = new ScriptVariables(config);
+	const upstartFile = renderTemplate('service', 'upstart.conf', replacer);
 	saveFile('upstart.conf', upstartFile);
 	
-	const systemdFile = renderTemplate('service', 'systemd.service', new ScriptVariables(config));
+	const systemdFile = renderTemplate('service', 'systemd.service', replacer);
 	saveFile('systemd.service', systemdFile);
 	
 	let adminScript;
-	const replacer = new ScriptVariables(config);
 	
 	adminScript = renderTemplate('admin', 'systemd.sh', replacer);
 	saveFile('systemd.sh', adminScript);

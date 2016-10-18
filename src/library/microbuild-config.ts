@@ -1,6 +1,7 @@
 import {existsSync, lstatSync, mkdirSync} from "fs";
 import {getProjectPath} from "./file-paths";
 import {resolve} from "path";
+import {determineDockerInterfaceIpAddress} from "./determine-docker-interface-ip-address";
 export interface MicroServiceConfig {
 	forwardPort: {
 		host: number,
@@ -34,6 +35,12 @@ export interface MicroServiceConfig {
 	labels: KeyValueObject<string|Object|any[]>;
 	nsgLabels: KeyValueObject<string|Object|any[]>;
 	install: string[];
+	networking: {
+		hostIp: string;
+		hostIp6: string;
+		bridge: boolean;
+		ifName: string;
+	};
 }
 
 export enum ELabelNames{
@@ -75,12 +82,37 @@ export class MicroBuildConfig {
 		labels: {},
 		nsgLabels: {},
 		install: [],
+		networking: {
+			hostIp: '',
+			hostIp6: '',
+			bridge: true,
+			ifName: 'docker0',
+		},
 	};
 	
 	constructor(data?: any) {
 		if (data) {
 			this.storage = data;
 		}
+	}
+	
+	netInterface(ifName: string) {
+		this.storage.networking.hostIp = '';
+		this.storage.networking.hostIp6 = '';
+		if (ifName === 'host') {
+			this.storage.networking.ifName = 'lo';
+			this.storage.networking.bridge = false;
+		} else {
+			this.storage.networking.ifName = ifName;
+			this.storage.networking.bridge = true;
+		}
+	}
+	
+	netAddress(ipaddr: string, ipaddr6?: string) {
+		this.storage.networking.ifName = '';
+		this.storage.networking.bridge = true;
+		this.storage.networking.hostIp = ipaddr;
+		this.storage.networking.hostIp6 = ipaddr6;
 	}
 	
 	forwardPort(clientPort: number, method?: string) {
@@ -257,6 +289,40 @@ export class MicroBuildConfig {
 			ret[ELabelNames[n]] = this.storage.nsgLabels[n];
 		});
 		
+		return ret;
+	}
+	
+	private normalizeNetworking() {
+		const nw = this.storage.networking;
+		if (!nw.hostIp) {
+			const ip = determineDockerInterfaceIpAddress();
+			nw.hostIp = ip[0];
+			nw.hostIp6 = ip[1];
+			console.log('get host ip-addr= %s ; %s', nw.hostIp, nw.hostIp6);
+		}
+	}
+	
+	getNetworkTypeArg() {
+		this.normalizeNetworking();
+		
+		const nw = this.storage.networking;
+		const ret = [];
+		ret.push(`--net=${nw.bridge? 'bridge' : 'host'}`);
+		ret.push(`--add-host=host-lo:${nw.hostIp}`);
+		return ret;
+	}
+	
+	getNetworkConfig() {
+		this.normalizeNetworking();
+		
+		const nw = this.storage.networking;
+		const ret = {
+			HOST_LOOP_IP: nw.hostIp,
+			HOST_LOOP_IP6: undefined,
+		};
+		if (nw.hostIp6) {
+			ret.HOST_LOOP_IP6 = nw.hostIp;
+		}
 		return ret;
 	}
 }

@@ -1,4 +1,5 @@
 #{FROM}
+ENV BUILDING yes
 
 ENV PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/data/scripts:/sbin:/bin
 ENV RUN_IN_DOCKER yes
@@ -30,3 +31,5 @@ RUN [ -e /data/scripts ] && chmod a+x /data/scripts/* || true
 #{CUSTOM_BUILD_AFTER}
 
 # ARG COMMAND_LINE_ARGS
+
+ENV BUILDING no

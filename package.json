@@ -23,18 +23,20 @@
 	},
 	"homepage": "https://github.com/GongT/micro-build#readme",
 	"dependencies": {
-		"nodemon": "^1.10.2",
-		"json-env-data": "*",
 		"commander": "^2.9.0",
+		"concurrently": "^3.1.0",
 		"extend": "^3.0.0",
 		"json-env-cli": "*",
+		"json-env-data": "*",
 		"mkdirp": "^0.5.1",
 		"nodejs-fs-utils": "^1.0.26",
+		"nodemon": "^1.10.2",
 		"readline-sync": "^1.4.4",
 		"source-map-support": "^0.4.2"
 	},
 	"peerDependencies": {
 		"nodemon": "^1.10.2",
+		"concurrently": "^3.1.0",
 		"typescript": "^2.1.0-dev.20160905",
 		"typings": "^1.3.3"
 	},

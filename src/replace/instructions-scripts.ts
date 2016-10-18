@@ -58,7 +58,7 @@ export class ScriptVariables extends TemplateVariables {
 		if (!this.jsonEnvEnabled) {
 			return '# no json env';
 		}
-		return renderTemplate('plugin', 'json-env.sh', new ScriptVariables(this.config, {
+		return renderTemplate('plugin', 'json-env.sh', new ScriptVariables(this, {
 			JENV_FILE_NAME() {
 				return resolve(getTempPath(), 'json-env-data.json');
 			}
@@ -75,7 +75,7 @@ export class ScriptVariables extends TemplateVariables {
 	
 	EXTERNAL_PORTS() {
 		return this.walk(this.config.toJSON().forwardPort, ({host, client, method})=> {
-			if (client !== null) {
+			if (host !== null) {
 				return `--publish ${host}:${client}` + (method? '/' + method : '');
 			}
 		}, ' ');
@@ -86,8 +86,26 @@ export class ScriptVariables extends TemplateVariables {
 	}
 	
 	DOCKER_ARGS() {
-		return this.walk(this.config.toJSON().dockerRunArguments, (arg)=> {
+		let arr = this.config.toJSON().dockerRunArguments;
+		arr = arr.concat(this.config.getNetworkTypeArg());
+		return this.walk(arr, (arg)=> {
 			return JSON.stringify(arg);
+		}, ' ');
+	}
+	
+	NETWORKING_ENVIRONMENTS_VARS() {
+		return this.walk(this.config.getNetworkConfig(), (v, k)=> {
+			if (v) {
+				return 'export ' + k + '=' + JSON.stringify(v);
+			}
+		});
+	}
+	
+	NETWORKING_ENVIRONMENTS_ARGS() {
+		return this.walk(this.config.getNetworkConfig(), (v, k)=> {
+			if (v) {
+				return '-e ' + k + '=' + JSON.stringify(v);
+			}
 		}, ' ');
 	}
 	
@@ -122,7 +140,13 @@ export class ScriptVariables extends TemplateVariables {
 	}
 	
 	PULL_DEPEND_IMAGES() {
-		return '';
+		return this.walk(this.config.toJSON().containerDependencies, ({imageName, runCommandline}, containerName) => {
+			return renderTemplate('depend', 'fetch-service.sh', new ScriptVariables(this.config, {
+				IMAGE_NAME() {
+					return imageName;
+				},
+			}));
+		});
 	}
 	
 	DEPENDENCY_CHECK_EXTERNAL() {

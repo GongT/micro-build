@@ -13,9 +13,9 @@ start)
 		s_start
 		sleep 5
 		
-		kill ${PID}
+		kill "${PID}"
 		
-		echo "view log with \`journalctl -u '@{SERVICE_NAME}' -f\`"
+		echo "view log with \` journalctl -u '@{SERVICE_NAME}' -f \`"
 	else
 		s_start
 	fi
