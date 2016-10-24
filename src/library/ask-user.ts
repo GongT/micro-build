@@ -26,11 +26,17 @@ export function selection(prompt: string, selection: KVP<string>, defaultValue: 
 	return ret;
 }
 
-export function input(prompt: string, defaultValue: string) {
+export function input(prompt: string) {
 	if (!inputAvailable) {
-		return defaultValue;
+		throw new Error('you must have tty input to do this.');
 	}
-	readlineSync
+	let ret;
+	console.log(prompt + ': ');
+	do {
+		ret = readlineSync.question('> ');
+	} while (!ret.trim());
+	
+	return ret;
 }
 
 export function yes_no(prompt: string, defaultValue: boolean) {

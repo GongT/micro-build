@@ -29,7 +29,10 @@ function download {
 	
 	git clone "${GIT_URL}" "${TEMP}" || die "can't clone ${GIT_URL}"
 	
-	if [ -e "${TEMP}/.micro-build/config.ts" ]; then
+	sleep 1
+	
+	if [ ! -e "${TEMP}/.micro-build/config.ts" ]; then
+		echo "file not exists: ${TEMP}/.micro-build/config.ts"
 		die "the source git-url is not a service: ${GIT_URL}"
 	fi
 	

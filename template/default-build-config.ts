@@ -14,7 +14,7 @@ const projectName = 'your-project-name';
 
 build.baseImage('node');
 build.projectName(projectName);
-build.domainName(projectName + '.' + JsonEnv.baseDomainName);
+build.domainName(projectName + '.localdomain');
 build.install('./package.json');
 
 // build.forwardPort(80, 'tcp').publish(8080);
@@ -28,10 +28,9 @@ build.install('./package.json');
 build.label('microbuild', 'yes');
 
 build.nsgLabel(ELabelNames.alias, []);
-build.nsgLabel(ELabelNames.proxy, 'nginx');
-build.nsgLabel(ELabelNames.sync_hosts, 'yes');
+// build.nsgLabel(ELabelNames.proxy, 'nginx');
 
-build.addPlugin(EPlugins.jenv);
+// build.addPlugin(EPlugins.jenv);
 
 /*
  build.addPlugin(EPlugins.node_scss, {
