@@ -44,6 +44,8 @@ export function injectJsonEnv() {
 	process.env.JENV_FILE_NAME = resolve(getProjectPath(), '.jsonenv', '_current_result.json');
 	
 	global['JsonEnv'] = update_cache();
+	
+	console.log('injectJsonEnv() successed...');
 	return global['JsonEnv'];
 }
 

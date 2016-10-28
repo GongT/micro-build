@@ -54,20 +54,24 @@ export function readBuildConfig(): MicroBuildConfig {
 	
 	const code = readFileSync(filename, 'utf-8')
 		.replace(removeReg, constDefines.join(';') + '/*$&');
-	const builder = new MicroBuildConfig();
-	const context: IContextDefine = {
-		build: builder,
-	};
+	let builder = new MicroBuildConfig();
 	
 	try {
 		console.log('include config file...');
-		run_script(code, filename, context);
+		run_script(code, filename, {
+			build: builder,
+		});
 	} catch (e) {
 		if (e.message.indexOf('JsonEnv is not defined') !== -1) {
 			console.log('used json env, retry...');
-			context.JsonEnv = injectJsonEnv();
+			const JsonEnv = injectJsonEnv();
+			console.log('create builder...');
+			builder = new MicroBuildConfig();
 			builder.addPlugin(EPlugins.jenv);
-			run_script(code, filename, context);
+			run_script(code, filename, {
+				build: builder,
+				JsonEnv
+			});
 		} else {
 			throw e;
 		}
