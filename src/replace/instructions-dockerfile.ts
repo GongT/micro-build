@@ -168,10 +168,10 @@ VOLUME ${k}`;
 		if (this.config.getPlugin(EPlugins.node_scss)) {
 			dependencies.push('node-sass');
 		}
-		const npmInstallInstruction = [
-			`RUN /npm-install/global-installer ${dependencies.join(' ')}`
-		];
-		if (npmInstallInstruction.length) {
+		if (dependencies.length) {
+			const npmInstallInstruction = [
+				`RUN /npm-install/global-installer ${dependencies.join(' ')}`
+			];
 			if (!this.npmActived) {
 				this.npmActived = true;
 				npmInstallInstruction.unshift(npm_install_command(this.config));
