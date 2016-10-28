@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # name jsonPath target
 set -e
 
