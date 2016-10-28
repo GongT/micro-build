@@ -1,5 +1,5 @@
 import {resolve, basename} from "path";
-import {realpathSync, symlinkSync, existsSync, unlinkSync} from "fs";
+import {realpathSync, symlinkSync, unlinkSync} from "fs";
 import {PackageJsonFile} from "../library/package-json-file";
 import {sync as mkdirpSync} from "mkdirp";
 import {
@@ -45,8 +45,9 @@ export default function update() {
 	console.log('update microbuild-config.d.ts file');
 	mkdirpSync(resolve(getTempPath(), 'x'));
 	const targetDts = resolve(getTempPath(), 'x/microbuild-config.d.ts');
-	if (existsSync(targetDts)) {
+	try {
 		unlinkSync(targetDts);
+	} catch (e) {
 	}
 	const dtsFilePath = realpathSync(resolve(MicroFilesRoot, 'library/microbuild-config.d.ts'));
 	symlinkSync(dtsFilePath, targetDts);

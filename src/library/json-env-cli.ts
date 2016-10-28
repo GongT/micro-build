@@ -1,7 +1,7 @@
 import {getProjectPath} from "./file-paths";
 import {spawnSync} from "child_process";
 import {resolve} from "path";
-import {selection} from "./ask-user";
+import {selection, input} from "./ask-user";
 
 export function injectJsonEnv() {
 	if (global['JsonEnv']) {
@@ -66,21 +66,25 @@ function select_set(local) {
 		selections[(1 + index).toString()] = item;
 	});
 	
-	selections['n'] = 'use a new url...';
-	
-	let selected;
-	const sel = selection('please select a config set to build service', selections, defaultItem);
-	if (sel === 'n') {
-		selected = pull_new_set();
+	if (Object.keys(selections).length === 0) {
+		pull_new_set();
 	} else {
-		selected = selections[sel];
+		selections['n'] = 'use a new url...';
+		
+		let selected;
+		const sel = selection('please select a config set to build service', selections, defaultItem);
+		if (sel === 'n') {
+			selected = pull_new_set();
+		} else {
+			selected = selections[sel];
+		}
+		
+		ret = spawnSync('jenv', ['--set', selected], {
+			cwd: getProjectPath(),
+			stdio: ['ignore', 'inherit', 'inherit'],
+			encoding: 'utf8'
+		});
 	}
-	
-	ret = spawnSync('jenv', ['--set', selected], {
-		cwd: getProjectPath(),
-		stdio: ['ignore', 'inherit', 'inherit'],
-		encoding: 'utf8'
-	});
 	if (ret.status !== 0) {
 		throw new Error(`can't select json-env config set.`);
 	}
@@ -141,5 +145,20 @@ function select_env() {
 }
 
 function pull_new_set() {
+	const gitUrl = input('input config files git url').trim();
 	
+	if (!/^(ssh|https?):\/\//.test(gitUrl)) {
+		throw new Error('please input valid git url.');
+	}
+	
+	let ret;
+	ret = spawnSync('jenv', ['--pull', '--global', gitUrl], {
+		stdio: ['ignore', 'pipe', 'inherit'],
+		encoding: 'utf8'
+	});
+	if (ret.status !== 0) {
+		throw new Error(`can't pull json-env from "${gitUrl}".`);
+	}
+	
+	process.exit(1);
 }

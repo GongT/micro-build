@@ -154,7 +154,7 @@ function call_command(...args) {
 			process.exit(ret || 0);
 		}
 	} catch (e) {
-		console.error(e.stack);
+		console.error(e.message);
 		process.exit(9);
 	}
 }

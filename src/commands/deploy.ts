@@ -1,12 +1,13 @@
 import {W_OK} from "constants";
-import {accessSync, existsSync, lstatSync} from "fs";
+import {accessSync, existsSync, lstatSync, unlinkSync} from "fs";
 import {dirname} from "path";
 import {sync as mkdirpSync} from "mkdirp";
 import {spawnMainCommand} from "../library/spawn-child";
-import {createDeployScript} from "../build/deploy-script";
+import {updateCurrentDir, getConfigPath} from "../library/file-paths";
+import {MicroBuildConfig} from "../library/microbuild-config";
 import {readBuildConfig} from "../build/all";
-import {EPlugins} from "../library/microbuild-config";
-import {injectJsonEnv} from "../library/json-env-cli";
+import init from "./init";
+import {createDeployScript} from "../build/deploy-script";
 const defaultPaths = ['/data/services', '/opt/services'];
 
 export default function deploy(this: any, gitUrl: string, deployTo: string) {
@@ -25,12 +26,19 @@ export default function deploy(this: any, gitUrl: string, deployTo: string) {
 		}
 	}
 	
-	const config = readBuildConfig();
-	createDeployScript(config);
-	
-	if (config.getPlugin(EPlugins.jenv)) {
-		injectJsonEnv();
+	let builder: MicroBuildConfig;
+	if (existsSync(getConfigPath())) {
+		builder = readBuildConfig();
+	} else {
+		console.log('using /tmp/d3c421664a752384c71fe2ad46c67451');
+		updateCurrentDir('/tmp/d3c421664a752384c71fe2ad46c67451', true);
+		if (existsSync(getConfigPath())) {
+			unlinkSync(getConfigPath());
+		}
+		init();
+		builder = readBuildConfig();
 	}
+	createDeployScript(builder);
 	
 	return spawnMainCommand('deploy-other.sh', [gitUrl, deployTo, auto_start? 'yes' : '']);
 }
