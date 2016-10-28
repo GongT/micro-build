@@ -13,6 +13,9 @@ function s_disable {
 function s_start {
 	sudo service "@{SERVICE_NAME}" start
 }
+function sys_status_started {
+	service $1 status -q
+}
 function sys_start {
 	echo "sudo service $1 start"
 	sudo service $1 start

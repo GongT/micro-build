@@ -11,6 +11,9 @@ function s_disable {
 function s_start {
 	sudo systemctl start "@{SERVICE_NAME}"
 }
+function sys_status_started {
+	systemctl is-active $1
+}
 function sys_start {
 	echo "sudo systemctl start $1"
 	sudo systemctl start $1

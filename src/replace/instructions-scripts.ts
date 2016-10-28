@@ -142,6 +142,9 @@ export class ScriptVariables extends TemplateVariables {
 	PULL_DEPEND_IMAGES() {
 		return this.walk(this.config.toJSON().containerDependencies, ({imageName, runCommandline}, containerName) => {
 			return renderTemplate('depend', 'fetch-service.sh', new ScriptVariables(this.config, {
+				CONTAINER_NAME() {
+					return containerName;
+				},
 				IMAGE_NAME() {
 					return imageName;
 				},

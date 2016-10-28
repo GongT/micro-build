@@ -5,6 +5,10 @@ if is_container_running "@{CONTAINER_NAME}" ; then
 elif is_container_exists "@{CONTAINER_NAME}" ; then
 	echo " >>> starting dependence @{CONTAINER_NAME}"
 	docker start "@{CONTAINER_NAME}"
+else if [ -z "@{IMAGE_NAME}" ]; then
+		echo "Fatal: dependence container @{CONTAINER_NAME} can't start.
+	don't know how to start it." >&2
+		exit 200
 else
 	if ! is_image_exists "@{IMAGE_NAME}" ; then
 		docker pull "@{IMAGE_NAME}"

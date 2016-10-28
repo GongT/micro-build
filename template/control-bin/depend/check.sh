@@ -9,7 +9,12 @@ else
 	fi
 	
 	echo " >>> starting dependence service @{CONTAINER_NAME}"
-	sys_start "@{CONTAINER_NAME}"
+	if sys_status_started "@{CONTAINER_NAME}" ; then
+		echo "    this service already started!"
+	else
+		echo "    try start this service:"
+		sys_start "@{CONTAINER_NAME}"
+	fi
 	
 	sleep 2
 	
