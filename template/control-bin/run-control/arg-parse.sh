@@ -113,8 +113,8 @@ function test_all_finished_build {
 		if has_default_value "${i}" ; then
 			push_build_argument "${i}" `default_value "${i}"`
 		else
-			if ! echo "${GOTTEN_BUILD_ARGUMENT}" | grep -q ":${i}:" ; then
-				help_message "missing required build argument: ${i}";
+			if ! echo "${GOTTEN_BUILD_ARGUMENT}:" | grep -q ":${i}:" ; then
+				help_message -e "missing required build argument: ${i}\n   gotten: ${GOTTEN_BUILD_ARGUMENT}";
 			fi
 		fi
 	done
