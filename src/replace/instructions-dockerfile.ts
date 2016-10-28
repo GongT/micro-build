@@ -7,6 +7,8 @@ import {tempDirName} from "../library/file-paths";
 import {dirname} from "path";
 import scss from "./plugin/scss";
 import typescript from "./plugin/typescript";
+import browserify from "./plugin/browserify";
+import {EPlugins} from "../library/microbuild-config";
 
 const nextGuid = createGuid();
 
@@ -122,9 +124,12 @@ VOLUME ${k}`;
 	COMPILE_PLUGIN() {
 		return [
 			scss(this.config),
-			typescript(this.config)
+			typescript(this.config),
+			browserify(this.config),
 		].join('\n');
 	}
+	
+	private npmActived = false;
 	
 	NPM_INSTALL_INSTRUCTIONS() {
 		const npmInstallInstruction = this.config.toJSON().install.map((packagejsonPath) => {
@@ -138,10 +143,42 @@ VOLUME ${k}`;
 			return `RUN /npm-install/installer "${name}" "${tempFile}" "${targetPath}"`;
 		});
 		if (npmInstallInstruction.length) {
-			npmInstallInstruction.unshift(npm_install_command(this.config));
+			if (!this.npmActived) {
+				this.npmActived = true;
+				npmInstallInstruction.unshift(npm_install_command(this.config));
+			}
 			return npmInstallInstruction.join('\n\n');
 		} else {
 			return '# no npm install required';
+		}
+	}
+	
+	PLUGINS_NPM_INSTALL() {
+		const dependencies = [];
+		if (this.config.getPlugin(EPlugins.jenv)) {
+			dependencies.push('json-env-data');
+		}
+		if (this.config.getPlugin(EPlugins.typescript)) {
+			dependencies.push('typescript');
+			dependencies.push('typings');
+		}
+		if (this.config.getPlugin(EPlugins.browserify)) {
+			dependencies.push('browserify');
+		}
+		if (this.config.getPlugin(EPlugins.node_scss)) {
+			dependencies.push('node-sass');
+		}
+		const npmInstallInstruction = [
+			`RUN /npm-install/global-installer ${dependencies.join(' ')}`
+		];
+		if (npmInstallInstruction.length) {
+			if (!this.npmActived) {
+				this.npmActived = true;
+				npmInstallInstruction.unshift(npm_install_command(this.config));
+			}
+			return npmInstallInstruction.join('\n\n');
+		} else {
+			return '# no plugins';
 		}
 	}
 }

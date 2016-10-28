@@ -8,13 +8,13 @@ export default function typescript(config: MicroBuildConfig) {
 	if (!ts_plugin || !ts_plugin.length) {
 		return '# typescript plugin not enabled';
 	}
-	return ts_plugin.map((opt) => {
+	return ts_plugin.map(({options}) => {
 		return renderTemplate('typescript-compile.Dockerfile', new CustomInstructions(config, {
 			SOURCE() {
-				return opt.source || './src';
+				return options.source || './src';
 			},
 			TARGET() {
-				return opt.target || './dist';
+				return options.target || './dist';
 			}
 		}));
 	}).join('\n');

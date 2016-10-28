@@ -53,6 +53,7 @@ export enum EPlugins{
 	jenv,
 	node_scss,
 	typescript,
+	browserify,
 }
 
 export interface KeyValueObject<T> {

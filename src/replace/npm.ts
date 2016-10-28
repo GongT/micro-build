@@ -45,7 +45,14 @@ export function npm_install_command(config: MicroBuildConfig) {
 	}));
 	saveFile('packagejson/installer', helperScript, '755');
 	
-	return "COPY .micro-build/packagejson /npm-install";
+	helperScript = renderTemplate('plugin', 'npm-global-installer.sh', new ScriptVariables(config, {
+		NPM_INSTALL () {
+			return cmd;
+		},
+	}));
+	saveFile('packagejson/global-installer', helperScript, '755');
+	
+	return `COPY .micro-build/packagejson /npm-install`;
 }
 
 export function createTempPackageFile(json: IPackageJson) {

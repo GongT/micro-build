@@ -29,7 +29,7 @@ echo "${NPM_INSTALL}"
 
 echo -e "\e[0;2m" >&2
 
-${NPM_INSTALL} 2>&1 | tee ${LOG_FILE}
+${NPM_INSTALL} --color=false 2>&1 | tee ${LOG_FILE}
 if [ $? -ne 0 ]; then
 	echo -e "\e[38;5;9m" >&2
 	echo "install failed..." >&2

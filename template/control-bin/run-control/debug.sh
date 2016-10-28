@@ -33,14 +33,12 @@ if [ -n "${BACKGROUND_WORKERS}" ]; then
 	SELF_PID=$$
 	
 	echo "@{CONCURRENTLY_BIN}" \
-		--kill-others --success all \
 		--names "${BACKGROUND_WORKERS_NAMES}" -p "name" \
 		"${BACKGROUND_WORKERS[@]}"
 	
 	{
 	export SHELL=/bin/sh
 	"@{CONCURRENTLY_BIN}" \
-		--kill-others --success all \
 		--names "${BACKGROUND_WORKERS_NAMES}" -p "name" \
 		"${BACKGROUND_WORKERS[@]}"
 	echo "background process died..."
@@ -74,12 +72,20 @@ echo "[microbuild] run script:"
 if [ "${WATCH}" == "no" ]; then
 	echo "    ${SHELL} ${COMMAND} ${RUN_ARGUMENTS}" >&2
 	echo " ::: start :::"
-	eval ${SHELL} "${COMMAND}" ${RUN_ARGUMENTS}
+	eval ${SHELL} "${COMMAND}" ${RUN_ARGUMENTS} || true
+	RET=${PIPESTATUS[0]}
 else
 	echo "    @{NODEMON_BIN} \\"
 	echo "         -d 2 --config \"@{PWD}/nodemon.json\" -x \"${SHELL}\" -- ${COMMAND}" >&2
 	echo " ::: start :::"
 #{NODEMON_BIN} \
-	 -d 2 --config "@{PWD}/nodemon.json" -x "${SHELL}" -- \
-	 ${COMMAND} ${RUN_ARGUMENTS}
+		-d 2 --config "@{PWD}/nodemon.json" -x "${SHELL}" -- \
+		${COMMAND} ${RUN_ARGUMENTS} || true
+	RET=${PIPESTATUS[0]}
 fi
+
+if [ -n "$(jobs -p)" ]; then
+	kill $(jobs -p) || true
+fi
+
+exit ${RET}
