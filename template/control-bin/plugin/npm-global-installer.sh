@@ -2,7 +2,7 @@
 # name jsonPath target
 set -e
 
-NPM_INSTALL="@{NPM_INSTALL}"
+#{PREPEND_NPM_SCRIPT}
 
 echo "${NPM_INSTALL}"
 

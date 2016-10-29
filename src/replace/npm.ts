@@ -11,62 +11,71 @@ import {renderTemplate} from "./replace-scripts";
 
 const guid = createGuid();
 
-const china = `npm install
---registry=https://registry.npm.taobao.org
---cache=/npm-install/cnpm-cache
---disturl=https://npm.taobao.org/dist
---userconfig=/npm-install/config/cnpmrc`.replace(/\n/g, ' ');
-
-const normal = `npm install
---cache=/npm-install/npm-cache
---userconfig=/npm-install/config/npmrc`.replace(/\n/g, ' ');
-
 export function npm_install_command(config: MicroBuildConfig) {
 	let helperScript;
+	let isChina = '';
+	let prependScript = '';
+	const replacer = new ScriptVariables(config, {
+		PREPEND_NPM_SCRIPT () {
+			return prependScript;
+		},
+		INSERT_IS_CHINA_VAR () {
+			return isChina;
+		},
+	});
 	
 	const isJsonEnvEnabled = config.getPlugin(EPlugins.jenv);
 	if (isJsonEnvEnabled) {
 		injectJsonEnv();
+		isChina = 'export IS_IN_CHINA=' + (JsonEnv.isInChina? 'yes' : 'no');
 	} else {
 		config.buildArgument('is-china', 'no');
+		isChina = 'export IS_IN_CHINA';
 	}
 	
-	let cmd;
-	if (isJsonEnvEnabled) {
-		cmd = JsonEnv.isInChina? china : normal;
-	} else {
-		cmd = `$( [[ "$IS_CHINA" == "yes" ]] && echo ${JSON.stringify(china)} || echo ${JSON.stringify(normal)})`;
-	}
+	prependScript = renderTemplate('plugin', 'npm-installer-detect.sh', replacer);
 	
-	helperScript = renderTemplate('plugin', 'npm-installer.sh', new ScriptVariables(config, {
-		NPM_INSTALL () {
-			return cmd;
-		},
-	}));
+	helperScript = renderTemplate('plugin', 'npm-installer.sh', replacer);
 	saveFile('packagejson/installer', helperScript, '755');
 	
-	helperScript = renderTemplate('plugin', 'npm-global-installer.sh', new ScriptVariables(config, {
-		NPM_INSTALL () {
-			return cmd;
-		},
-	}));
+	helperScript = renderTemplate('plugin', 'npm-global-installer.sh', replacer);
 	saveFile('packagejson/global-installer', helperScript, '755');
 	
 	return `COPY .micro-build/packagejson /npm-install`;
 }
 
 export function createTempPackageFile(json: IPackageJson) {
+	const {prepublish, publish, postpublish, preinstall, install, postinstall, preuninstall, uninstall, postuninstall, preversion, version, postversion,}=json.scripts;
+	const lifeCycles = {
+		prepublish,
+		publish,
+		postpublish,
+		preinstall,
+		install,
+		postinstall,
+		preuninstall,
+		uninstall,
+		postuninstall,
+		preversion,
+		version,
+		postversion,
+	};
+	const packageFileContent = {
+		name: json.name,
+		dependencies: json.dependencies,
+		scripts: lifeCycles,
+		version: '1.0.0',
+		description: 'xxx',
+		repository: 'xxx',
+	};
+	
 	const dir = resolve(getTempPath(), 'packagejson');
 	if (!existsSync(dir)) {
 		mkdirpSync(dir);
 	}
 	const fileName = `${guid()}.json`;
 	
-	json.version = '1.0.0';
-	json.description = 'xxx';
-	json.repository = 'xxx';
-	
-	writeFileSync(resolve(dir, fileName), JSON.stringify(json, null, 8), 'utf-8');
+	writeFileSync(resolve(dir, fileName), JSON.stringify(packageFileContent, null, 8), 'utf-8');
 	
 	return fileName;
 }

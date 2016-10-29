@@ -135,10 +135,9 @@ VOLUME ${k}`;
 		const npmInstallInstruction = this.config.toJSON().install.map((packagejsonPath) => {
 			const pkg = new PackageJsonFile(packagejsonPath);
 			const targetPath = packagejsonPath.replace(/^\.\//, '').replace(/\/?package\.json$/, '');
-			const dependencies = pkg.content.dependencies;
-			const name = pkg.content.name || 'noname-' + nextGuid();
+			const name = pkg.content.name || (pkg.content.name = 'noname-' + nextGuid());
 			
-			const tempFile = createTempPackageFile({name, dependencies});
+			const tempFile = createTempPackageFile(pkg.content);
 			
 			return `RUN /npm-install/installer "${name}" "${tempFile}" "${targetPath}"`;
 		});

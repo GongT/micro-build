@@ -2,11 +2,12 @@
 # name jsonPath target
 set -e
 
+#{PREPEND_NPM_SCRIPT}
+
 NAME="$1"
 SOURCE_JSON="/npm-install/${2}"
 TARGET="/data/${3}"
 LOG_FILE="${NAME}.log"
-NPM_INSTALL="@{NPM_INSTALL}"
 
 cd /npm-install
 
