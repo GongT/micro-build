@@ -45,7 +45,7 @@ declare interface IPackageJson {
 		start: string;
 		build: string;
 		service: string;
-		"post-install": string;
+		[id: string]: string;
 	},
 	dependencies?: {
 		[name: string]: string;
