@@ -13,7 +13,7 @@ import {
 
 export default function update() {
 	const gitIgnore = projectFileObject('.gitignore');
-	if (gitIgnore.hasLine(`${tempDirName}/*`)) {
+	if (!gitIgnore.hasLine(`${tempDirName}/*`)) {
 		console.log('update .gitignore file');
 		gitIgnore.uniqueAppend(defaultIgnores);
 		gitIgnore.uniqueAppend(`${tempDirName}/*`);
@@ -24,7 +24,7 @@ export default function update() {
 	
 	const npmIgnore = projectFileObject('.npmignore');
 	const npmInited = npmIgnore.exists();
-	if (npmIgnore.hasLine(`${tempDirName}/*`)) {
+	if (!npmIgnore.hasLine(`${tempDirName}/*`)) {
 		console.log('update .npmignore file');
 		npmIgnore.uniqueAppend(defaultIgnores);
 		npmIgnore.uniqueAppend(`${tempDirName}/*`);
@@ -33,10 +33,12 @@ export default function update() {
 	}
 	
 	const dockerIgnore = projectFileObject('.dockerignore');
-	if (dockerIgnore.hasLine(tempDirName)) {
+	if (!dockerIgnore.hasLine(tempDirName)) {
 		console.log('update .dockerignore file');
 		dockerIgnore.uniqueAppend(tempDirName);
-		dockerIgnore.uniqueAppend(defaultIgnores);
+		const fixedIgnores = defaultIgnores.slice();
+		fixedIgnores.splice(defaultIgnores.indexOf('typings/'), 1);
+		dockerIgnore.uniqueAppend(fixedIgnores);
 		dockerIgnore.uniqueAppend(`!${tempDirName}/packagejson`);
 		dockerIgnore.uniqueAppend(`!${tempDirName}/json-env-data.json`);
 		dockerIgnore.write();
