@@ -38,6 +38,9 @@ export function npm_install_command(config: MicroBuildConfig) {
 	helperScript = renderTemplate('plugin', 'npm-installer.sh', replacer);
 	saveFile('packagejson/installer', helperScript, '755');
 	
+	helperScript = renderTemplate('plugin', 'npm-local-installer.sh', replacer);
+	saveFile('packagejson/npm-install', helperScript, '755');
+	
 	helperScript = renderTemplate('plugin', 'npm-global-installer.sh', replacer);
 	saveFile('packagejson/global-installer', helperScript, '755');
 	
