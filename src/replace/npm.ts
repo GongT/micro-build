@@ -48,21 +48,15 @@ export function npm_install_command(config: MicroBuildConfig) {
 }
 
 export function createTempPackageFile(json: IPackageJson) {
-	const {prepublish, publish, postpublish, preinstall, install, postinstall, preuninstall, uninstall, postuninstall, preversion, version, postversion,}=json.scripts;
-	const lifeCycles = {
-		prepublish,
-		publish,
-		postpublish,
-		preinstall,
-		install,
-		postinstall,
-		preuninstall,
-		uninstall,
-		postuninstall,
-		preversion,
-		version,
-		postversion,
-	};
+	let lifeCycles;
+	if (json.scripts) {
+		const {preinstall, install, postinstall,} = json.scripts;
+		lifeCycles = {
+			preinstall,
+			install,
+			postinstall,
+		};
+	}
 	const packageFileContent = {
 		name: json.name,
 		dependencies: json.dependencies,

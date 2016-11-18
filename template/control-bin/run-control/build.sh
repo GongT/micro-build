@@ -24,6 +24,14 @@ source "@{PWD}/functions.sh"
 cat "@{PWD}/Dockerfile"| \
 	sed "s/\${COMMAND_LINE_ARGS}/${RUN_ARGUMENTS}/g" > "@{PWD}/Dockerfile.args"
 
+echo -e "-- RUN BUILD -
+docker build \\
+	${BUILD_DOCKER_ARGUMENTS} \\
+	${BUILD_ARGUMENTS} \\
+	-f=\"@{PWD}/Dockerfile.args\" \\
+	-t=\"@{BASE_DOMAIN_NAME}/@{SERVICE_NAME}\" \\
+	."
+
 docker build \
 	${BUILD_DOCKER_ARGUMENTS} \
 	${BUILD_ARGUMENTS} \

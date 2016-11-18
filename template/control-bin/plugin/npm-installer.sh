@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # name jsonPath target
 set -e
 
@@ -26,12 +26,11 @@ fi
 ln -s ${SOURCE_JSON} ./package.json
 ln -s ${TARGET}/node_modules ./node_modules
 
-echo "${NPM_INSTALL}"
-
+echo "PWD=`pwd` ${NPM_INSTALL} --color=false 2>&1 | tee ${LOG_FILE} >&2"
 printf "\033[0;2m" >&2
-
 ${NPM_INSTALL} --color=false 2>&1 | tee ${LOG_FILE} >&2
-if [ $? -ne 0 ]; then
+
+if [ "${PIPESTATUS[0]}" -ne 0 ]; then
 	printf "\033[38;5;9m" >&2
 	echo "install failed..." >&2
 	printf "\033[0m" >&2

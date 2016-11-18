@@ -148,13 +148,14 @@ function call_command(...args) {
 			ret.then((ret) => {
 				return ret;
 			}, (e) => {
-				throw e;
+				displayError(e.stack);
+				process.exit(1);
 			});
 		} else {
 			process.exit(ret || 0);
 		}
 	} catch (e) {
-		console.error(e.message);
+		displayError(e.stack);
 		process.exit(9);
 	}
 }
@@ -162,4 +163,12 @@ function call_command(...args) {
 function required(n: string, cb = undefined) {
 	requiredItems.push(n);
 	return cb;
+}
+
+function displayError(stack) {
+	const err = stack.split(/\n/g).slice(0, 3);
+	if (err[1]) {
+		err[1] = '\x1B[2m' + err[1];
+	}
+	console.error(err.join('\n') + '\x1B[0m');
 }

@@ -58,7 +58,6 @@ export default function update() {
 	if (pkgJsonFile.exists() || !npmInited) {
 		console.log('update package.json file');
 		pkgJsonFile.addDependecy('json-env-data');
-		pkgJsonFile.addDevDependecy('typings');
 		const pkgJson = pkgJsonFile.content;
 		if (!pkgJson.name) {
 			pkgJson.name = basename(getProjectPath());

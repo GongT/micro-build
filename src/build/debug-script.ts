@@ -16,6 +16,12 @@ export function createDebugScript(config: MicroBuildConfig) {
 	const template = new ConfigJsonFile(resolve(__dirname, '../../template', 'nodemon.json'));
 	const project = new ConfigJsonFile(resolve(getProjectPath(), 'nodemon.json'), true);
 	
+	Object.keys(project.content).forEach((name) => {
+		if (Array.isArray(project.content[name]) && Array.isArray(template.content[name])) {
+			project.content[name] = project.content[name].concat(template.content[name]);
+		}
+	});
+	
 	saveJsonFile('nodemon.json', extend(true, template.content, project.content));
 	
 	if (config.getPlugin(EPlugins.jenv)) {

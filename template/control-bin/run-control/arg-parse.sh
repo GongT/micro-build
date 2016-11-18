@@ -69,7 +69,7 @@ function push_build_process_argument {
 	
 	echo "build docker argument: ${NAME} -> ${VALUE}" >&2
 	
-	BUILD_DOCKER_ARGUMENTS="${BUILD_DOCKER_ARGUMENTS} --${NAME}='${VALUE}'"
+	BUILD_DOCKER_ARGUMENTS="${BUILD_DOCKER_ARGUMENTS} --${NAME}=${VALUE}"
 }
 
 function push_build_argument { # name value
@@ -81,7 +81,7 @@ function push_build_argument { # name value
 	
 	echo "build argument: ${NAME} -> ${VALUE}" >&2
 	
-	BUILD_ARGUMENTS="${BUILD_ARGUMENTS} --build-arg=${NAME}='${VALUE}'"
+	BUILD_ARGUMENTS="${BUILD_ARGUMENTS} --build-arg=${NAME}=${VALUE}"
 }
 function push_run_argument { # name value
 	local NAME=$1

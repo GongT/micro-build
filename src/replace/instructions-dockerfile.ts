@@ -63,7 +63,7 @@ export class CustomInstructions extends TemplateVariables {
 			if (def === null) {
 				return `ARG ${k}`;
 			} else {
-				return `ARG ${k}=${def}`;
+				return `ARG ${k}=${JSON.stringify(def)}`;
 			}
 		});
 	}
@@ -159,7 +159,6 @@ VOLUME ${k}`;
 		}
 		if (this.config.getPlugin(EPlugins.typescript)) {
 			dependencies.push('typescript');
-			dependencies.push('typings');
 		}
 		if (this.config.getPlugin(EPlugins.browserify)) {
 			dependencies.push('browserify');

@@ -1,16 +1,14 @@
-#!/bin/sh
+#!/bin/bash
 # name jsonPath target
 set -e
 
 #{PREPEND_NPM_SCRIPT}
 
-echo "${NPM_INSTALL}"
-
+echo "PWD=`pwd` ${NPM_INSTALL} --color=false -g $@ 2>&1 | tee -a global.log >&2"
 printf "\033[0;2m" >&2
-
 ${NPM_INSTALL} --color=false -g "$@" 2>&1 | tee -a global.log >&2
 
-if [ $? -ne 0 ]; then
+if [ "${PIPESTATUS[0]}" -ne 0 ]; then
 	printf "\033[38;5;9m" >&2
 	echo "install failed..." >&2
 	printf "\033[0m" >&2

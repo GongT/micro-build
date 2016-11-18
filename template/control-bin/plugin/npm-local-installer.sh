@@ -1,13 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 # name jsonPath target
 set -e
 
 #{PREPEND_NPM_SCRIPT}
 
-echo "${NPM_INSTALL}"
-
+echo "PWD=`pwd` ${NPM_INSTALL} --color=false $@"
 printf "\033[0;2m" >&2
-
 ${NPM_INSTALL} --color=false "$@"
 
 if [ $? -ne 0 ]; then

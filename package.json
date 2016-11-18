@@ -1,6 +1,6 @@
 {
 	"name": "micro-build",
-	"version": "1.3.2",
+	"version": "1.3.4",
 	"description": "simple micro service builder system with nodejs & docker",
 	"bin": {
 		"microbuild": "./bin/microbuild"
