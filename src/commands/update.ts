@@ -39,7 +39,7 @@ export default function update() {
 		const fixedIgnores = defaultIgnores.slice();
 		fixedIgnores.splice(defaultIgnores.indexOf('typings/'), 1);
 		dockerIgnore.uniqueAppend(fixedIgnores);
-		dockerIgnore.uniqueAppend(`!${tempDirName}/packagejson`);
+		dockerIgnore.uniqueAppend(`!${tempDirName}/*/`);
 		dockerIgnore.uniqueAppend(`!${tempDirName}/json-env-data.json`);
 		dockerIgnore.write();
 	}

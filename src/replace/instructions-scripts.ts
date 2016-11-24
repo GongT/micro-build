@@ -49,8 +49,10 @@ export class ScriptVariables extends TemplateVariables {
 	}
 	
 	ENVIRONMENT_VARS() {
-		return this.walk(this.config.toJSON().environments, (v, n) => {
-			return `export ${n}=${this.wrap(v)}`;
+		return this.walk(this.config.toJSON().environments, (v) => {
+			if (v.insideOnly !== true) {
+				return `export ${v.name}=${this.wrap(v.value)}`;
+			}
 		});
 	}
 	

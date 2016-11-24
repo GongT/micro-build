@@ -10,6 +10,7 @@ const protectedFiles = [
 	'config.ts',
 	'start.sh',
 	'stop.sh',
+	'functions.sh',
 ];
 
 export default function clean() {

@@ -25,13 +25,11 @@ export class CustomInstructions extends TemplateVariables {
 	}
 	
 	ENVIRONMENT_VARS() {
-		if (Object.keys(this.config.toJSON().environments).length) {
-			return 'ENV ' + this.walk(this.config.toJSON().environments, (v, n) => {
-					return `${n}=${v}`;
-				}, ' ');
-		} else {
-			return '# NO ENV';
-		}
+		return 'ENV ' + this.walk(this.config.toJSON().environments, (env) => {
+				if (env.insideOnly !== false) {
+					return `${env.name}=${env.value}`;
+				}
+			}, ' ') || '# NO ENV';
 	}
 	
 	JSON_ENV_PASS() {
@@ -45,32 +43,24 @@ export class CustomInstructions extends TemplateVariables {
 		}));
 	}
 	
-	NSG_LABEL_INSTRUCTIONS() {
-		return
-	}
-	
 	LABEL_INSTRUCTIONS() {
 		const split = ' \\ \n\t';
 		let customLabel = this.walk(this.config.toJSON().labels, (v, k) => {
 			return `${k}=${this.wrap(v)}`;
 		}, split);
-		const nsgLabel = this.walk(this.config.getNsgLabelList(), (v, k) => {
-			return `org.nsg.${k.toLowerCase()}=${this.wrap(v)}`;
+		const spLabel = this.walk(this.config.getSpecialLabelList(), (v, k) => {
+			return `org.special-label.${k.toLowerCase()}=${this.wrap(v)}`;
 		}, split);
 		
-		if (nsgLabel) {
+		if (spLabel) {
 			if (customLabel) {
-				customLabel += split + nsgLabel;
+				customLabel += split + spLabel;
 			} else {
-				customLabel = nsgLabel;
+				customLabel = spLabel;
 			}
 		}
 		
-		if (customLabel) {
-			return 'LABEL ' + customLabel;
-		} else {
-			return '# NO LABELS'
-		}
+		return 'LABEL ' + customLabel;
 	}
 	
 	BUILD_ARGUMENTS() {
@@ -152,12 +142,16 @@ export class CustomInstructions extends TemplateVariables {
 	NPM_INSTALL_INSTRUCTIONS() {
 		const npmInstallInstruction = this.config.toJSON().install.map((packagejsonPath) => {
 			const pkg = new PackageJsonFile(packagejsonPath);
-			const targetPath = packagejsonPath.replace(/^\.\//, '').replace(/\/?package\.json$/, '');
+			let targetPath = packagejsonPath.replace(/^\.\//, '').replace(/\/?package\.json$/, '');
+			if (targetPath) {
+				targetPath += '/';
+			}
 			const name = pkg.content.name || (pkg.content.name = 'noname-' + nextGuid());
 			
 			const tempFile = createTempPackageFile(pkg.content);
 			
-			return `RUN /npm-install/installer "${name}" "${tempFile}" "${targetPath}"`;
+			return `COPY .micro-build/package-json/${tempFile} /npm-install/package-json/${tempFile}
+RUN /npm-install/installer "${name}" "${tempFile}" "${targetPath}"`;
 		});
 		if (npmInstallInstruction.length) {
 			if (!this.npmActived) {

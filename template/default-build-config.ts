@@ -1,5 +1,4 @@
-import {MicroBuildConfig, ELabelNames, EPlugins} from "./x/microbuild-config";
-import {JsonEnv} from "../.jsonenv/_current_result.json.d.ts";
+import {MicroBuildConfig, ELabelNames} from "./x/microbuild-config";
 declare const build: MicroBuildConfig;
 /*
  +==================================+
@@ -15,6 +14,7 @@ const projectName = 'your-project-name';
 build.baseImage('node');
 build.projectName(projectName);
 build.domainName(projectName + '.localdomain');
+// build.domainName(projectName + '.' + JsonEnv.baseDomainName);
 build.install('./package.json');
 
 // build.forwardPort(80, 'tcp').publish(8080);
@@ -27,8 +27,8 @@ build.install('./package.json');
 
 build.label('microbuild', 'yes');
 
-build.nsgLabel(ELabelNames.alias, []);
-// build.nsgLabel(ELabelNames.proxy, 'nginx');
+build.specialLabel(ELabelNames.alias, []);
+// build.specialLabel(ELabelNames.proxy, 'nginx');
 
 // build.addPlugin(EPlugins.jenv);
 

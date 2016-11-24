@@ -32,9 +32,13 @@ export interface MicroServiceConfig {
 	}>;
 	serviceDependencies: KeyValueObject<string>;
 	containerDependencies: KeyValueObject<{imageName: string, runCommandline: string|string[]}>;
-	environments: KeyValueObject<string>;
+	environments: {
+		insideOnly: boolean;
+		name: string;
+		value: string;
+	}[];
 	labels: KeyValueObject<string|Object|any[]>;
-	nsgLabels: KeyValueObject<string|Object|any[]>;
+	specialLabels: KeyValueObject<string|Object|any[]>;
 	install: string[];
 	networking: {
 		hostIp: string;
@@ -80,9 +84,9 @@ export class MicroBuildConfig {
 		arguments: {},
 		serviceDependencies: {},
 		containerDependencies: {},
-		environments: {},
+		environments: [],
 		labels: {},
-		nsgLabels: {},
+		specialLabels: {},
 		install: [],
 		networking: {
 			hostIp: '',
@@ -249,16 +253,29 @@ export class MicroBuildConfig {
 		this.storage.arguments[name] = {name: dockerfile_name, runArg: true, defaultValue, desc: description};
 	}
 	
-	environmentVariable(name: string, value: string) {
-		this.storage.environments[name] = value;
+	/**
+	 * insideOnly:
+	 *      default: always
+	 *      true: only in docker
+	 *      false: only debug
+	 **/
+	environmentVariable(name: string, value: string, insideOnly = null) {
+		this.storage.environments.push({
+			name, value, insideOnly
+		});
 	}
 	
 	label(name: string, value: any) {
 		this.storage.labels[name] = value;
 	}
 	
+	specialLabel(name: ELabelNames, value: any) {
+		this.storage.specialLabels[name] = value;
+	}
+	
+	/** @deprecated */
 	nsgLabel(name: ELabelNames, value: any) {
-		this.storage.nsgLabels[name] = value;
+		this.storage.specialLabels[name] = value;
 	}
 	
 	/** getters **/
@@ -283,14 +300,14 @@ export class MicroBuildConfig {
 		});
 	}
 	
-	getNsgLabel(name: ELabelNames) {
-		return this.storage.nsgLabels[name];
+	getSpecialLabel(name: ELabelNames) {
+		return this.storage.specialLabels[name];
 	}
 	
-	getNsgLabelList(): KeyValueObject<any> {
+	getSpecialLabelList(): KeyValueObject<any> {
 		const ret = {};
-		Object.keys(this.storage.nsgLabels).forEach((n) => {
-			ret[ELabelNames[n]] = this.storage.nsgLabels[n];
+		Object.keys(this.storage.specialLabels).forEach((n) => {
+			ret[ELabelNames[n]] = this.storage.specialLabels[n];
 		});
 		
 		return ret;

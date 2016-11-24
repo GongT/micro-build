@@ -23,7 +23,8 @@ export function npm_install_command(config: MicroBuildConfig) {
 				throw new Error('JsonEnv.gfw.npmRegistry is required.');
 			}
 			
-			npmPrependIns = `ENV IS_IN_CHINA=${JsonEnv.gfw.isInChina? 'yes' : 'no'} \\
+			npmPrependIns = `
+ENV IS_IN_CHINA=${JsonEnv.gfw.isInChina? 'yes' : 'no'} \\
 	NPM_REGISTRY=${wrapVal(JsonEnv.gfw.npmRegistry.url)} \\
 	NPM_USER=${wrapVal(JsonEnv.gfw.npmRegistry.user)} \\
 	NPM_PASS=${wrapVal(JsonEnv.gfw.npmRegistry.pass)} \\
@@ -31,6 +32,7 @@ export function npm_install_command(config: MicroBuildConfig) {
 	NPM_SCOPE=${wrapVal(JsonEnv.gfw.npmRegistry.scope)} \\
 	NPM_UPSTREAM=${wrapVal(JsonEnv.gfw.npmRegistry.upstream)} \\
 	IS_DEBUG=${JsonEnv.isDebug? 'yes' : 'no'}
+COPY .micro-build/npm-install /npm-install
 `;
 			if (JsonEnv.gfw.npmRegistry.user) {
 				npmPrependIns += `
@@ -56,26 +58,24 @@ RUN npm config set registry "${JsonEnv.gfw.npmRegistry.url}"
 	});
 	
 	helperScript = renderTemplate('plugin', 'npm-vars-source.sh', replacer);
-	saveFile('packagejson/source', helperScript, '644');
+	saveFile('npm-install/source', helperScript, '644');
 	
 	helperScript = renderTemplate('plugin', 'npm-vars-arg.sh', replacer);
-	saveFile('packagejson/npm', helperScript, '755');
+	saveFile('npm-install/npm', helperScript, '755');
 	
 	helperScript = renderTemplate('plugin', 'npm-installer-prepare-user.sh', replacer);
-	saveFile('packagejson/prepare-user', helperScript, '644');
+	saveFile('npm-install/prepare-user', helperScript, '644');
 	
 	helperScript = renderTemplate('plugin', 'npm-installer.sh', replacer);
-	saveFile('packagejson/installer', helperScript, '755');
+	saveFile('npm-install/installer', helperScript, '755');
 	
 	helperScript = renderTemplate('plugin', 'npm-local-installer.sh', replacer);
-	saveFile('packagejson/npm-install', helperScript, '755');
+	saveFile('npm-install/npm-install', helperScript, '755');
 	
 	helperScript = renderTemplate('plugin', 'npm-global-installer.sh', replacer);
-	saveFile('packagejson/global-installer', helperScript, '755');
+	saveFile('npm-install/global-installer', helperScript, '755');
 	
-	return `COPY .micro-build/packagejson /npm-install
-${npmPrependIns}
-`;
+	return npmPrependIns;
 }
 
 export function createTempPackageFile(json: IPackageJson) {
@@ -98,7 +98,7 @@ export function createTempPackageFile(json: IPackageJson) {
 		repository: 'xxx',
 	};
 	
-	const dir = resolve(getTempPath(), 'packagejson');
+	const dir = resolve(getTempPath(), 'package-json');
 	if (!existsSync(dir)) {
 		mkdirpSync(dir);
 	}

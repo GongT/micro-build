@@ -79,10 +79,10 @@ export function readBuildConfig(): MicroBuildConfig {
 	
 	console.log('config success!');
 	
-	const labelArr: string[] = <string[]>builder.getNsgLabel(ELabelNames.alias) || [];
+	const labelArr: string[] = <string[]>builder.getSpecialLabel(ELabelNames.alias) || [];
 	labelArr.push(builder.toJSON().projectName);
 	labelArr.push(builder.toJSON().domain);
-	builder.nsgLabel(ELabelNames.alias, labelArr);
+	builder.specialLabel(ELabelNames.alias, labelArr);
 	
 	return builder;
 }

@@ -5,13 +5,13 @@ set -e
 #{PREPEND_NPM_SCRIPT}
 
 NAME="$1"
-SOURCE_JSON="/npm-install/${2}"
+SOURCE_JSON="/npm-install/package-json/${2}"
 TARGET="/data/${3}"
 LOG_FILE="${NAME}.log"
 
 cd /npm-install
 
-mkdir -p ${TARGET}/node_modules
+mkdir -p ${TARGET}node_modules
 
 mkdir -p .inst
 cd .inst
@@ -19,13 +19,15 @@ cd .inst
 if [ -e "node_modules" ]; then
 	unlink node_modules
 fi
-ln -s ${TARGET}/node_modules ./node_modules
+ln -s ${TARGET}node_modules ./node_modules
 if [ -e "package.json" ]; then
 	unlink package.json
 fi
 ln -s ${SOURCE_JSON} ./package.json
 
 echo "PWD=`pwd` ${NPM_INSTALL} --color=true --progress=true"
+ls -l
+cat ./package.json
 ${NPM_INSTALL} --color=true --progress=true
 
 if [ $? -ne 0 ]; then

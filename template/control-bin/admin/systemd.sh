@@ -19,7 +19,7 @@ function sys_start {
 	sudo systemctl start $1
 }
 function sys_exists {
-	echo "/usr/lib/systemd/system/${1}.service" >&2
+	echo -e "\t/usr/lib/systemd/system/${1}.service" >&2
 	[ -e "/usr/lib/systemd/system/${1}.service" ]
 }
 function s_stop {
@@ -30,6 +30,7 @@ function s_status {
 }
 function s_install {
 	echo "installing service @{SERVICE_NAME} to systemd"
+	echo "    file: /usr/lib/systemd/system/@{SERVICE_NAME}.service"
 	cat "@{PWD}/systemd.service" | sudo tee "/usr/lib/systemd/system/@{SERVICE_NAME}.service" >/dev/null
 	systemctl daemon-reload
 	s_enable

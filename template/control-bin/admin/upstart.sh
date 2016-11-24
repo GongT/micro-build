@@ -21,7 +21,7 @@ function sys_start {
 	sudo service $1 start
 }
 function sys_exists {
-	echo "/etc/init/${1}.conf" >&2
+	echo -e "\t/etc/init/${1}.conf" >&2
 	[ -e "/etc/init/${1}.conf" ]
 }
 function s_stop {
@@ -32,6 +32,7 @@ function s_status {
 }
 function s_install {
 	echo "installing service @{SERVICE_NAME} to /etc/init"
+	echo "    file: /etc/init/@{SERVICE_NAME}.conf"
 	cat "@{PWD}/upstart.conf" | sudo tee "/etc/init/@{SERVICE_NAME}.conf" >/dev/null
 }
 function s_uninstall {
