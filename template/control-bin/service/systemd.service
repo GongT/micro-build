@@ -1,11 +1,15 @@
 [Unit]
 Description=@{DOMAIN_NAME} server instance
 Requires=docker.service @{DEPEND_SERVICES_SYSTEMD}
-After=docker.service
+After=docker.service @{DEPEND_SERVICES_SYSTEMD}
+PartOf=docker.service @{DEPEND_SERVICES_SYSTEMD}
 
 [Service]
 Type=simple
 Restart=always
+RestartSec=5
+StartLimitInterval=20
+StartLimitBurst=3
 Environment='DOCKER_START_ARGS=--rm --restart=no'
 WorkingDirectory=@{PWD}
 ExecStart=@{PWD}/start.sh

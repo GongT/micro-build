@@ -25,8 +25,14 @@ else
 	NPM_ARGUMENTS=""
 fi
 
+if [ "${NPM_LAYER_DISABLED}" = "yes" ]; then
+	NPM_REGISTRY_LAYER="${NPM_UPSTREAM}"
+else
+	NPM_REGISTRY_LAYER="${NPM_REGISTRY}"
+fi
+
 NPM_ARGUMENTS=`echo "${NPM_ARGUMENTS}
-	--registry=${NPM_REGISTRY}
+	--registry=${NPM_REGISTRY_LAYER}
 	--cache=/npm-install/npm-cache
 	--userconfig=${NPM_RC_FILE}
 	"`

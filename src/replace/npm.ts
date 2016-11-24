@@ -25,6 +25,7 @@ export function npm_install_command(config: MicroBuildConfig) {
 			
 			npmPrependIns = `
 ENV IS_IN_CHINA=${JsonEnv.gfw.isInChina? 'yes' : 'no'} \\
+	NPM_LAYER_DISABLED=${JsonEnv.gfw.npmRegistry.disableLayer? 'yes' : 'no'} \\
 	NPM_REGISTRY=${wrapVal(JsonEnv.gfw.npmRegistry.url)} \\
 	NPM_USER=${wrapVal(JsonEnv.gfw.npmRegistry.user)} \\
 	NPM_PASS=${wrapVal(JsonEnv.gfw.npmRegistry.pass)} \\
@@ -34,15 +35,15 @@ ENV IS_IN_CHINA=${JsonEnv.gfw.isInChina? 'yes' : 'no'} \\
 	IS_DEBUG=${JsonEnv.isDebug? 'yes' : 'no'}
 COPY .micro-build/npm-install /npm-install
 `;
-			if (JsonEnv.gfw.npmRegistry.user) {
+			if (JsonEnv.gfw.npmRegistry.disableLayer) {
+				npmPrependIns += `
+RUN npm config set registry "${JsonEnv.gfw.npmRegistry.upstream}"
+`;
+			} else {
 				npmPrependIns += `
 RUN /npm-install/global-installer npm-cli-login && \
 	npm config set registry "${JsonEnv.gfw.npmRegistry.url}" && \
 	bash /npm-install/prepare-user
-`;
-			} else {
-				npmPrependIns += `
-RUN npm config set registry "${JsonEnv.gfw.npmRegistry.url}"
 `;
 			}
 		}

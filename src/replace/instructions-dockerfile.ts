@@ -25,11 +25,12 @@ export class CustomInstructions extends TemplateVariables {
 	}
 	
 	ENVIRONMENT_VARS() {
-		return 'ENV ' + this.walk(this.config.toJSON().environments, (env) => {
-				if (env.insideOnly !== false) {
-					return `${env.name}=${env.value}`;
-				}
-			}, ' ') || '# NO ENV';
+		const ret = this.walk(this.config.toJSON().environments, (env) => {
+			if (env.insideOnly !== false) {
+				return `${env.name}=${env.value}`;
+			}
+		}, ' ');
+		return ret.trim()? 'ENV ' + ret : '# NO ENV';
 	}
 	
 	JSON_ENV_PASS() {

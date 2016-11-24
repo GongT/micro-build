@@ -5,17 +5,25 @@
 case $@ in
 start)
 	if [ -t 1 ] ; then
-		trap '[ -n "$(jobs -p)" ] && kill $(jobs -p)' EXIT
+		trap 'sleep 1 && [ -n "$(jobs -p)" ] && kill $(jobs -p)' EXIT
 		
-		journalctl -u "@{SERVICE_NAME}" -f &
-		PID=$!
+		( journalctl -fu "@{SERVICE_NAME}" 2> /dev/null & echo $! > /tmp/microbuild_start_pid )
+		PID=$(</tmp/microbuild_start_pid)
+		unlink /tmp/microbuild_start_pid
 		
 		s_start
 		sleep 5
 		
 		kill "${PID}"
 		
-		echo "view log with \` journalctl -u '@{SERVICE_NAME}' -f \`"
+		echo -e "
+		
+service started, but we can't know if there is any async fail.
+  \x1B[38;5;14myou can view more log with\x1B[0m:
+        journalctl -fu '@{SERVICE_NAME}'
+  \x1B[38;5;14mcheck service status with\x1B[0m:
+        systemctl status '@{SERVICE_NAME}'
+"
 	else
 		s_start
 	fi
