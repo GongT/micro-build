@@ -12,7 +12,6 @@ LOG_FILE="${NAME}.log"
 cd /npm-install
 
 mkdir -p ${TARGET}/node_modules
-ln -s ${TARGET}/node_modules ./${NAME}
 
 mkdir -p .inst
 cd .inst
@@ -20,25 +19,20 @@ cd .inst
 if [ -e "node_modules" ]; then
 	unlink node_modules
 fi
+ln -s ${TARGET}/node_modules ./node_modules
 if [ -e "package.json" ]; then
 	unlink package.json
 fi
 ln -s ${SOURCE_JSON} ./package.json
-ln -s ${TARGET}/node_modules ./node_modules
 
-echo "PWD=`pwd` ${NPM_INSTALL} --color=false 2>&1 | tee ${LOG_FILE} >&2"
-printf "\033[0;2m" >&2
-${NPM_INSTALL} --color=false 2>&1 | tee ${LOG_FILE} >&2
+echo "PWD=`pwd` ${NPM_INSTALL} --color=true --progress=true"
+${NPM_INSTALL} --color=true --progress=true
 
-if [ "${PIPESTATUS[0]}" -ne 0 ]; then
-	printf "\033[38;5;9m" >&2
-	echo "install failed..." >&2
-	printf "\033[0m" >&2
-	exit 1
+if [ $? -ne 0 ]; then
+	echo -e "\e[38;5;9m install failed... \e[0m" >&2
+	exit $?
 fi
-printf "\033[38;5;10m" >&2
-echo "install success..."
-printf "\033[0m" >&2
+echo -e "\e[38;5;10m install success... \e[0m" >&2
 
 unlink package.json
 unlink node_modules

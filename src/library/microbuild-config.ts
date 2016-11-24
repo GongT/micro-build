@@ -25,6 +25,7 @@ export interface MicroServiceConfig {
 	base: string;
 	dockerRunArguments: string[];
 	arguments: KeyValueObject<{
+		name: string,
 		defaultValue: string,
 		runArg: boolean,
 		desc?: string,
@@ -235,7 +236,8 @@ export class MicroBuildConfig {
 	}
 	
 	buildArgument(name: string, description: string, defaultValue: string = null) {
-		this.storage.arguments[name] = {runArg: false, defaultValue, desc: description};
+		const dockerfile_name = name.replace(/-/g, '_');
+		this.storage.arguments[name] = {name: dockerfile_name, runArg: false, defaultValue, desc: description};
 	}
 	
 	dockerRunArgument(...args: string[]) {
@@ -243,7 +245,8 @@ export class MicroBuildConfig {
 	}
 	
 	runArgument(name: string, description: string, defaultValue: string = null) {
-		this.storage.arguments[name] = {runArg: true, defaultValue, desc: description};
+		const dockerfile_name = name.replace(/-/g, '_');
+		this.storage.arguments[name] = {name: dockerfile_name, runArg: true, defaultValue, desc: description};
 	}
 	
 	environmentVariable(name: string, value: string) {

@@ -9,7 +9,7 @@ export function injectJsonEnv() {
 	}
 	if (process.env.JENV_FILE_NAME) {
 		console.log('read json-env from file %s', process.env.JENV_FILE_NAME);
-		require('json-env-data/global');
+		require('@gongt/jenv-data/global');
 		return global['JsonEnv'];
 	}
 	

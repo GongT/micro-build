@@ -13,7 +13,7 @@ export class ArgParseVars extends ScriptVariables {
 	private walkArg(run: boolean|undefined, split: string, empty: string, fn: Function) {
 		return this.walk(this.config.toJSON().arguments, function (d, n) {
 				if (run === undefined || run === d.runArg) {
-					return fn(d, n);
+					return fn(d, d.name);
 				}
 			}, split) || empty;
 	}

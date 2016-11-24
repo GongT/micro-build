@@ -13,27 +13,56 @@ const guid = createGuid();
 
 export function npm_install_command(config: MicroBuildConfig) {
 	let helperScript;
-	let isChina = '';
-	let prependScript = '';
-	const replacer = new ScriptVariables(config, {
-		PREPEND_NPM_SCRIPT () {
-			return prependScript;
-		},
-		INSERT_IS_CHINA_VAR () {
-			return isChina;
-		},
-	});
+	let npmPrependIns = '';
 	
 	const isJsonEnvEnabled = config.getPlugin(EPlugins.jenv);
 	if (isJsonEnvEnabled) {
 		injectJsonEnv();
-		isChina = 'export IS_IN_CHINA=' + (JsonEnv.isInChina? 'yes' : 'no');
-	} else {
-		config.buildArgument('is-china', 'no');
-		isChina = 'export IS_IN_CHINA';
+		if (JsonEnv.gfw) {
+			if (!JsonEnv.gfw.npmRegistry) {
+				throw new Error('JsonEnv.gfw.npmRegistry is required.');
+			}
+			
+			npmPrependIns = `ENV IS_IN_CHINA=${JsonEnv.gfw.isInChina? 'yes' : 'no'} \\
+	NPM_REGISTRY=${wrapVal(JsonEnv.gfw.npmRegistry.url)} \\
+	NPM_USER=${wrapVal(JsonEnv.gfw.npmRegistry.user)} \\
+	NPM_PASS=${wrapVal(JsonEnv.gfw.npmRegistry.pass)} \\
+	NPM_EMAIL=${wrapVal(JsonEnv.gfw.npmRegistry.email)} \\
+	NPM_SCOPE=${wrapVal(JsonEnv.gfw.npmRegistry.scope)} \\
+	NPM_UPSTREAM=${wrapVal(JsonEnv.gfw.npmRegistry.upstream)} \\
+	IS_DEBUG=${JsonEnv.isDebug? 'yes' : 'no'}
+`;
+			if (JsonEnv.gfw.npmRegistry.user) {
+				npmPrependIns += `
+RUN /npm-install/global-installer npm-cli-login && \
+	npm config set registry "${JsonEnv.gfw.npmRegistry.url}" && \
+	bash /npm-install/prepare-user
+`;
+			} else {
+				npmPrependIns += `
+RUN npm config set registry "${JsonEnv.gfw.npmRegistry.url}"
+`;
+			}
+		}
 	}
 	
-	prependScript = renderTemplate('plugin', 'npm-installer-detect.sh', replacer);
+	const r = new ScriptVariables(config);
+	const prependScript = renderTemplate('plugin', 'npm-installer-detect.sh', r);
+	
+	const replacer = new ScriptVariables(config, {
+		PREPEND_NPM_SCRIPT () {
+			return prependScript;
+		},
+	});
+	
+	helperScript = renderTemplate('plugin', 'npm-vars-source.sh', replacer);
+	saveFile('packagejson/source', helperScript, '644');
+	
+	helperScript = renderTemplate('plugin', 'npm-vars-arg.sh', replacer);
+	saveFile('packagejson/npm', helperScript, '755');
+	
+	helperScript = renderTemplate('plugin', 'npm-installer-prepare-user.sh', replacer);
+	saveFile('packagejson/prepare-user', helperScript, '644');
 	
 	helperScript = renderTemplate('plugin', 'npm-installer.sh', replacer);
 	saveFile('packagejson/installer', helperScript, '755');
@@ -44,7 +73,9 @@ export function npm_install_command(config: MicroBuildConfig) {
 	helperScript = renderTemplate('plugin', 'npm-global-installer.sh', replacer);
 	saveFile('packagejson/global-installer', helperScript, '755');
 	
-	return `COPY .micro-build/packagejson /npm-install`;
+	return `COPY .micro-build/packagejson /npm-install
+${npmPrependIns}
+`;
 }
 
 export function createTempPackageFile(json: IPackageJson) {
@@ -58,8 +89,9 @@ export function createTempPackageFile(json: IPackageJson) {
 		};
 	}
 	const packageFileContent = {
-		name: json.name,
+		name: 'installing-package',
 		dependencies: json.dependencies,
+		devDependencies: json.devDependencies,
 		scripts: lifeCycles,
 		version: '1.0.0',
 		description: 'xxx',
@@ -75,4 +107,8 @@ export function createTempPackageFile(json: IPackageJson) {
 	writeFileSync(resolve(dir, fileName), JSON.stringify(packageFileContent, null, 8), 'utf-8');
 	
 	return fileName;
+}
+
+function wrapVal(s) {
+	return s.replace(/ /, '\\ ');
 }

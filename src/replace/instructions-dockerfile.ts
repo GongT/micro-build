@@ -4,7 +4,6 @@ import createGuid from "../library/guid";
 import {TemplateVariables} from "./base";
 import {renderTemplate, renderFile} from "./replace-dockerfile";
 import {tempDirName} from "../library/file-paths";
-import {dirname} from "path";
 import scss from "./plugin/scss";
 import typescript from "./plugin/typescript";
 import browserify from "./plugin/browserify";
@@ -26,9 +25,13 @@ export class CustomInstructions extends TemplateVariables {
 	}
 	
 	ENVIRONMENT_VARS() {
-		return this.walk(this.config.toJSON().environments, (v, n) => {
-			return `ENV ${n} ${v}`;
-		});
+		if (Object.keys(this.config.toJSON().environments).length) {
+			return 'ENV ' + this.walk(this.config.toJSON().environments, (v, n) => {
+					return `${n}=${v}`;
+				}, ' ');
+		} else {
+			return '# NO ENV';
+		}
 	}
 	
 	JSON_ENV_PASS() {
@@ -43,15 +46,31 @@ export class CustomInstructions extends TemplateVariables {
 	}
 	
 	NSG_LABEL_INSTRUCTIONS() {
-		return this.walk(this.config.getNsgLabelList(), (v, k) => {
-			return `LABEL org.nsg.${k.toLowerCase()}=${this.wrap(v)}`;
-		});
+		return
 	}
 	
 	LABEL_INSTRUCTIONS() {
-		return this.walk(this.config.toJSON().labels, (v, k) => {
-			return `LABEL ${k}=${this.wrap(v)}`;
-		});
+		const split = ' \\ \n\t';
+		let customLabel = this.walk(this.config.toJSON().labels, (v, k) => {
+			return `${k}=${this.wrap(v)}`;
+		}, split);
+		const nsgLabel = this.walk(this.config.getNsgLabelList(), (v, k) => {
+			return `org.nsg.${k.toLowerCase()}=${this.wrap(v)}`;
+		}, split);
+		
+		if (nsgLabel) {
+			if (customLabel) {
+				customLabel += split + nsgLabel;
+			} else {
+				customLabel = nsgLabel;
+			}
+		}
+		
+		if (customLabel) {
+			return 'LABEL ' + customLabel;
+		} else {
+			return '# NO LABELS'
+		}
 	}
 	
 	BUILD_ARGUMENTS() {
@@ -61,23 +80,22 @@ export class CustomInstructions extends TemplateVariables {
 				return '';
 			}
 			if (def === null) {
-				return `ARG ${k}`;
+				return `ARG ${v.name}`;
 			} else {
-				return `ARG ${k}=${JSON.stringify(def)}`;
+				return `ARG ${v.name}=${JSON.stringify(def)}`;
 			}
 		});
 	}
 	
 	VOLUMES() {
 		return this.walk(this.config.toJSON().volume, (v, k) => {
-			let createIns;
-			if (v.isFolder) {
-				createIns = 'mkdir -p ' + JSON.stringify(k);
-			} else {
-				createIns = 'mkdir -p ' + JSON.stringify(dirname(k));
-			}
-			return `RUN ${createIns} 
-VOLUME ${k}`;
+			/*let createIns;
+			 if (v.isFolder) {
+			 createIns = 'mkdir -p ' + JSON.stringify(k);
+			 } else {
+			 createIns = 'mkdir -p ' + JSON.stringify(dirname(k));
+			 }*/
+			return `VOLUME ${k}`;
 		});
 	}
 	
@@ -154,9 +172,6 @@ VOLUME ${k}`;
 	
 	PLUGINS_NPM_INSTALL() {
 		const dependencies = [];
-		if (this.config.getPlugin(EPlugins.jenv)) {
-			dependencies.push('json-env-data');
-		}
 		if (this.config.getPlugin(EPlugins.typescript)) {
 			dependencies.push('typescript');
 		}
