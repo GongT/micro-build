@@ -36,6 +36,7 @@ export interface MicroServiceConfig {
 		insideOnly: boolean;
 		name: string;
 		value: string;
+		append: boolean | string;
 	}[];
 	labels: KeyValueObject<string|Object|any[]>;
 	specialLabels: KeyValueObject<string|Object|any[]>;
@@ -261,7 +262,13 @@ export class MicroBuildConfig {
 	 **/
 	environmentVariable(name: string, value: string, insideOnly = null) {
 		this.storage.environments.push({
-			name, value, insideOnly
+			name, value, insideOnly, append: false
+		});
+	}
+	
+	environmentVariableAppend(name: string, value: string, insideOnly = null, sp?: string) {
+		this.storage.environments.push({
+			name, value, insideOnly, append: sp || true
 		});
 	}
 	

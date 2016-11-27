@@ -24,10 +24,9 @@ ENTRYPOINT [@{SHELL}]
 CMD [@{COMMAND}${COMMAND_LINE_ARGS}]
 
 COPY . /data
-RUN [ -e /data/scripts ] && chmod a+x /data/scripts/* || true
 
 #{COMPILE_PLUGIN}
 
 #{CUSTOM_BUILD_AFTER}
 
-ENV BUILDING no
+ENV BUILDING=no

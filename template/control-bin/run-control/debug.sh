@@ -37,7 +37,7 @@ if [ -n "${BACKGROUND_WORKERS}" ]; then
 		"${BACKGROUND_WORKERS[@]}"
 	
 	{
-	export SHELL=/bin/sh
+	export SHELL="/bin/sh"
 	"@{CONCURRENTLY_BIN}" \
 		--names "${BACKGROUND_WORKERS_NAMES}" -p "name" \
 		"${BACKGROUND_WORKERS[@]}"

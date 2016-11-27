@@ -86,7 +86,11 @@ export abstract class TemplateVariables {
 		}
 	}
 	
-	protected wrap(v: any) {
+	protected wrapEnvStrip(v: any) {
+		return this.wrapEnv(v).replace(/^"|"$/g, '');
+	}
+	
+	protected wrapEnv(v: any) {
 		if (v === false || v === undefined || v === null) {
 			return '';
 		} else if (v === true) {

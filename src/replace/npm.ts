@@ -110,6 +110,11 @@ export function createTempPackageFile(json: IPackageJson) {
 	return fileName;
 }
 
+const literal = ['string', 'number', 'boolean', ''];
 function wrapVal(s) {
-	return s.replace(/ /, '\\ ');
+	if (literal.indexOf(typeof s) > -1 || s === null || s === undefined) {
+		return '' + JSON.stringify(s);
+	} else {
+		return JSON.stringify(JSON.stringify(s));
+	}
 }

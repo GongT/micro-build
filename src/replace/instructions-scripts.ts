@@ -49,9 +49,16 @@ export class ScriptVariables extends TemplateVariables {
 	}
 	
 	ENVIRONMENT_VARS() {
-		return this.walk(this.config.toJSON().environments, (v) => {
-			if (v.insideOnly !== true) {
-				return `export ${v.name}=${this.wrap(v.value)}`;
+		return this.walk(this.config.toJSON().environments, ({name, value, insideOnly, append}) => {
+			if (insideOnly !== true) {
+				if (append) {
+					if (append === true) {
+						append = '';
+					}
+					return `export ${name}="\${${name}}${append}${this.wrapEnvStrip(value)}"`;
+				} else {
+					return `export ${name}=${this.wrapEnv(value)}`;
+				}
 			}
 		});
 	}
@@ -113,7 +120,7 @@ export class ScriptVariables extends TemplateVariables {
 	
 	RUN_MOUNT_VOLUMES() {
 		return this.walk(this.config.toJSON().volume, (hostFolder, mountPoint: string)=> {
-			return `--volume ${this.wrap(hostFolder.path)}:${this.wrap(mountPoint)}`
+			return `--volume ${this.wrapEnv(hostFolder.path)}:${this.wrapEnv(mountPoint)}`
 		}, ' ');
 	}
 	

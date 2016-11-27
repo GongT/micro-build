@@ -24,10 +24,21 @@ export class CustomInstructions extends TemplateVariables {
 		}).join(', ');
 	}
 	
+	private safeEnv(str) {
+		return '"' + str.replace(/(\s)/g, '\\$1') + '"';
+	}
+	
 	ENVIRONMENT_VARS() {
-		const ret = this.walk(this.config.toJSON().environments, (env) => {
-			if (env.insideOnly !== false) {
-				return `${env.name}=${env.value}`;
+		const ret = this.walk(this.config.toJSON().environments, ({name, value, insideOnly, append}) => {
+			if (insideOnly !== false) {
+				if (append) {
+					if (append === true) {
+						append = '';
+					}
+					return `${name}=${this.safeEnv(`\${${name}}${append}${this.wrapEnvStrip(value)}`)}`;
+				} else {
+					return `${name}=${this.safeEnv(this.wrapEnvStrip(value))}`;
+				}
 			}
 		}, ' ');
 		return ret.trim()? 'ENV ' + ret : '# NO ENV';
@@ -47,10 +58,10 @@ export class CustomInstructions extends TemplateVariables {
 	LABEL_INSTRUCTIONS() {
 		const split = ' \\ \n\t';
 		let customLabel = this.walk(this.config.toJSON().labels, (v, k) => {
-			return `${k}=${this.wrap(v)}`;
+			return `${k}=${this.safeEnv(this.wrapEnvStrip(v))}`;
 		}, split);
 		const spLabel = this.walk(this.config.getSpecialLabelList(), (v, k) => {
-			return `org.special-label.${k.toLowerCase()}=${this.wrap(v)}`;
+			return `org.special-label.${k.toLowerCase()}=${this.safeEnv(this.wrapEnvStrip(v))}`;
 		}, split);
 		
 		if (spLabel) {
@@ -60,6 +71,8 @@ export class CustomInstructions extends TemplateVariables {
 				customLabel = spLabel;
 			}
 		}
+		
+		customLabel += `${split}org.special-label.serviceName=${this.wrapEnv(this.config.toJSON().projectName)}`;
 		
 		return 'LABEL ' + customLabel;
 	}
