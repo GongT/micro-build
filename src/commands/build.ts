@@ -1,7 +1,6 @@
 import update from "./update";
 import {spawnMainCommand} from "../library/spawn-child";
 import {createBuildTempFiles, readBuildConfig} from "../build/all";
-import ICommand = commander.ICommand;
 
 export default function build(this: any) {
 	const args = Array.prototype.slice.call(this.parent.rawArgs);
