@@ -183,7 +183,7 @@ export class MicroBuildConfig {
 		this.storage.serviceDependencies[otherService] = otherServiceGitUrl || null;
 	}
 	
-	dependIsolate(containerName: string, imageName: string, runCommandline: string|string[]) {
+	dependIsolate(containerName: string, imageName: string = '', runCommandline: string|string[] = '') {
 		this.storage.containerDependencies[containerName] = {imageName, runCommandline};
 	}
 	
