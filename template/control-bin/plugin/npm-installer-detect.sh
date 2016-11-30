@@ -5,10 +5,11 @@ function die {
 	exit 127
 }
 
-if ! grep -q "172.17.0.1" /etc/resolv.conf ; then
-	ORI=$(</etc/resolv.conf)
-	echo "nameserver 172.17.0.1" > /etc/resolv.conf
-	echo "${ORI}" >> /etc/resolv.conf
+if [ "yes" == "@{NPM_CACHE_LAYER}" ]; then
+	if [ -z "${HOST_LOOP_IP}" ]; then
+		die "something worng... no HOST_LOOP_IP set."
+	fi
+	echo "nameserver ${HOST_LOOP_IP}" > /etc/resolv.conf
 fi
 
 export NPM_RC_PATH=/npm-install/config
@@ -25,10 +26,10 @@ else
 	NPM_ARGUMENTS=""
 fi
 
-if [ "${NPM_LAYER_DISABLED}" = "yes" ]; then
-	NPM_REGISTRY_LAYER="${NPM_UPSTREAM}"
-else
+if [ "${NPM_LAYER_ENABLED}" = "yes" ]; then
 	NPM_REGISTRY_LAYER="${NPM_REGISTRY}"
+else
+	NPM_REGISTRY_LAYER="${NPM_UPSTREAM}"
 fi
 
 NPM_ARGUMENTS=`echo "${NPM_ARGUMENTS}

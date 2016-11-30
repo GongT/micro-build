@@ -1,10 +1,9 @@
 import {resolve} from "path";
 import {existsSync, writeFileSync} from "fs";
 import {sync as mkdirpSync} from "mkdirp";
-import {MicroBuildConfig, EPlugins} from "../library/microbuild-config";
+import {MicroBuildConfig} from "../library/microbuild-config";
 import {getTempPath} from "../library/file-paths";
 import createGuid from "../library/guid";
-import {injectJsonEnv} from "../library/json-env-cli";
 import {saveFile} from "../build/all";
 import {ScriptVariables} from "./instructions-scripts";
 import {renderTemplate} from "./replace-scripts";
@@ -15,44 +14,38 @@ export function npm_install_command(config: MicroBuildConfig) {
 	let helperScript;
 	let npmPrependIns = '';
 	
-	const isJsonEnvEnabled = config.getPlugin(EPlugins.jenv);
-	if (isJsonEnvEnabled) {
-		injectJsonEnv();
-		if (JsonEnv.gfw) {
-			if (!JsonEnv.gfw.npmRegistry) {
-				throw new Error('JsonEnv.gfw.npmRegistry is required.');
-			}
-			
-			npmPrependIns = `
-ENV IS_IN_CHINA=${JsonEnv.gfw.isInChina? 'yes' : 'no'} \\
-	NPM_LAYER_DISABLED=${JsonEnv.gfw.npmRegistry.disableLayer? 'yes' : 'no'} \\
-	NPM_REGISTRY=${wrapVal(JsonEnv.gfw.npmRegistry.url)} \\
-	NPM_USER=${wrapVal(JsonEnv.gfw.npmRegistry.user)} \\
-	NPM_PASS=${wrapVal(JsonEnv.gfw.npmRegistry.pass)} \\
-	NPM_EMAIL=${wrapVal(JsonEnv.gfw.npmRegistry.email)} \\
-	NPM_SCOPE=${wrapVal(JsonEnv.gfw.npmRegistry.scope)} \\
-	NPM_UPSTREAM=${wrapVal(JsonEnv.gfw.npmRegistry.upstream)} \\
+	const npm = config.getNpmConfig();
+	
+	npmPrependIns = `
+ENV NPM_LAYER_ENABLED=${npm.enabled? 'yes' : 'no'} \\
+	NPM_REGISTRY=${wrapVal(npm.url)} \\
+	NPM_USER=${wrapVal(npm.user)} \\
+	NPM_PASS=${wrapVal(npm.pass)} \\
+	NPM_EMAIL=${wrapVal(npm.email)} \\
+	NPM_SCOPE=${wrapVal(npm.scope)} \\
+	NPM_UPSTREAM=${wrapVal(npm.upstream)} \\
 	IS_DEBUG=${JsonEnv.isDebug? 'yes' : 'no'}
 COPY .micro-build/npm-install /npm-install
 `;
-			if (JsonEnv.gfw.npmRegistry.disableLayer) {
-				npmPrependIns += `
-RUN npm config set registry "${JsonEnv.gfw.npmRegistry.upstream}"
-`;
-			} else {
-				npmPrependIns += `
+	if (npm.enabled) {
+		npmPrependIns += `
 RUN /npm-install/global-installer npm-cli-login && \
-	npm config set registry "${JsonEnv.gfw.npmRegistry.url}" && \
+	npm config set registry "${npm.url}" && \
 	bash /npm-install/prepare-user
 `;
-			}
-		}
+	} else {
+		npmPrependIns += `
+RUN npm config set registry "${npm.url}"
+`;
 	}
 	
 	const r = new ScriptVariables(config);
 	const prependScript = renderTemplate('plugin', 'npm-installer-detect.sh', r);
 	
 	const replacer = new ScriptVariables(config, {
+		NPM_CACHE_LAYER() {
+			return npm.enabled? 'yes' : 'no';
+		},
 		PREPEND_NPM_SCRIPT () {
 			return prependScript;
 		},

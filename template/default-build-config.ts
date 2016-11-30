@@ -15,6 +15,8 @@ build.baseImage('node');
 build.projectName(projectName);
 build.domainName(projectName + '.localdomain');
 // build.domainName(projectName + '.' + JsonEnv.baseDomainName);
+
+build.npmCacheLayer(JsonEnv.gfw.npmRegistry);
 build.install('./package.json');
 
 // build.forwardPort(80, 'tcp').publish(8080);
@@ -45,4 +47,3 @@ build.environmentVariable('DEBUG', 'some-tag:*');
 
 // build.prependDockerFile('/path/to/docker/file');
 // build.appendDockerFile('/path/to/docker/file');
-

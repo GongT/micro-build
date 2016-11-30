@@ -2,6 +2,16 @@ import {existsSync, lstatSync, mkdirSync} from "fs";
 import {getProjectPath} from "./file-paths";
 import {resolve} from "path";
 import {determineDockerInterfaceIpAddress} from "./determine-docker-interface-ip-address";
+
+export interface NpmRegistry {
+	url: string;
+	user?: string;
+	pass?: string;
+	email?: string;
+	scope?: string;
+	upstream?: string;
+}
+
 export interface MicroServiceConfig {
 	forwardPort: {
 		host: number,
@@ -40,6 +50,9 @@ export interface MicroServiceConfig {
 	}[];
 	labels: KeyValueObject<string|Object|any[]>;
 	specialLabels: KeyValueObject<string|Object|any[]>;
+	npmUpstream: NpmRegistry & {
+		enabled: boolean;
+	};
 	install: string[];
 	networking: {
 		hostIp: string;
@@ -94,6 +107,10 @@ export class MicroBuildConfig {
 			hostIp6: '',
 			bridge: true,
 			ifName: 'docker0',
+		},
+		npmUpstream: {
+			enabled: false,
+			url: 'http://registry.npmjs.org'
 		},
 	};
 	
@@ -280,6 +297,17 @@ export class MicroBuildConfig {
 		this.storage.specialLabels[name] = value;
 	}
 	
+	npmInstallSource(upstream: string) {
+		this.storage.npmUpstream = {
+			url: upstream,
+			enabled: false,
+		};
+	}
+	
+	npmCacheLayer(config: NpmRegistry) {
+		this.storage.npmUpstream = Object.assign({enabled: true,}, config);
+	}
+	
 	/** @deprecated */
 	nsgLabel(name: ELabelNames, value: any) {
 		this.storage.specialLabels[name] = value;
@@ -291,6 +319,10 @@ export class MicroBuildConfig {
 			throw new Error(`project name is not defined in build script`);
 		}
 		return this.storage;
+	}
+	
+	getNpmConfig() {
+		return this.storage.npmUpstream;
 	}
 	
 	getDomainBase() {

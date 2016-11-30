@@ -44,6 +44,12 @@ export class CustomInstructions extends TemplateVariables {
 		return ret.trim()? 'ENV ' + ret : '# NO ENV';
 	}
 	
+	NETWORKING_ENVIRONMENTS() {
+		return this.walk(this.config.getNetworkConfig(), (v, k)=> {
+			return `${k}=${this.safeEnv(this.wrapEnvStrip(v))}`;
+		}, ' \\ \n');
+	}
+	
 	JSON_ENV_PASS() {
 		if (!this.jsonEnvEnabled) {
 			return '# no json env';

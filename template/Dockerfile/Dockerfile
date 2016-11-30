@@ -2,7 +2,9 @@
 
 ENV BUILDING=yes \
 	PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/data/scripts:/sbin:/bin \
-	RUN_IN_DOCKER=yes
+	RUN_IN_DOCKER=yes \
+	@{NETWORKING_ENVIRONMENTS}
+
 RUN mkdir -p /data
 WORKDIR /data
 
