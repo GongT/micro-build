@@ -10,7 +10,6 @@ export interface NpmRegistry {
 	email?: string;
 	scope?: string;
 	upstream?: string;
-	useChinaCdn?: boolean;
 }
 
 export interface MicroServiceConfig {
@@ -41,6 +40,7 @@ export interface MicroServiceConfig {
 		runArg: boolean,
 		desc?: string,
 	}>;
+	isChina: boolean;
 	serviceDependencies: KeyValueObject<string>;
 	containerDependencies: KeyValueObject<{imageName: string, runCommandline: string|string[]}>;
 	environments: {
@@ -109,6 +109,7 @@ export class MicroBuildConfig {
 			bridge: true,
 			ifName: 'docker0',
 		},
+		isChina: false,
 		npmUpstream: {
 			enabled: false,
 			url: 'http://registry.npmjs.org'
@@ -253,6 +254,10 @@ export class MicroBuildConfig {
 			path: hostFodler,
 			isFolder: lstatSync(hostFodler).isDirectory(),
 		};
+	}
+	
+	isInChina(is: boolean) {
+		this.storage.isChina = is;
 	}
 	
 	install(packageJsonRelativePath: string) {

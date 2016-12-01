@@ -16,6 +16,7 @@ build.projectName(projectName);
 build.domainName(projectName + '.localdomain');
 // build.domainName(projectName + '.' + JsonEnv.baseDomainName);
 
+build.isInChina(JsonEnv.gfw.isInChina);
 build.npmCacheLayer(JsonEnv.gfw.npmRegistry);
 build.install('./package.json');
 
