@@ -220,6 +220,16 @@ export class MicroBuildConfig {
 		}
 	}
 	
+	permantalStorage(imageMountpoint: string) {
+		if (!/^\//.test(imageMountpoint)) {
+			imageMountpoint = resolve('/data', imageMountpoint);
+		}
+		this.storage.volume[imageMountpoint] = {
+			path: null,
+			isFolder: true,
+		};
+	}
+	
 	volume(hostFodler: string, imageMountpoint: string = '') {
 		if (/^\./.test(hostFodler)) {
 			hostFodler = resolve(getProjectPath(), hostFodler);
@@ -230,7 +240,7 @@ export class MicroBuildConfig {
 			}
 		}
 		if (!existsSync(hostFodler)) {
-			throw new Error(`volumn is not exists: ${hostFodler}`);
+			throw new Error(`volume is not exists: ${hostFodler}`);
 		}
 		if (imageMountpoint) {
 			if (!/^\//.test(imageMountpoint)) {

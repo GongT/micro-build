@@ -120,7 +120,11 @@ export class ScriptVariables extends TemplateVariables {
 	
 	RUN_MOUNT_VOLUMES() {
 		return this.walk(this.config.toJSON().volume, (hostFolder, mountPoint: string)=> {
-			return `--volume ${this.wrapEnv(hostFolder.path)}:${this.wrapEnv(mountPoint)}`
+			if (hostFolder.path) {
+				return `--volume ${this.wrapEnv(hostFolder.path)}:${this.wrapEnv(mountPoint)}`
+			}else{
+				return `--volume ${this.wrapEnv(mountPoint)}`
+			}
 		}, ' ');
 	}
 	

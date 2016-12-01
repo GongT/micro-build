@@ -99,12 +99,6 @@ export class CustomInstructions extends TemplateVariables {
 	
 	VOLUMES() {
 		return this.walk(this.config.toJSON().volume, (v, k) => {
-			/*let createIns;
-			 if (v.isFolder) {
-			 createIns = 'mkdir -p ' + JSON.stringify(k);
-			 } else {
-			 createIns = 'mkdir -p ' + JSON.stringify(dirname(k));
-			 }*/
 			return `VOLUME ${k}`;
 		});
 	}
