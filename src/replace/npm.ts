@@ -24,8 +24,7 @@ ENV NPM_LAYER_ENABLED=${npm.enabled? 'yes' : 'no'} \\
 	NPM_EMAIL=${wrapVal(npm.email)} \\
 	NPM_SCOPE=${wrapVal(npm.scope)} \\
 	NPM_UPSTREAM=${wrapVal(npm.upstream)} \\
-	IS_DEBUG=${JsonEnv.isDebug? 'yes' : 'no'} \\
-	IS_IN_CHINA=${config.toJSON().isChina? 'yes' : 'no'}
+	IS_DEBUG=${JsonEnv.isDebug? 'yes' : 'no'}
 COPY .micro-build/npm-install /npm-install
 `;
 	if (npm.enabled) {

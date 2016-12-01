@@ -44,6 +44,10 @@ export class CustomInstructions extends TemplateVariables {
 		return ret.trim()? 'ENV ' + ret : '# NO ENV';
 	}
 	
+	CHINA_ENVIRONMENTS() {
+		return this.config.toJSON().isChina? 'IS_IN_CHINA="yes"' : 'IS_IN_CHINA="no"';
+	}
+	
 	NETWORKING_ENVIRONMENTS() {
 		return this.walk(this.config.getNetworkConfig(), (v, k)=> {
 			return `${k}=${this.safeEnv(this.wrapEnvStrip(v))}`;
