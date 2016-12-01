@@ -11,7 +11,16 @@ function s_disable {
 	echo manual | sudo tee "/etc/init/@{SERVICE_NAME}.override"
 }
 function s_start {
-	sudo service "@{SERVICE_NAME}" start
+	local OUTPUT=/tmp/starting
+	sudo service "@{SERVICE_NAME}" start >"${OUTPUT}" 2>&1
+	RET=$?
+	if [ ${RET} -eq 1 ]; then
+		if cat "${OUTPUT}" | grep -q "is already running" ; then
+			RET=0
+		fi
+	fi
+	cat "${OUTPUT}"
+	return ${RET}
 }
 function sys_status_started {
 	service $1 status -q
