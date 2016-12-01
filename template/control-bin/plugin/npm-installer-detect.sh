@@ -16,7 +16,7 @@ export NPM_RC_PATH=/npm-install/config
 mkdir -p "${NPM_RC_PATH}"
 export NPM_RC_FILE=${NPM_RC_PATH}/.npmrc
 
-if [ "${IS_IN_CHINA}" = "yes" ]; then
+if [ "${IS_IN_CHINA}" == "yes" ]; then
 	export SASS_BINARY_SITE=http://npm.taobao.org/mirrors/node-sass
 	NPM_ARGUMENTS=`echo "
 	--phantomjs_cdnurl=http://npm.taobao.org/mirrors/phantomjs

@@ -10,6 +10,7 @@ export interface NpmRegistry {
 	email?: string;
 	scope?: string;
 	upstream?: string;
+	useChinaCdn?: boolean;
 }
 
 export interface MicroServiceConfig {
