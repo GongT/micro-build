@@ -39,11 +39,7 @@ RUN npm config set registry "${npm.url}"
 `;
 	}
 	
-	const r = new ScriptVariables(config, {
-		NPM_CACHE_LAYER() {
-			return npm.enabled? 'yes' : 'no';
-		},
-	});
+	const r = new ScriptVariables(config, {});
 	const prependScript = renderTemplate('plugin', 'npm-installer-detect.sh', r);
 	
 	const replacer = new ScriptVariables(config, {
