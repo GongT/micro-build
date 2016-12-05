@@ -19,7 +19,7 @@ else
 	sleep 2
 	
 	if ! is_container_running "@{CONTAINER_NAME}" ; then
-		echo "Fatal: dependence service @{CONTAINER_NAME} can't start" >&2
+		echo "Fatal: dependence service @{CONTAINER_NAME} can't start, container \"@{CONTAINER_NAME}\" not running." >&2
 		exit 200
 	fi
 fi
