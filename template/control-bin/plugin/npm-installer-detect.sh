@@ -5,7 +5,7 @@ function die {
 	exit 127
 }
 
-if [ "yes" == "@{NPM_LAYER_ENABLED}" ]; then
+if [ "yes" == "${NPM_LAYER_ENABLED}" ]; then
 	if [ -z "${HOST_LOOP_IP}" ]; then
 		die "something worng... no HOST_LOOP_IP set."
 	fi
