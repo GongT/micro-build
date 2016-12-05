@@ -26,14 +26,8 @@ else
 	NPM_ARGUMENTS=""
 fi
 
-if [ "${NPM_LAYER_ENABLED}" = "yes" ]; then
-	NPM_REGISTRY_LAYER="${NPM_REGISTRY}"
-else
-	NPM_REGISTRY_LAYER="${NPM_UPSTREAM}"
-fi
-
 NPM_ARGUMENTS=`echo "${NPM_ARGUMENTS}
-	--registry=${NPM_REGISTRY_LAYER}
+	--registry=${NPM_REGISTRY}
 	--cache=/npm-install/npm-cache
 	--userconfig=${NPM_RC_FILE}
 	"`
