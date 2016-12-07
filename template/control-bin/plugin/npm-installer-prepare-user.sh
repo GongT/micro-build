@@ -22,3 +22,5 @@ npm-cli-login \
 	--config-path "${NPM_RC_FILE}"
 
 npm config set "@${NPM_SCOPE}:registry" "${NPM_REGISTRY}"
+
+npm ${NPM_ARGUMENTS} whoami
