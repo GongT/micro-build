@@ -40,19 +40,20 @@ declare interface IPackageJson {
 	repository?: any;
 	bin?: {
 		[id: string]: string;
-	}
+	};
 	scripts?: {
 		start: string;
 		build: string;
 		service: string;
 		[id: string]: string;
-	},
+	};
 	dependencies?: {
 		[name: string]: string;
 	};
 	devDependencies?: {
 		[name: string]: string;
 	};
+	jspm: any;
 }
 
 interface WritableStream {

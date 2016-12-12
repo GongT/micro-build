@@ -1,14 +1,12 @@
 import {resolve} from "path";
 import {existsSync, writeFileSync} from "fs";
 import {sync as mkdirpSync} from "mkdirp";
-import {MicroBuildConfig} from "../library/microbuild-config";
-import {getTempPath} from "../library/file-paths";
-import createGuid from "../library/guid";
-import {saveFile} from "../build/all";
-import {ScriptVariables} from "./instructions-scripts";
-import {renderTemplate} from "./replace-scripts";
-
-const guid = createGuid();
+import {MicroBuildConfig} from "../../library/microbuild-config";
+import {getTempPath} from "../../library/file-paths";
+import {saveFile} from "../../build/all";
+import {ScriptVariables} from "../instructions-scripts";
+import {renderTemplate} from "../replace-scripts";
+import {_guid} from "./_guid";
 
 export function npm_install_command(config: MicroBuildConfig) {
 	let helperScript;
@@ -93,7 +91,7 @@ export function createTempPackageFile(json: IPackageJson) {
 	if (!existsSync(dir)) {
 		mkdirpSync(dir);
 	}
-	const fileName = `${guid()}.json`;
+	const fileName = `${_guid()}.json`;
 	
 	writeFileSync(resolve(dir, fileName), JSON.stringify(packageFileContent, null, 8), 'utf-8');
 	

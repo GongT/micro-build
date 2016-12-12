@@ -1,5 +1,5 @@
 import {PackageJsonFile} from "../library/package-json-file";
-import {npm_install_command, createTempPackageFile} from "./npm";
+import {npm_install_command, createTempPackageFile} from "./plugin/npm";
 import createGuid from "../library/guid";
 import {TemplateVariables} from "./base";
 import {renderTemplate, renderFile} from "./replace-dockerfile";
@@ -8,6 +8,9 @@ import scss from "./plugin/scss";
 import typescript from "./plugin/typescript";
 import browserify from "./plugin/browserify";
 import {EPlugins} from "../library/microbuild-config";
+import {systemInstall} from "./plugin/system-install";
+import {createTempPackageFileForJspm, jspm_install_command} from "./plugin/jspm";
+import {dirname} from "path";
 
 const nextGuid = createGuid();
 
@@ -49,7 +52,7 @@ export class CustomInstructions extends TemplateVariables {
 	}
 	
 	NETWORKING_ENVIRONMENTS() {
-		return this.walk(this.config.getNetworkConfig(), (v, k)=> {
+		return this.walk(this.config.getNetworkConfig(), (v, k) => {
 			return `${k}=${this.safeEnv(this.wrapEnvStrip(v))}`;
 		}, ' \\ \n');
 	}
@@ -107,6 +110,10 @@ export class CustomInstructions extends TemplateVariables {
 		});
 	}
 	
+	CUSTOM_SYSTEM_INSTALL() {
+		return systemInstall(this.config);
+	}
+	
 	CUSTOM_BUILD_BEFORE() {
 		return this.custom_build(this.config.toJSON().prependDockerFile);
 	}
@@ -126,7 +133,7 @@ export class CustomInstructions extends TemplateVariables {
 			}
 		});
 		if (dockerfile) {
-			return dockerfile + '\n\nWORKDIR /data'
+			return dockerfile;
 		} else {
 			return '# no custom build here';
 		}
@@ -155,10 +162,42 @@ export class CustomInstructions extends TemplateVariables {
 		].join('\n');
 	}
 	
+	private jspmActived = false;
+	
+	JSPM_INSTALL_INSTRUCTIONS() {
+		const jspmInst = this.config.toJSON().jspmInstall.map((packagejsonPath) => {
+			const pkg = new PackageJsonFile(packagejsonPath);
+			let targetPath = packagejsonPath.replace(/^\.\//, '').replace(/\/?package\.json$/, '');
+			if (targetPath) {
+				targetPath += '/';
+			}
+			if (!/^\//.test(targetPath)) {
+				targetPath = `/data/${targetPath}`;
+			}
+			const name = pkg.content.name || (pkg.content.name = 'noname-' + nextGuid());
+			
+			const tempFile = createTempPackageFileForJspm(pkg.content);
+			
+			return `COPY .micro-build/package-json/${tempFile} ${targetPath}
+RUN cd "${dirname(targetPath)}" && \\
+	export PATH="\${PATH}:./node_modules/.bin" && \\
+	jspm install ${targetPath}`;
+		});
+		if (jspmInst.length) {
+			if (!this.jspmActived) {
+				this.jspmActived = true;
+				jspmInst.unshift(jspm_install_command(this.config));
+			}
+			return jspmInst.join('\n\n');
+		} else {
+			return '# no jspm install required';
+		}
+	}
+	
 	private npmActived = false;
 	
 	NPM_INSTALL_INSTRUCTIONS() {
-		const npmInstallInstruction = this.config.toJSON().install.map((packagejsonPath) => {
+		const npmInstallInstruction = this.config.toJSON().npmInstall.map((packagejsonPath) => {
 			const pkg = new PackageJsonFile(packagejsonPath);
 			let targetPath = packagejsonPath.replace(/^\.\//, '').replace(/\/?package\.json$/, '');
 			if (targetPath) {

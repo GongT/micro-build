@@ -106,6 +106,11 @@ commander.command('mkconfig [args...]')
          .description('create build script for debug.')
          .action(call_command);
 
+commander.command('update')
+         .allowUnknownOption(false)
+         .description('update current folder status.')
+         .action(call_command);
+
 commander.command('clean')
          .allowUnknownOption(false)
          .description('remove temp files.')

@@ -5,6 +5,7 @@ export abstract class BaseFile<ContentType> {
 	protected _content: ContentType;
 	protected _create: boolean;
 	protected _exists: boolean;
+	private _old_content: string;
 	
 	protected abstract create_default(): ContentType;
 	
@@ -20,8 +21,8 @@ export abstract class BaseFile<ContentType> {
 	
 	reload() {
 		if (existsSync(this._fileName)) {
-			const content = readFileSync(this._fileName, 'utf-8').trim();
-			this._content = this.parse_file(content);
+			this._old_content = readFileSync(this._fileName, 'utf-8').trim();
+			this._content = this.parse_file(this._old_content);
 			this._exists = true;
 		} else {
 			if (!this._create) {
@@ -39,11 +40,16 @@ export abstract class BaseFile<ContentType> {
 	write() {
 		let content;
 		try {
-			content = this.stringify_file();
+			content = this.stringify_file().trim();
 		} catch (e) {
 			console.log(this._content);
 			throw new Error(`can't stringify file content, file: ${this._fileName}.`);
 		}
+		if (this._exists && content === this._old_content) {
+			return;
+		}
+		this._old_content = content;
+		console.error('wirte to file: %s', this._fileName);
 		writeFileSync(this._fileName, content + '\n', 'utf-8');
 		this._exists = true;
 	}

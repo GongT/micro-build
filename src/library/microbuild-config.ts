@@ -12,15 +12,21 @@ export interface NpmRegistry {
 	upstream?: string;
 }
 
+export interface GithubInterface {
+	username: string;
+	token: string;
+}
+
 export interface MicroServiceConfig {
+	github: GithubInterface;
 	forwardPort: {
-		host: number,
-		client: number,
-		method: string,
+		host: number;
+		client: number;
+		method: string;
 	}[];
 	volume: KeyValueObject<{
-		path: string,
-		isFolder: boolean,
+		path: string;
+		isFolder: boolean;
 	}>;
 	command: string[];
 	shell: string[];
@@ -35,10 +41,10 @@ export interface MicroServiceConfig {
 	base: string;
 	dockerRunArguments: string[];
 	arguments: KeyValueObject<{
-		name: string,
-		defaultValue: string,
-		runArg: boolean,
-		desc?: string,
+		name: string;
+		defaultValue: string;
+		runArg: boolean;
+		desc?: string;
 	}>;
 	isChina: boolean;
 	serviceDependencies: KeyValueObject<string>;
@@ -54,7 +60,11 @@ export interface MicroServiceConfig {
 	npmUpstream: NpmRegistry & {
 		enabled: boolean;
 	};
-	install: string[];
+	systemInstall: string[];
+	systemMethod: string;
+	npmInstall: string[];
+	jspmInstall: string[];
+	jspmConfig: string;
 	networking: {
 		hostIp: string;
 		hostIp6: string;
@@ -74,6 +84,7 @@ export enum EPlugins{
 	node_scss,
 	typescript,
 	browserify,
+	alpine,
 }
 
 export interface KeyValueObject<T> {
@@ -102,7 +113,15 @@ export class MicroBuildConfig {
 		environments: [],
 		labels: {},
 		specialLabels: {},
-		install: [],
+		systemInstall: [],
+		systemMethod: '',
+		npmInstall: [],
+		jspmInstall: [],
+		jspmConfig: '',
+		github: {
+			username: '',
+			token: '',
+		},
 		networking: {
 			hostIp: '',
 			hostIp6: '',
@@ -165,14 +184,14 @@ export class MicroBuildConfig {
 	}
 	
 	projectName(name: string) {
-		if (!/[a-z0-9\-_\.]/i.test(name)) {
+		if (!/[a-z0-9\-_.]/i.test(name)) {
 			throw new Error(`ca't use ${name} as project name.`);
 		}
 		this.storage.projectName = name;
 	}
 	
 	domainName(name: string) {
-		if (!/[a-z0-9\-_\.]/i.test(name)) {
+		if (!/[a-z0-9\-_.]/i.test(name)) {
 			throw new Error(`ca't use ${name} as project name.`);
 		}
 		this.storage.domain = name;
@@ -260,13 +279,41 @@ export class MicroBuildConfig {
 		this.storage.isChina = is;
 	}
 	
+	/** @deprecated */
 	install(packageJsonRelativePath: string) {
-		if (this.storage.install.indexOf(packageJsonRelativePath) === -1) {
+		this.npmInstall(packageJsonRelativePath);
+	}
+	
+	npmInstall(packageJsonRelativePath: string) {
+		if (this.storage.npmInstall.indexOf(packageJsonRelativePath) === -1) {
 			if (!/package\.json$/.test(packageJsonRelativePath)) {
-				throw new Error('microbuild.install only accept file name `package.json`');
+				throw new Error('microbuild.npmInstall only accept file name `package.json`');
 			}
-			this.storage.install.push(packageJsonRelativePath);
+			this.storage.npmInstall.push(packageJsonRelativePath);
 		}
+	}
+	
+	jspmConfig(clientConfigFile: string) {
+		this.storage.jspmConfig = clientConfigFile
+	}
+	
+	jspmInstall(packageJsonRelativePath: string) {
+		if (this.storage.jspmInstall.indexOf(packageJsonRelativePath) === -1) {
+			if (!/package\.json$/.test(packageJsonRelativePath)) {
+				throw new Error('microbuild.jspmInstall only accept file name `package.json`');
+			}
+			this.storage.jspmInstall.push(packageJsonRelativePath);
+		}
+	}
+	
+	systemInstall(...pacakges: string[]) {
+		pacakges.forEach((name) => {
+			this.storage.systemInstall.push(name);
+		});
+	}
+	
+	systemInstallMethod(installer: string) {
+		this.storage.systemMethod = installer;
 	}
 	
 	addPlugin(name: EPlugins, options: any = true) {
@@ -324,6 +371,10 @@ export class MicroBuildConfig {
 		this.storage.npmUpstream = Object.assign({enabled: true,}, config);
 	}
 	
+	github(config: GithubInterface) {
+		this.storage.github = config;
+	}
+	
 	/** @deprecated */
 	nsgLabel(name: ELabelNames, value: any) {
 		this.storage.specialLabels[name] = value;
@@ -339,6 +390,10 @@ export class MicroBuildConfig {
 	
 	getNpmConfig() {
 		return this.storage.npmUpstream;
+	}
+	
+	getGithubConfig() {
+		return this.storage.github;
 	}
 	
 	getDomainBase() {
