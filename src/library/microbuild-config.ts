@@ -17,6 +17,11 @@ export interface GithubInterface {
 	token: string;
 }
 
+export interface GFWInterface {
+	active?: boolean;
+	proxy?: string;
+}
+
 export interface MicroServiceConfig {
 	github: GithubInterface;
 	forwardPort: {
@@ -46,7 +51,7 @@ export interface MicroServiceConfig {
 		runArg: boolean;
 		desc?: string;
 	}>;
-	isChina: boolean;
+	gfwConfig: GFWInterface;
 	serviceDependencies: KeyValueObject<string>;
 	containerDependencies: KeyValueObject<{imageName: string, runCommandline: string|string[]}>;
 	environments: {
@@ -128,7 +133,10 @@ export class MicroBuildConfig {
 			bridge: true,
 			ifName: 'docker0',
 		},
-		isChina: false,
+		gfwConfig: {
+			active: false,
+			proxy: '',
+		},
 		npmUpstream: {
 			enabled: false,
 			url: 'http://registry.npmjs.org'
@@ -275,8 +283,15 @@ export class MicroBuildConfig {
 		};
 	}
 	
-	isInChina(is: boolean) {
-		this.storage.isChina = is;
+	isInChina(proxy?: GFWInterface);
+	isInChina(is: boolean, proxy?: GFWInterface );
+	isInChina(is: boolean, proxy: GFWInterface = {}) {
+		if (is === true || is === false) {
+			proxy.active = is;
+			this.storage.gfwConfig = proxy;
+		} else {
+			this.storage.gfwConfig = is;
+		}
 	}
 	
 	/** @deprecated */
@@ -394,6 +409,10 @@ export class MicroBuildConfig {
 	
 	getGithubConfig() {
 		return this.storage.github;
+	}
+	
+	getGfwConfig() {
+		return this.storage.gfwConfig;
 	}
 	
 	getDomainBase() {

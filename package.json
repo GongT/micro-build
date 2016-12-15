@@ -1,6 +1,6 @@
 {
 	"name": "@gongt/micro-build",
-	"version": "1.5.0-1",
+	"version": "1.5.0",
 	"description": "simple micro service builder system with nodejs & docker",
 	"bin": {
 		"microbuild": "./bin/microbuild"

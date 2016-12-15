@@ -45,6 +45,7 @@ export default function update() {
 		'!.jsonenv/_current_result.json.d.ts',
 		`!${tempDirName}/npm-install`,
 		`!${tempDirName}/package-json`,
+		`!${tempDirName}/jspm-install`,
 	], extraFolders));
 	dockerIgnore.write();
 	

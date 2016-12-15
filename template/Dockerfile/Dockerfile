@@ -1,7 +1,7 @@
 #{FROM}
 
 ENV BUILDING=yes \
-	PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/data/scripts:/sbin:/bin \
+	PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/data/scripts:/sbin:/bin:/data/node_modules/.bin:./node_modules/.bin \
 	RUN_IN_DOCKER=yes \
 	@{CHINA_ENVIRONMENTS} \
 	@{NETWORKING_ENVIRONMENTS}
@@ -10,6 +10,8 @@ ENV BUILDING=yes \
 
 RUN mkdir -p /data
 WORKDIR /data
+
+# --> ? COPY .micro-build/bin/* /usr/local/bin
 
 #{PLUGINS_NPM_INSTALL}
 #{NPM_INSTALL_INSTRUCTIONS}
@@ -35,4 +37,4 @@ COPY . /data
 
 #{CUSTOM_BUILD_AFTER}
 
-ENV BUILDING=no
+ENV BUILDING=no HTTP_PROXY="" HTTPS_PROXY=""

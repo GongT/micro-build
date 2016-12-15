@@ -1,45 +1,67 @@
-import {getTempPath} from "../../library/file-paths";
+import {getTempPath, tempDirName} from "../../library/file-paths";
 import {resolve} from "path";
-import {existsSync, writeFileSync} from "fs";
-import {sync as mkdirpSync} from "mkdirp";
+import {writeFileSync} from "fs";
 import {_guid} from "./_guid";
 import {MicroBuildConfig} from "../../library/microbuild-config";
+import {ScriptVariables} from "../instructions-scripts";
+import {renderTemplate} from "../replace-scripts";
+import {saveFile} from "../../build/all";
+
+const tempDir = `/jspm-install`;
 
 export function jspm_install_command(config: MicroBuildConfig) {
-	const npm = config.getNpmConfig();
 	const github = config.getGithubConfig();
 	const actions = [];
 	
-	if (npm.url) {
-		actions.push(`jspm config registries.npm.registry ${npm.url}`)
-	}
 	if (github.token) {
 		actions.push(`jspm config registries.github.auth ${github.token}`)
 	}
 	
+	const replacer = new ScriptVariables(config, {});
+	
+	const helperScript = renderTemplate('plugin', 'jspm-install.sh', replacer);
+	saveFile('jspm-install/jspm-install', helperScript, '755');
+	
 	if (actions.length) {
-		return 'RUN ' + actions.join();
+		return `
+COPY ${tempDirName}/jspm-install /
+RUN ${actions.join(' && \\ \n\t')}
+`;
 	} else {
-		return '';
+		return `
+COPY ${tempDirName}/jspm-install /jspm-install
+`;
 	}
 }
 
-export function createTempPackageFileForJspm(json: IPackageJson) {
+export function createJspmInstallScript({jspm}: IPackageJson, targetPath: string) {
+	const jsonFile = `${_guid()}.json`;
+	if (!jspm) {
+		throw new Error('No jspm config found in package.json.');
+	}
+	
+	let configFile = jspm.configFile || './config.js';
+	configFile = resolve('/data', configFile);
+	
+	let packageDir;
+	if (jspm.directories && jspm.directories.packages) {
+		packageDir =jspm.directories.packages;
+	} else {
+		packageDir ='./jspm_packages';
+	}
+	
 	const packageFileContent = {
 		name: 'installing-package',
-		jspm: json.jspm,
+		jspm: Object.assign({}, jspm, {
+			configFile: configFile,
+		}),
 		version: '1.0.0',
 		description: 'xxx',
 		repository: 'xxx',
 	};
 	
-	const dir = resolve(getTempPath(), 'package-json');
-	if (!existsSync(dir)) {
-		mkdirpSync(dir);
-	}
-	const fileName = `${_guid()}.json`;
+	writeFileSync(resolve(getTempPath(), 'package-json', jsonFile), JSON.stringify(packageFileContent, null, 8), 'utf-8');
 	
-	writeFileSync(resolve(dir, fileName), JSON.stringify(packageFileContent, null, 8), 'utf-8');
-	
-	return fileName;
+	return `COPY ${tempDirName}/package-json/${jsonFile} /package-json/${jsonFile}
+RUN /jspm-install/jspm-install ${jsonFile} "${targetPath}" "${packageDir}"`
 }

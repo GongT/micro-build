@@ -10,7 +10,7 @@ export function alpineInstall(config: MicroBuildConfig) {
 		throw new Error('you enabled plugin EPlugins.alpine more than once.');
 	}
 	
-	if (config.toJSON().isChina) {
+	if (config.toJSON().gfwConfig.active) {
 		const alpineConfig = config.getPlugin(EPlugins.alpine) || {};
 		const version = alpineConfig.version || '3.4';
 		

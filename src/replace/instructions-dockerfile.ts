@@ -9,8 +9,8 @@ import typescript from "./plugin/typescript";
 import browserify from "./plugin/browserify";
 import {EPlugins} from "../library/microbuild-config";
 import {systemInstall} from "./plugin/system-install";
-import {createTempPackageFileForJspm, jspm_install_command} from "./plugin/jspm";
-import {dirname} from "path";
+import {parse} from "url";
+import {createJspmInstallScript, jspm_install_command} from "./plugin/jspm";
 
 const nextGuid = createGuid();
 
@@ -48,7 +48,31 @@ export class CustomInstructions extends TemplateVariables {
 	}
 	
 	CHINA_ENVIRONMENTS() {
-		return this.config.toJSON().isChina? 'IS_IN_CHINA="yes"' : 'IS_IN_CHINA="no"';
+		const gfw = this.config.getGfwConfig();
+		if (gfw.active) {
+			const ENV_LIST = ['IS_IN_CHINA="yes"'];
+			if (gfw.proxy) {
+				const npm = this.config.getNpmConfig();
+				ENV_LIST.push(`__PROXY=${this.wrapEnv(gfw.proxy)}`);
+				ENV_LIST.push(`HTTP_PROXY=${this.wrapEnv(gfw.proxy)}`);
+				ENV_LIST.push(`HTTPS_PROXY=${this.wrapEnv(gfw.proxy)}`);
+				const excludeHosts = [];
+				excludeHosts.push(this.config.getDomainBase());
+				excludeHosts.push(`*.${this.config.getDomainBase()}`);
+				if (npm.url) {
+					excludeHosts.push(parse(npm.url).host);
+				}
+				if (npm.upstream) {
+					excludeHosts.push(parse(npm.upstream).host);
+				}
+				excludeHosts.push('mirrors.aliyun.com');
+				ENV_LIST.push(`__NO_PROXY="${excludeHosts.join(',')}"`);
+				ENV_LIST.push(`NO_PROXY="${excludeHosts.join(',')}"`);
+			}
+			return ENV_LIST.join(' ');
+		} else {
+			return 'IS_IN_CHINA="no"';
+		}
 	}
 	
 	NETWORKING_ENVIRONMENTS() {
@@ -176,12 +200,7 @@ export class CustomInstructions extends TemplateVariables {
 			}
 			const name = pkg.content.name || (pkg.content.name = 'noname-' + nextGuid());
 			
-			const tempFile = createTempPackageFileForJspm(pkg.content);
-			
-			return `COPY .micro-build/package-json/${tempFile} ${targetPath}
-RUN cd "${dirname(targetPath)}" && \\
-	export PATH="\${PATH}:./node_modules/.bin" && \\
-	jspm install ${targetPath}`;
+			return createJspmInstallScript(pkg.content, targetPath);
 		});
 		if (jspmInst.length) {
 			if (!this.jspmActived) {
