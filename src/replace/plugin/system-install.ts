@@ -2,7 +2,7 @@ import {MicroBuildConfig} from "../../library/microbuild-config";
 import {alpineInstall} from "./alpine";
 
 export function systemInstall(config: MicroBuildConfig) {
-	if (config.systemInstall.length === 0) {
+	if (config.toJSON().systemInstall.length === 0) {
 		return '# no system install';
 	}
 	

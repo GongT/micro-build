@@ -32,14 +32,16 @@ export default function update() {
 	
 	const gitIgnore = projectFileObject('.gitignore');
 	gitIgnore.section(sectionStart, sectionEnd, defaultIgnores.concat([
+		`!${tempDirName}`,
+		`${tempDirName}/*`,
 		`!${tempDirName}/config.ts`,
+		
 		'!.*ignore',
 	], extraFolders));
 	gitIgnore.write();
 	
 	const dockerIgnore = projectFileObject('.dockerignore');
 	dockerIgnore.section(sectionStart, sectionEnd, defaultIgnores.concat([
-		`!${tempDirName}/config.ts`,
 		'*.md',
 		'!.micro-build/json-env-data.json',
 		'!.jsonenv/_current_result.json.d.ts',
@@ -84,8 +86,11 @@ export default function update() {
 
 const defaultIgnores = [
 	'.*',
-	'node_modules/',
-	'jspm_packages/',
+	'.tgz',
+	'node_modules',
+	'jspm_packages',
+	'**/node_modules',
+	'**/jspm_packages',
 	'*.log',
 	'npm-debug.log*',
 	'coverage/',

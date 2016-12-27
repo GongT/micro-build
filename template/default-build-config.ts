@@ -11,14 +11,14 @@ declare const build: MicroBuildConfig;
 
 const projectName = 'your-project-name';
 
-build.baseImage('node');
+build.baseImage('node', 'alpine');
 build.projectName(projectName);
-build.domainName(projectName + '.localdomain');
+build.domainName(projectName + '.' + JsonEnv.baseDomain);
 // build.domainName(projectName + '.' + JsonEnv.baseDomainName);
 
-build.isInChina(JsonEnv.gfw.isInChina);
+// build.isInChina(JsonEnv.gfw.isInChina);
 build.npmCacheLayer(JsonEnv.gfw.npmRegistry);
-build.install('./package.json');
+build.npmInstall('./package.json');
 
 // build.forwardPort(80, 'tcp').publish(8080);
 

@@ -76,6 +76,7 @@ export interface MicroServiceConfig {
 		bridge: boolean;
 		ifName: string;
 	};
+	disableCopyFolder: boolean;
 }
 
 export enum ELabelNames{
@@ -141,6 +142,7 @@ export class MicroBuildConfig {
 			enabled: false,
 			url: 'http://registry.npmjs.org'
 		},
+		disableCopyFolder: false,
 	};
 	
 	constructor(data?: any) {
@@ -284,7 +286,7 @@ export class MicroBuildConfig {
 	}
 	
 	isInChina(proxy?: GFWInterface);
-	isInChina(is: boolean, proxy?: GFWInterface );
+	isInChina(is: boolean, proxy?: GFWInterface);
 	isInChina(is: boolean, proxy: GFWInterface = {}) {
 		if (is === true || is === false) {
 			proxy.active = is;
@@ -292,6 +294,10 @@ export class MicroBuildConfig {
 		} else {
 			this.storage.gfwConfig = is;
 		}
+	}
+	
+	noDataCopy(b: boolean = true) {
+		this.storage.disableCopyFolder = b;
 	}
 	
 	/** @deprecated */
@@ -333,6 +339,13 @@ export class MicroBuildConfig {
 	
 	addPlugin(name: EPlugins, options: any = true) {
 		this.storage.plugins.push({options, name});
+	}
+	
+	disablePlugin(name: EPlugins) {
+		this.storage.plugins = this.storage.plugins.filter((e) => {
+			return e.name !== name;
+		});
+		this.storage.plugins.push({options: false, name});
 	}
 	
 	buildArgument(name: string, description: string, defaultValue: string = null) {
@@ -471,7 +484,7 @@ export class MicroBuildConfig {
 			HOST_LOOP_IP6: undefined,
 		};
 		if (nw.hostIp6) {
-			ret.HOST_LOOP_IP6 = nw.hostIp;
+			// ret.HOST_LOOP_IP6 = nw.hostIp;
 		}
 		return ret;
 	}

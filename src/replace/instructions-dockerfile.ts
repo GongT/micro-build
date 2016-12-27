@@ -92,6 +92,14 @@ export class CustomInstructions extends TemplateVariables {
 		}));
 	}
 	
+	COPY_MAIN_FOLDER() {
+		if (this.config.toJSON().disableCopyFolder) {
+			return '# disabled: COPY . /data';
+		} else {
+			return 'COPY . /data';
+		}
+	}
+	
 	LABEL_INSTRUCTIONS() {
 		const split = ' \\ \n\t';
 		let customLabel = this.walk(this.config.toJSON().labels, (v, k) => {

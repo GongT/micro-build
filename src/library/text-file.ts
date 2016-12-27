@@ -40,8 +40,8 @@ export class TextFile extends BaseFile<string[]> {
 	}
 	
 	public section(start: string, end: string, content: string|string[]) {
-		start = '### ' + start;
-		end = '### ' + end;
+		start = '### ' + start.trim();
+		end = '### ' + end.trim();
 		
 		let startLine = this._content.indexOf(start);
 		let endLine = this._content.indexOf(end);
