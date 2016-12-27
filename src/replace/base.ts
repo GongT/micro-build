@@ -46,8 +46,8 @@ export abstract class TemplateVariables {
 			this.config = config.config;
 		}
 		
-		const {options} = this.config.getPlugin(EPlugins.jenv);
-		if (options) {
+		const jenv = this.config.getPlugin(EPlugins.jenv);
+		if (jenv && jenv.options) {
 			injectJsonEnv();
 			this.jsonEnvEnabled = true;
 		}
