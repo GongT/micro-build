@@ -26,6 +26,7 @@ cp /package-json/${PACKAGE_JSON} ./package.json
 mkdir -p `dirname ${BASE_DIR}`
 mkdir -p "${TARGET}/${BASE_DIR}"
 ln -s "${TARGET}/${BASE_DIR}" ./${BASE_DIR}
+ln -s "${TARGET}/node_modules" ./node_modules
 
 jspm config registries.npm.registry ${NPM_REGISTRY}
 #jspm config strictSSL false
