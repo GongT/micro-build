@@ -29,7 +29,7 @@ COPY .micro-build/npm-install /npm-install
 		npmPrependIns += `
 RUN /npm-install/global-installer npm-cli-login && \
 	npm config set registry "${npm.url}" && \
-	bash /npm-install/prepare-user
+	sh /npm-install/prepare-user
 `;
 	} else {
 		npmPrependIns += `

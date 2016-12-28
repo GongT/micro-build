@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 #{PREPEND_NPM_SCRIPT}
 
