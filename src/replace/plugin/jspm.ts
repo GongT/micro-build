@@ -6,6 +6,7 @@ import {MicroBuildConfig} from "../../library/microbuild-config";
 import {ScriptVariables} from "../instructions-scripts";
 import {renderTemplate} from "../replace-scripts";
 import {saveFile} from "../../build/all";
+import {detectSystemPackageType, systemInstall, systemUninstall} from "./system-install";
 
 const tempDir = `/jspm-install`;
 
@@ -17,7 +18,22 @@ export function jspm_install_command(config: MicroBuildConfig) {
 		actions.push(`jspm config registries.github.auth ${github.token}`)
 	}
 	
-	const replacer = new ScriptVariables(config, {});
+	const replacer = new ScriptVariables(config, {
+		PREPEND() {
+			if (detectSystemPackageType(config) === 'apk') {
+				return systemInstall(config, ['git']).join('\n');
+			} else {
+				return '# not alpine';
+			}
+		},
+		APPEND() {
+			if (detectSystemPackageType(config) === 'apk') {
+				return systemUninstall(config, ['git']).join('\n');
+			} else {
+				return '# not alpine';
+			}
+		},
+	});
 	
 	const helperScript = renderTemplate('plugin', 'jspm-install.sh', replacer);
 	saveFile('jspm-install/jspm-install', helperScript, '755');
@@ -45,9 +61,9 @@ export function createJspmInstallScript({jspm}: IPackageJson, targetPath: string
 	
 	let packageDir;
 	if (jspm.directories && jspm.directories.packages) {
-		packageDir =jspm.directories.packages;
+		packageDir = jspm.directories.packages;
 	} else {
-		packageDir ='./jspm_packages';
+		packageDir = './jspm_packages';
 	}
 	
 	const packageFileContent = {

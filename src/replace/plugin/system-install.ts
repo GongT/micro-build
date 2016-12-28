@@ -6,13 +6,7 @@ export function systemUninstall(config: MicroBuildConfig, systemInstallList = co
 		return [];
 	}
 	
-	let method = config.toJSON().systemMethod;
-	if (!method) {
-		const base = config.toJSON().base;
-		if (base.indexOf('alpine')) {
-			method = 'apk';
-		}
-	}
+	const method = detectSystemPackageType(config);
 	switch (method) {
 	case 'apk':
 		return alpineUninstall(config, systemInstallList);
@@ -25,6 +19,16 @@ export function systemInstall(config: MicroBuildConfig, systemInstallList = conf
 		return [];
 	}
 	
+	const method = detectSystemPackageType(config);
+	switch (method) {
+	case 'apk':
+		return alpineInstall(config, systemInstallList);
+	default:
+		throw new Error(`unknown system install method: ${method || 'undefined'}.`);
+	}
+}
+
+export function detectSystemPackageType(config: MicroBuildConfig) {
 	let method = config.toJSON().systemMethod;
 	if (!method) {
 		const base = config.toJSON().base;
@@ -32,10 +36,5 @@ export function systemInstall(config: MicroBuildConfig, systemInstallList = conf
 			method = 'apk';
 		}
 	}
-	switch (method) {
-	case 'apk':
-		return alpineInstall(config, systemInstallList);
-	default:
-		throw new Error(`unknown system install method: ${method || 'undefined'}.`);
-	}
+	return method;
 }

@@ -24,3 +24,5 @@ npm-cli-login \
 npm config set "@${NPM_SCOPE}:registry" "${NPM_REGISTRY}"
 
 npm ${NPM_ARGUMENTS} whoami
+
+rm -rf ~/.npm ~/.node-gyp /npm-install/npm-cache

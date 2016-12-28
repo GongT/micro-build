@@ -27,13 +27,15 @@ export function alpineInstall(config: MicroBuildConfig, installList: string[]): 
 		const version = alpineConfig.version || '3.4';
 		
 		return [
+			`update-resolve`,
 			`echo "http://mirrors.aliyun.com/alpine/v${version}/main" > /etc/apk/repositories`,
 			`echo "http://mirrors.aliyun.com/alpine/v${version}/community" >> /etc/apk/repositories`,
-			`HTTP_PROXY="" HTTPS_PROXY="" apk -U add ${installList.join(' ')}`,
+			`apk -U add ${installList.join(' ')}`,
 		];
 	} else {
 		return [
-			`HTTP_PROXY="" HTTPS_PROXY="" apk -U add ${installList.join(' ')}`
+			`update-resolve`,
+			`apk -U add ${installList.join(' ')}`
 		];
 	}
 }

@@ -46,6 +46,7 @@ export default function update() {
 		'!.micro-build/json-env-data.json',
 		'!.jsonenv/_current_result.json.d.ts',
 		`!${tempDirName}/npm-install`,
+		`!${tempDirName}/bin`,
 		`!${tempDirName}/package-json`,
 		`!${tempDirName}/jspm-install`,
 	], extraFolders));

@@ -10,9 +10,11 @@ import {createAdminScript} from "./admin-script";
 import {createDebugScript} from "./debug-script";
 import {ConfigJsonFile} from "../library/config-json-file";
 import {sync as mkdirpSync} from "mkdirp";
+import {createScripts} from "./scripts";
 
 export function createBuildTempFiles(builder: MicroBuildConfig) {
 	createDockerfile(builder);
+	createScripts(builder);
 	createServiceFile(builder);
 	createAdminScript(builder);
 	createDebugScript(builder);

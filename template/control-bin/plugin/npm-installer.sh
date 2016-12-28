@@ -41,3 +41,5 @@ unlink node_modules
 
 cd /npm-install
 rm -rf .inst
+
+rm -rf ~/.npm ~/.node-gyp /npm-install/npm-cache

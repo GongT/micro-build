@@ -6,6 +6,8 @@ ENV BUILDING=yes \
 	@{CHINA_ENVIRONMENTS} \
 	@{NETWORKING_ENVIRONMENTS}
 
+COPY .micro-build/bin/* /usr/local/bin
+
 #{CUSTOM_SYSTEM_INSTALL}
 
 RUN mkdir -p /data
