@@ -8,7 +8,7 @@ import scss from "./plugin/scss";
 import typescript from "./plugin/typescript";
 import browserify from "./plugin/browserify";
 import {EPlugins} from "../library/microbuild-config";
-import {systemInstall} from "./plugin/system-install";
+import {systemInstall, systemUninstall} from "./plugin/system-install";
 import {parse} from "url";
 import {createJspmInstallScript, jspm_install_command} from "./plugin/jspm";
 
@@ -53,7 +53,6 @@ export class CustomInstructions extends TemplateVariables {
 			const ENV_LIST = ['IS_IN_CHINA="yes"'];
 			if (gfw.proxy) {
 				const npm = this.config.getNpmConfig();
-				ENV_LIST.push(`__PROXY=${this.wrapEnv(gfw.proxy)}`);
 				ENV_LIST.push(`HTTP_PROXY=${this.wrapEnv(gfw.proxy)}`);
 				ENV_LIST.push(`HTTPS_PROXY=${this.wrapEnv(gfw.proxy)}`);
 				const excludeHosts = [];
@@ -65,8 +64,6 @@ export class CustomInstructions extends TemplateVariables {
 				if (npm.upstream) {
 					excludeHosts.push(parse(npm.upstream).host);
 				}
-				excludeHosts.push('mirrors.aliyun.com');
-				ENV_LIST.push(`__NO_PROXY="${excludeHosts.join(',')}"`);
 				ENV_LIST.push(`NO_PROXY="${excludeHosts.join(',')}"`);
 			}
 			return ENV_LIST.join(' ');
@@ -143,7 +140,12 @@ export class CustomInstructions extends TemplateVariables {
 	}
 	
 	CUSTOM_SYSTEM_INSTALL() {
-		return systemInstall(this.config);
+		const inst = systemInstall(this.config);
+		if (inst.length === 0) {
+			return '# no system install';
+		} else {
+			return 'RUN ' + inst.join(' && \\\n  ');
+		}
 	}
 	
 	CUSTOM_BUILD_BEFORE() {
@@ -224,9 +226,12 @@ export class CustomInstructions extends TemplateVariables {
 	private npmActived = false;
 	
 	NPM_INSTALL_INSTRUCTIONS() {
-		const npmInstallInstruction = this.config.toJSON().npmInstall.map((packagejsonPath) => {
-			const pkg = new PackageJsonFile(packagejsonPath);
-			let targetPath = packagejsonPath.replace(/^\.\//, '').replace(/\/?package\.json$/, '');
+		const npmInstallInstruction = this.config.toJSON().npmInstall.map(({path, systemDepend}) => {
+			const INSTALL_SYSTEM_DEPEND = systemInstall(this.config, systemDepend);
+			const REMOVE_SYSTEM_DEPEND = systemUninstall(this.config, systemDepend);
+			
+			const pkg = new PackageJsonFile(path);
+			let targetPath = path.replace(/^\.\//, '').replace(/\/?package\.json$/, '');
 			if (targetPath) {
 				targetPath += '/';
 			}
@@ -234,8 +239,13 @@ export class CustomInstructions extends TemplateVariables {
 			
 			const tempFile = createTempPackageFile(pkg.content);
 			
+			const inst = [].concat(INSTALL_SYSTEM_DEPEND, [
+				`/npm-install/installer "${name}" "${tempFile}" "${targetPath}"`,
+				'rm -rf ~/.npm ~/.node-gyp /npm-install/npm-cache',
+			], REMOVE_SYSTEM_DEPEND);
+			
 			return `COPY .micro-build/package-json/${tempFile} /npm-install/package-json/${tempFile}
-RUN /npm-install/installer "${name}" "${tempFile}" "${targetPath}"`;
+RUN ${inst.join(' && \\\n ')}`;
 		});
 		if (npmInstallInstruction.length) {
 			if (!this.npmActived) {

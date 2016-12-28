@@ -1,6 +1,18 @@
 import {MicroBuildConfig, EPlugins} from "../../library/microbuild-config";
 
-export function alpineInstall(config: MicroBuildConfig) {
+export function alpineUninstall(config: MicroBuildConfig, installList: string[]): string[] {
+	if (installList.length === 0) {
+		return [];
+	}
+	return [
+		`apk del ${installList.join(' ')}`
+	];
+}
+
+export function alpineInstall(config: MicroBuildConfig, installList: string[]): string[] {
+	if (installList.length === 0) {
+		return [];
+	}
 	if (!config.getPlugin(EPlugins.alpine)) {
 		config.addPlugin(EPlugins.alpine, {
 			version: '3.4'
@@ -14,16 +26,14 @@ export function alpineInstall(config: MicroBuildConfig) {
 		const alpineConfig = config.getPlugin(EPlugins.alpine) || {};
 		const version = alpineConfig.version || '3.4';
 		
-		return `
-# install system package of alpine (in china)
-RUN echo "http://mirrors.aliyun.com/alpine/v${version}/main" > /etc/apk/repositories && \\
-    echo "http://mirrors.aliyun.com/alpine/v${version}/community" >> /etc/apk/repositories && \\
-    HTTP_PROXY="" HTTPS_PROXY="" apk -U add ${config.toJSON().systemInstall.join(' ')}
-`;
+		return [
+			`echo "http://mirrors.aliyun.com/alpine/v${version}/main" > /etc/apk/repositories`,
+			`echo "http://mirrors.aliyun.com/alpine/v${version}/community" >> /etc/apk/repositories`,
+			`HTTP_PROXY="" HTTPS_PROXY="" apk -U add ${installList.join(' ')}`,
+		];
 	} else {
-		return `
-# install system package of alpine
-RUN HTTP_PROXY="" HTTPS_PROXY="" apk -U add ${config.toJSON().systemInstall.join(' ')}
-`;
+		return [
+			`HTTP_PROXY="" HTTPS_PROXY="" apk -U add ${installList.join(' ')}`
+		];
 	}
 }

@@ -12,6 +12,11 @@ export interface NpmRegistry {
 	upstream?: string;
 }
 
+export interface NpmInstall {
+	systemDepend?: string[];
+	path: string;
+}
+
 export interface GithubInterface {
 	username: string;
 	token: string;
@@ -67,7 +72,7 @@ export interface MicroServiceConfig {
 	};
 	systemInstall: string[];
 	systemMethod: string;
-	npmInstall: string[];
+	npmInstall: NpmInstall[];
 	jspmInstall: string[];
 	jspmConfig: string;
 	networking: {
@@ -305,12 +310,18 @@ export class MicroBuildConfig {
 		this.npmInstall(packageJsonRelativePath);
 	}
 	
-	npmInstall(packageJsonRelativePath: string) {
-		if (this.storage.npmInstall.indexOf(packageJsonRelativePath) === -1) {
+	npmInstall(packageJsonRelativePath: string, systemDepend: string[] = []) {
+		const exists = this.storage.npmInstall.findIndex((e) => {
+			return e.path === packageJsonRelativePath;
+		});
+		if (exists === -1) {
 			if (!/package\.json$/.test(packageJsonRelativePath)) {
 				throw new Error('microbuild.npmInstall only accept file name `package.json`');
 			}
-			this.storage.npmInstall.push(packageJsonRelativePath);
+			this.storage.npmInstall.push({
+				path: packageJsonRelativePath,
+				systemDepend,
+			});
 		}
 	}
 	
