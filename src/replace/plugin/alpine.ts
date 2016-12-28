@@ -18,12 +18,12 @@ export function alpineInstall(config: MicroBuildConfig) {
 # install system package of alpine (in china)
 RUN echo "http://mirrors.aliyun.com/alpine/v${version}/main" > /etc/apk/repositories && \\
     echo "http://mirrors.aliyun.com/alpine/v${version}/community" >> /etc/apk/repositories && \\
-    apk -U add ${config.toJSON().systemInstall.join(' ')}
+    HTTP_PROXY="" HTTPS_PROXY="" apk -U add ${config.toJSON().systemInstall.join(' ')}
 `;
 	} else {
 		return `
 # install system package of alpine
-RUN apk -U add ${config.toJSON().systemInstall.join(' ')}
+RUN HTTP_PROXY="" HTTPS_PROXY="" apk -U add ${config.toJSON().systemInstall.join(' ')}
 `;
 	}
 }
