@@ -31,25 +31,11 @@ export default function update() {
 	});
 	
 	const gitIgnore = projectFileObject('.gitignore');
-	gitIgnore.section(sectionStart, sectionEnd, defaultIgnores.concat([
-		`!${tempDirName}`,
-		`${tempDirName}/*`,
-		`!${tempDirName}/config.ts`,
-		
-		'!.*ignore',
-	], extraFolders));
+	gitIgnore.section(sectionStart, sectionEnd, defaultIgnores.concat(gitIgnores, extraFolders));
 	gitIgnore.write();
 	
 	const dockerIgnore = projectFileObject('.dockerignore');
-	dockerIgnore.section(sectionStart, sectionEnd, defaultIgnores.concat([
-		'*.md',
-		'!.micro-build/json-env-data.json',
-		'!.jsonenv/_current_result.json.d.ts',
-		`!${tempDirName}/npm-install`,
-		`!${tempDirName}/bin`,
-		`!${tempDirName}/package-json`,
-		`!${tempDirName}/jspm-install`,
-	], extraFolders));
+	dockerIgnore.section(sectionStart, sectionEnd, defaultIgnores.concat(dockerIgnores, extraFolders));
 	dockerIgnore.write();
 	
 	const targetDts = resolve(getTempPath(), 'x/microbuild-config.d.ts');
@@ -95,6 +81,27 @@ const defaultIgnores = [
 	'*.log',
 	'npm-debug.log*',
 	'coverage/',
+	'typings/',
+];
+
+const gitIgnores = [
+	`!${tempDirName}`,
+	`${tempDirName}/*`,
+	`!${tempDirName}/config.ts`,
+	
+	'!.*ignore',
+];
+
+const dockerIgnores = [
+	'*.md',
+	'Dockerfile',
+	'*.Dockerfile',
+	'!.micro-build/json-env-data.json',
+	'!.jsonenv/_current_result.json.d.ts',
+	`!${tempDirName}/npm-install`,
+	`!${tempDirName}/bin`,
+	`!${tempDirName}/package-json`,
+	`!${tempDirName}/jspm-install`,
 ];
 
 function slashEnd(str) {
