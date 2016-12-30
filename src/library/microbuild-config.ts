@@ -18,6 +18,7 @@ export interface NpmInstall {
 }
 
 export interface GithubInterface {
+	credentials: string;
 	username: string;
 	token: string;
 }
@@ -130,6 +131,7 @@ export class MicroBuildConfig {
 		jspmInstall: [],
 		jspmConfig: '',
 		github: {
+			credentials: '',
 			username: '',
 			token: '',
 		},
