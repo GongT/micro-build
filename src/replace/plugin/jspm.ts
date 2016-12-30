@@ -31,7 +31,8 @@ export function jspm_install_command(config: MicroBuildConfig) {
 		},
 		JSPM_GITHUB_CONFIG() {
 			if (github.credentials) {
-				return `jspm config registries.github.auth ${JSON.stringify(github.credentials)}`;
+				return `jspm config registries.github.auth ${JSON.stringify(github.credentials)}
+cat ~/.jspm/config`;
 			} else {
 				return 'echo "WARN: no github config, rate limit may reach" >&2'
 			}

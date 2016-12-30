@@ -27,12 +27,23 @@ ln -s "${TARGET}/node_modules" ./node_modules
 if [ -n "${NPM_REGISTRY}" ]; then
 	jspm config registries.npm.registry ${NPM_REGISTRY}
 fi
+if [ -n "${HTTP_PROXY}" ]; then
+	git config --system --replace-all global.proxy "${HTTP_PROXY}"
+	git config --system --replace-all http.proxy "${HTTP_PROXY}"
+	git config --system --replace-all https.proxy "${HTTP_PROXY}"
+	cat /etc/gitconfig
+fi
 #{JSPM_GITHUB_CONFIG}
 #jspm config strictSSL false
-cat ~/.jspm/config
 
 jspm install -y
 
 rm -rf ~/.npm ~/.node-gyp /npm-install/npm-cache
+
+if [ -n "${HTTP_PROXY}" ]; then
+	git config --system --unset-all global.proxy
+	git config --system --unset-all http.proxy
+	git config --system --unset-all https.proxy
+fi
 
 #{APPEND}
