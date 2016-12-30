@@ -14,10 +14,6 @@ export function jspm_install_command(config: MicroBuildConfig) {
 	const github = config.getGithubConfig();
 	const actions = [];
 	
-	if (github.token) {
-		actions.push(`jspm config registries.github.auth ${github.token}`)
-	}
-	
 	const replacer = new ScriptVariables(config, {
 		PREPEND() {
 			if (detectSystemPackageType(config) === 'apk') {
@@ -33,6 +29,18 @@ export function jspm_install_command(config: MicroBuildConfig) {
 				return '# not alpine';
 			}
 		},
+		JSPM_GITHUB_CONFIG() {
+			if (github.token) {
+				const doc = `yes
+${github.username}
+${github.token}
+yes
+`;
+				return `echo \$${JSON.stringify(doc)} | jspm registry config github`;
+			} else {
+				return '# no github config'
+			}
+		}
 	});
 	
 	const helperScript = renderTemplate('plugin', 'jspm-install.sh', replacer);
@@ -57,7 +65,7 @@ export function createJspmInstallScript({jspm}: IPackageJson, targetPath: string
 	}
 	
 	let configFile = jspm.configFile || './config.js';
-	configFile = resolve('/data', configFile);
+	configFile = resolve('/', targetPath, configFile);
 	
 	let packageDir;
 	if (jspm.directories && jspm.directories.packages) {

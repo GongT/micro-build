@@ -24,7 +24,10 @@ mkdir -p "${TARGET}/${BASE_DIR}"
 ln -s "${TARGET}/${BASE_DIR}" ./${BASE_DIR}
 ln -s "${TARGET}/node_modules" ./node_modules
 
-jspm config registries.npm.registry ${NPM_REGISTRY}
+if [ -n "${NPM_REGISTRY}" ]; then
+	jspm config registries.npm.registry ${NPM_REGISTRY}
+fi
+#{JSPM_GITHUB_CONFIG}
 #jspm config strictSSL false
 #cat ~/.jspm/config
 jspm install -y
