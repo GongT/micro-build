@@ -38,7 +38,7 @@ yes
 `;
 				return `echo \$${JSON.stringify(doc)} | jspm registry config github`;
 			} else {
-				return '# no github config'
+				return 'echo "WARN: no github config, rate limit may reach" >&2'
 			}
 		}
 	});

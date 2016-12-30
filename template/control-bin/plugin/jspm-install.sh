@@ -29,7 +29,8 @@ if [ -n "${NPM_REGISTRY}" ]; then
 fi
 #{JSPM_GITHUB_CONFIG}
 #jspm config strictSSL false
-#cat ~/.jspm/config
+cat ~/.jspm/config
+
 jspm install -y
 
 rm -rf ~/.npm ~/.node-gyp /npm-install/npm-cache
