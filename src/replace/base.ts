@@ -57,6 +57,10 @@ export abstract class TemplateVariables {
 		});
 	}
 	
+	PROJECT_NAME() {
+		return this.config.toJSON().projectName;
+	}
+	
 	protected walk(vars: any, cb: Function, split = '\n') {
 		let list;
 		if (Array.isArray(vars)) {

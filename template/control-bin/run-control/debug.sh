@@ -7,6 +7,8 @@ cd "@{PWD}/.."
 source "@{PWD}/arg-parse.sh"
 source "@{PWD}/functions.sh"
 
+export PROJECT_NAME="@{PROJECT_NAME}"
+
 #{DETECT_CURRENT}
 #{START_DEPENDENCY}
 #{BUILD_DEPEND_SERVICE}
