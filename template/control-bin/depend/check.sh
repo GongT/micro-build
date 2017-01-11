@@ -4,7 +4,7 @@ if is_container_running "@{CONTAINER_NAME}" ; then
 	echo " >>> dependence service @{CONTAINER_NAME} running"
 else
 	if ! sys_exists "@{CONTAINER_NAME}" ; then
-		echo "Fatal: dependence service @{CONTAINER_NAME} not exists" >&2
+		echo "Fatal: dependence service @{CONTAINER_NAME} not exists"
 		exit 201
 	fi
 	
@@ -16,10 +16,21 @@ else
 		sys_start "@{CONTAINER_NAME}"
 	fi
 	
+	echo 'wait 2s...'
 	sleep 2
-	
+
 	if ! is_container_running "@{CONTAINER_NAME}" ; then
-		echo "Fatal: dependence service @{CONTAINER_NAME} can't start, container \"@{CONTAINER_NAME}\" not running." >&2
-		exit 200
+		echo "!!! BUT CONTAINER NOT RUNNNING !!!"
+		
+		sys_restart "@{CONTAINER_NAME}"
+		
+		echo "wait 5s..."
+		sleep 5
+		
+		if ! is_container_running "@{CONTAINER_NAME}" ; then
+			echo "Fatal: dependence service @{CONTAINER_NAME} can't start, container \"@{CONTAINER_NAME}\" not running."
+			exit 200
+		fi
 	fi
+	echo "started."
 fi

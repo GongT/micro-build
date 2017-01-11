@@ -8,12 +8,13 @@ PartOf=docker.service @{DEPEND_SERVICES_SYSTEMD}
 Type=simple
 Restart=always
 RestartSec=5
+StandardInput=/dev/tty1
 StartLimitInterval=20
 StartLimitBurst=3
 Environment='DOCKER_START_ARGS=--rm --restart=no'
 WorkingDirectory=@{PWD}
-ExecStart=@{PWD}/start.sh
-ExecStop=@{PWD}/stop.sh
+ExecStart=/bin/bash -i @{PWD}/start.sh
+ExecStop=/bin/bash -i @{PWD}/stop.sh
 
 [Install]
 WantedBy=multi-user.target

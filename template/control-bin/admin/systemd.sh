@@ -18,8 +18,12 @@ function sys_start {
 	echo "systemctl start $1"
 	systemctl start $1
 }
+function sys_restart {
+	echo "systemctl start $1"
+	systemctl restart $1
+}
 function sys_exists {
-	echo -e "\t/usr/lib/systemd/system/${1}.service" >&2
+	echo -e "\t/usr/lib/systemd/system/${1}.service"
 	[ -e "/usr/lib/systemd/system/${1}.service" ]
 }
 function s_stop {

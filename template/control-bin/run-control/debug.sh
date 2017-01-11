@@ -72,13 +72,13 @@ get_run_arguments "$@"
 
 echo "[microbuild] run script:"
 if [ "${WATCH}" == "no" ]; then
-	echo "    ${SHELL} ${COMMAND} ${RUN_ARGUMENTS}" >&2
+	echo "    ${SHELL} ${COMMAND} ${RUN_ARGUMENTS}"
 	echo " ::: start :::"
 	eval ${SHELL} "${COMMAND}" ${RUN_ARGUMENTS} || true
 	RET=${PIPESTATUS[0]}
 else
 	echo "    @{NODEMON_BIN} \\"
-	echo "         -d 2 --config \"@{PWD}/nodemon.json\" -x \"${SHELL}\" -- ${COMMAND}" >&2
+	echo "         -d 2 --config \"@{PWD}/nodemon.json\" -x \"${SHELL}\" -- ${COMMAND}"
 	echo " ::: start :::"
 #{NODEMON_BIN} \
 		-d 2 --config "@{PWD}/nodemon.json" -x "${SHELL}" -- \

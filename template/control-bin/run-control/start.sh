@@ -1,5 +1,15 @@
 #!/usr/bin/env bash
 
+cleanup() {
+    rv=$?
+    id
+    echo "EXIT WITH ${rv}"
+    trap - INT TERM EXIT
+    exit ${rv}
+}
+
+trap "cleanup" INT TERM EXIT
+
 cd "@{PWD}/.."
 
 source "@{PWD}/functions.sh"
@@ -24,8 +34,9 @@ fi
 
 if [ -t 0 ] ; then
 	# this shell has a std-input
-	t_arg=t
+	t_arg='-t'
 fi
+echo "commandline arguments: $@"
 
 echo ""
 echo "docker run '@{SERVICE_NAME}' from '@{BASE_DOMAIN_NAME}/@{SERVICE_NAME}'"

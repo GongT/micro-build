@@ -29,8 +29,12 @@ function sys_start {
 	echo "service $1 start"
 	service $1 start
 }
+function sys_restart {
+	echo "service $1 restart"
+	service $1 restart
+}
 function sys_exists {
-	echo -e "\t/etc/init/${1}.conf" >&2
+	echo -e "\t/etc/init/${1}.conf"
 	[ -e "/etc/init/${1}.conf" ]
 }
 function s_stop {

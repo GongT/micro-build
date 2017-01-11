@@ -67,7 +67,7 @@ function push_build_process_argument {
 	
 	NAME=`echo ${NAME} | sed 's/^-*//g'`
 	
-	echo "build docker argument: ${NAME} -> ${VALUE}" >&2
+	echo "build docker argument: ${NAME} -> ${VALUE}"
 	
 	BUILD_DOCKER_ARGUMENTS="${BUILD_DOCKER_ARGUMENTS} --${NAME}=${VALUE}"
 }
@@ -79,7 +79,7 @@ function push_build_argument { # name value
 	NAME=`echo ${NAME} | sed 's/^-*//g'`
 	GOTTEN_BUILD_ARGUMENT="${GOTTEN_BUILD_ARGUMENT}:${NAME}"
 	
-	echo "build argument: ${NAME} -> ${VALUE}" >&2
+	echo "build argument: ${NAME} -> ${VALUE}"
 	
 	BUILD_ARGUMENTS="${BUILD_ARGUMENTS} --build-arg=${NAME}=${VALUE}"
 }
@@ -90,7 +90,7 @@ function push_run_argument { # name value
 	NAME=`echo ${NAME} | sed 's/^-*//g'`
 	GOTTEN_RUN_ARGUMENT="${GOTTEN_RUN_ARGUMENT}:${NAME}:"
 	
-	echo "run argument: ${NAME} -> ${VALUE}" >&2
+	echo "run argument: ${NAME} -> ${VALUE}"
 	
 	RUN_ARGUMENTS="${RUN_ARGUMENTS}${ARGUMENT_DELIMITER- }\"--${NAME}=${VALUE}\""
 }
@@ -132,7 +132,7 @@ function has_default_value {
 }
 
 function default_value {
-	echo "missing argument: ${1}" >&2
+	echo "missing argument: ${1}"
 	case "${1}" in
 #{OPTIONAL_ARGUMENTS_VALUE_MAP}
 		*)
@@ -148,9 +148,9 @@ function ensure_is_value {
 	fi
 }
 function help_message {
-	cat << 'HELP_DATA' >&2
+	cat << 'HELP_DATA'
 @{ARGUMENT_HELP_MESSAGE}
 HELP_DATA
-	echo "$@" >&2
+	echo "$@"
 	return 1
 }

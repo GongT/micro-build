@@ -7,7 +7,7 @@ elif is_container_exists "@{CONTAINER_NAME}" ; then
 	docker start "@{CONTAINER_NAME}"
 elif [ -z "@{IMAGE_NAME}" ]; then
 		echo "Fatal: dependence container @{CONTAINER_NAME} can't start.
-	don't know how to start it." >&2
+	don't know how to start it."
 		exit 200
 else
 	if ! is_image_exists "@{IMAGE_NAME}" ; then
@@ -21,7 +21,7 @@ else
 	sleep 2
 	
 	if ! is_container_running "@{CONTAINER_NAME}" ; then
-		echo "Fatal: dependence container @{CONTAINER_NAME} can't start" >&2
+		echo "Fatal: dependence container @{CONTAINER_NAME} can't start"
 		exit 200
 	fi
 fi

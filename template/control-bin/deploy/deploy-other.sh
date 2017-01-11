@@ -7,7 +7,7 @@ START="${3}"
 DIR=$(basename "${GIT_URL}" .git)
 
 function die {
-		echo "$@" >&2
+		echo "$@"
 		exit 1
 }
 
@@ -43,7 +43,7 @@ function ensure_dir_ok {
 	local TARGET=$1
 	cd "${TARGET}" || die "bad file: ${TARGET}"
 	if ! ( cat .git/config | grep -q "${GIT_URL}" 2>/dev/null ) ;then
-		echo "can't install service to ${TARGET}. this path is already exists" >&2
+		echo "can't install service to ${TARGET}. this path is already exists"
 		return 1
 	fi
 }
