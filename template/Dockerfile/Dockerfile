@@ -7,11 +7,10 @@ ENV BUILDING=yes \
 	@{NETWORKING_ENVIRONMENTS}  \
 	PROJECT_NAME="@{PROJECT_NAME}"
 
-COPY .micro-build/bin/* /usr/local/bin
+#{COPY_BIN_FILES}
 
 #{CUSTOM_SYSTEM_INSTALL}
 
-RUN mkdir -p /data
 WORKDIR /data
 
 # --> ? COPY .micro-build/bin/* /usr/local/bin

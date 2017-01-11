@@ -31,11 +31,13 @@ export function alpineInstall(config: MicroBuildConfig, installList: string[]): 
 			`echo "http://mirrors.aliyun.com/alpine/v${version}/main" > /etc/apk/repositories`,
 			`echo "http://mirrors.aliyun.com/alpine/v${version}/community" >> /etc/apk/repositories`,
 			`apk -U add ${installList.join(' ')}`,
+			`apk cache clean || true`,
 		];
 	} else {
 		return [
 			`update-resolve`,
-			`apk -U add ${installList.join(' ')}`
+			`apk -U add ${installList.join(' ')}`,
+			`apk cache clean || true`,
 		];
 	}
 }

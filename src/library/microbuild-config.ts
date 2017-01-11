@@ -83,6 +83,7 @@ export interface MicroServiceConfig {
 		ifName: string;
 	};
 	disableCopyFolder: boolean;
+	disableBinfiles: boolean;
 }
 
 export enum ELabelNames{
@@ -150,6 +151,7 @@ export class MicroBuildConfig {
 			url: 'http://registry.npmjs.org'
 		},
 		disableCopyFolder: false,
+		disableBinfiles: false,
 	};
 	
 	constructor(data?: any) {
@@ -305,6 +307,10 @@ export class MicroBuildConfig {
 	
 	noDataCopy(b: boolean = true) {
 		this.storage.disableCopyFolder = b;
+	}
+	
+	noBinFiles(b: boolean = true) {
+		this.storage.disableBinfiles = b;
 	}
 	
 	/** @deprecated */

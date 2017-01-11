@@ -22,27 +22,34 @@ fi
 
 #{NETWORKING_ENVIRONMENTS_VARS}
 
+if [ -t 0 ] ; then
+	# this shell has a std-input
+	t_arg=t
+fi
+
 echo ""
 echo "docker run '@{SERVICE_NAME}' from '@{BASE_DOMAIN_NAME}/@{SERVICE_NAME}'"
 echo docker run \
 	@{DOCKER_ARGS} \
 	@{NETWORKING_ENVIRONMENTS_ARGS} \
 	${DOCKER_START_ARGS} \
-	-t \
+	-i ${t_arg} \
 	-e HAS_RUN=yes \
 	@{EXTERNAL_PORTS} \
 	@{RUN_MOUNT_VOLUMES} \
 	@{DEPEND_LINKS} \
 	--name "@{SERVICE_NAME}" \
+	"$@" \
 	"@{BASE_DOMAIN_NAME}/@{SERVICE_NAME}"
 docker run \
 	@{DOCKER_ARGS} \
 	${DOCKER_START_ARGS} \
 	@{NETWORKING_ENVIRONMENTS_ARGS} \
-	-t \
+	-i ${t_arg} \
 	-e HAS_RUN=yes \
 	@{EXTERNAL_PORTS} \
 	@{RUN_MOUNT_VOLUMES} \
 	@{DEPEND_LINKS} \
 	--name "@{SERVICE_NAME}" \
+	"$@" \
 	"@{BASE_DOMAIN_NAME}/@{SERVICE_NAME}"

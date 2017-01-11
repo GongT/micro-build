@@ -89,11 +89,20 @@ export class CustomInstructions extends TemplateVariables {
 		}));
 	}
 	
+	COPY_BIN_FILES() {
+		if (this.config.toJSON().disableBinfiles) {
+			return '# disabled: COPY .micro-build/bin/* /usr/local/bin';
+		} else {
+			return `COPY .micro-build/bin/* /usr/local/bin`
+		}
+	}
+	
 	COPY_MAIN_FOLDER() {
 		if (this.config.toJSON().disableCopyFolder) {
 			return '# disabled: COPY . /data';
 		} else {
-			return 'COPY . /data';
+			return `RUN mkdir -p /data
+COPY . /data`;
 		}
 	}
 	
