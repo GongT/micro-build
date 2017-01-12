@@ -93,5 +93,7 @@ else
 	RET=$?
 fi
 
+kill -2 -- $$
 sleep .5
+
 echo -e "\e[38;5;14m[micro-build]\e[0m finished.\n"
