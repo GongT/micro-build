@@ -9,5 +9,7 @@ export default function debug(this: any) {
 	
 	mkconfig.apply({}, arguments);
 	
-	return spawnMainCommand('debug.sh', args);
+	const ret = spawnMainCommand('debug.sh', args);
+	console.log('bye~');
+	return ret;
 }

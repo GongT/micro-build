@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-set -e
-
 cd "@{PWD}/.."
 
 source "@{PWD}/arg-parse.sh"
@@ -18,6 +16,9 @@ export CONFIG_FILE="@{PWD}/json-env-data.json"
 SHELL="@{SHELL_COMMAND}"
 COMMAND="@{DEBUG_COMMAND}"
 
+echo -e "\e[38;5;14m[micro-build]\e[0m debug: SHELL=${SHELL}"
+echo -e "\e[38;5;14m[micro-build]\e[0m debug: SHELL=${COMMAND}"
+
 declare -a BACKGROUND_WORKERS
 BACKGROUND_WORKERS_NAMES=
 BACKGROUND_PID=""
@@ -29,37 +30,43 @@ function background_task { # name cmd...
 #{DEBUG_PLUGIN_WATCHES}
 if [ -n "${BACKGROUND_WORKERS}" ]; then
 	for i in "${BACKGROUND_WORKERS[@]}"; do
-		echo ${i}
+		echo -e "\e[38;5;14m[micro-build]\e[0m background worker: ${i}"
 	done
 	
 	SELF_PID=$$
 	
-	echo "@{CONCURRENTLY_BIN}" \
-		--names "${BACKGROUND_WORKERS_NAMES}" -p "name" \
-		"${BACKGROUND_WORKERS[@]}"
+	echo -e "\e[38;5;14m[micro-build]\e[0m concurrently:
+@{CONCURRENTLY_BIN} \\
+	--names "${BACKGROUND_WORKERS_NAMES}" -p "name" \\
+	${BACKGROUND_WORKERS[@]}
+	"
 	
 	{
 	export SHELL="/bin/sh"
 	"@{CONCURRENTLY_BIN}" \
 		--names "${BACKGROUND_WORKERS_NAMES}" -p "name" \
-		"${BACKGROUND_WORKERS[@]}"
-	echo "background process died..."
-	kill -${SELF_PID}
+		"${BACKGROUND_WORKERS[@]}" </dev/null
+		echo -e "\e[38;5;9m    background process quited...\e[0m"
 	} &
 	BACKGROUND_PID=$!
 fi
 
-function onQuit {
-  trap - SIGINT;
-	if [ -n "${BACKGROUND_PID}" ]; then
-		if ps | grep -q " ${BACKGROUND_PID} " ; then
-			wait ${BACKGROUND_PID} || true
-		fi
-	fi
-	echo ""
-	exit
-}
-trap "onQuit" SIGINT
+echo -e "\e[38;5;14m[micro-build]\e[0m debug: SELF_PID=${SELF_PID}"
+
+trap 'RET=$?
+echo -e "\n\e[38;5;14m[micro-build]\e[0m exit..."
+trap - SIGTERM EXIT
+JOBS=$(jobs -p)
+if [ -n "${JOBS}" ]; then
+	echo "killing job commands:"
+	kill -2 -- ${JOBS} 2>/dev/null
+	echo "  waitting..."
+	wait -- ${JOBS} 2>/dev/null
+	echo "  killed."
+fi
+echo -e "\e[38;5;14m[micro-build]\e[0m finished.\n"
+exit ${RET}
+' SIGINT SIGTERM EXIT
 
 jenv --hint &> /dev/null
 
@@ -74,20 +81,17 @@ echo "[microbuild] run script:"
 if [ "${WATCH}" == "no" ]; then
 	echo "    ${SHELL} ${COMMAND} ${RUN_ARGUMENTS}"
 	echo " ::: start :::"
-	eval ${SHELL} "${COMMAND}" ${RUN_ARGUMENTS} || true
-	RET=${PIPESTATUS[0]}
+	eval ${SHELL} "${COMMAND}" ${RUN_ARGUMENTS}
+	RET=$?
 else
 	echo "    @{NODEMON_BIN} \\"
 	echo "         -d 2 --config \"@{PWD}/nodemon.json\" -x \"${SHELL}\" -- ${COMMAND}"
 	echo " ::: start :::"
 #{NODEMON_BIN} \
 		-d 2 --config "@{PWD}/nodemon.json" -x "${SHELL}" -- \
-		${COMMAND} ${RUN_ARGUMENTS} || true
-	RET=${PIPESTATUS[0]}
+		${COMMAND} ${RUN_ARGUMENTS}
+	RET=$?
 fi
 
-if [ -n "$(jobs -p)" ]; then
-	kill $(jobs -p) || true
-fi
-
-exit ${RET}
+sleep .5
+echo -e "\e[38;5;14m[micro-build]\e[0m finished.\n"
