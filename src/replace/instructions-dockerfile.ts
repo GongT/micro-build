@@ -6,11 +6,12 @@ import {renderTemplate, renderFile} from "./replace-dockerfile";
 import {tempDirName} from "../library/file-paths";
 import scss from "./plugin/scss";
 import typescript from "./plugin/typescript";
-import browserify from "./plugin/browserify";
 import {EPlugins} from "../library/microbuild-config";
 import {systemInstall, systemUninstall} from "./plugin/system-install";
 import {parse} from "url";
 import {createJspmInstallScript, jspm_install_command} from "./plugin/jspm";
+import {jspm_bundle} from "./plugin/jspm-bundle";
+import {updateResolve, removeCache} from "../build/scripts";
 
 const nextGuid = createGuid();
 
@@ -158,20 +159,26 @@ COPY . /data`;
 	}
 	
 	CUSTOM_BUILD_BEFORE() {
-		return this.custom_build(this.config.toJSON().prependDockerFile);
+		return this.custom_build(this.config.toJSON().prependDocker);
 	}
 	
 	CUSTOM_BUILD_AFTER() {
-		return this.custom_build(this.config.toJSON().appendDockerFile);
+		return this.custom_build(this.config.toJSON().appendDocker);
 	}
 	
-	private custom_build(arr: string[]) {
-		const dockerfile = this.walk(arr, (fileName) => {
+	private custom_build(arr: {file?: string, content?: string}[]) {
+		const dockerfile = this.walk(arr, ({file, content}) => {
 			try {
-				return renderFile(fileName, this);
+				if (file) {
+					return `# append docker file from: ${file}
+${renderFile(file, this)}`;
+				} else {
+					return `# append docker file content:
+${content}`;
+				}
 			} catch (e) {
 				e.stack = '' + e.stack;
-				e.message += ` (in file ${fileName})`;
+				e.message += ` (in file ${file})`;
 				throw e;
 			}
 		});
@@ -199,10 +206,11 @@ COPY . /data`;
 	
 	COMPILE_PLUGIN() {
 		return [
-			scss(this.config),
 			typescript(this.config),
-			browserify(this.config),
-		].join('\n');
+			jspm_bundle(this),
+			scss(this.config),
+			// browserify(this.config),
+		].join('\n\n\n');
 	}
 	
 	private jspmActived = false;
@@ -219,8 +227,9 @@ COPY . /data`;
 			}
 			const name = pkg.content.name || (pkg.content.name = 'noname-' + nextGuid());
 			
-			return createJspmInstallScript(pkg.content, targetPath);
+			return createJspmInstallScript(this.config, pkg.content, targetPath);
 		});
+		
 		if (jspmInst.length) {
 			if (!this.jspmActived) {
 				this.jspmActived = true;
@@ -228,8 +237,16 @@ COPY . /data`;
 			}
 			return jspmInst.join('\n\n');
 		} else {
+			if (this.config.getPlugin(EPlugins.jspm_bundle) && !this.jspmActived) {
+				this.jspmActived = true;
+				return '# no jspm install but have bundle\n' + jspm_install_command(this.config);
+			}
 			return '# no jspm install required';
 		}
+	}
+	
+	UPDATE_RESOLVE() {
+		return updateResolve(this.config).join('\n');
 	}
 	
 	private npmActived = false;
@@ -248,13 +265,13 @@ COPY . /data`;
 			
 			const tempFile = createTempPackageFile(pkg.content);
 			
-			const inst = [].concat(INSTALL_SYSTEM_DEPEND, [
+			const inst = ['set -x'].concat(INSTALL_SYSTEM_DEPEND, [
 				`/npm-install/installer "${name}" "${tempFile}" "${targetPath}"`,
-				'rm -rf ~/.npm ~/.node-gyp /npm-install/npm-cache',
+				removeCache(),
 			], REMOVE_SYSTEM_DEPEND);
 			
 			return `COPY .micro-build/package-json/${tempFile} /npm-install/package-json/${tempFile}
-RUN ${inst.join(' && \\\n ')}`;
+RUN ${inst.join(' && \\\n\t')}`;
 		});
 		if (npmInstallInstruction.length) {
 			if (!this.npmActived) {
@@ -268,27 +285,28 @@ RUN ${inst.join(' && \\\n ')}`;
 	}
 	
 	PLUGINS_NPM_INSTALL() {
-		const dependencies = [];
-		if (this.config.getPlugin(EPlugins.typescript)) {
-			dependencies.push('typescript');
-		}
-		if (this.config.getPlugin(EPlugins.browserify)) {
-			dependencies.push('browserify');
-		}
-		if (this.config.getPlugin(EPlugins.node_scss)) {
-			dependencies.push('node-sass');
-		}
-		if (dependencies.length) {
-			const npmInstallInstruction = [
-				`RUN /npm-install/global-installer ${dependencies.join(' ')}`
-			];
+		if (this.config.getPlugin(EPlugins.typescript) ||
+		    this.config.getPlugin(EPlugins.browserify) ||
+		    this.config.getPlugin(EPlugins.node_scss) ||
+		    this.config.getPlugin(EPlugins.jspm_bundle)
+		) {
+			let ret: string = '# some nodejs plugin enbled\n';
 			if (!this.npmActived) {
 				this.npmActived = true;
-				npmInstallInstruction.unshift(npm_install_command(this.config));
+				ret += '# enable npm for plugin\n';
+				ret += npm_install_command(this.config)
 			}
-			return npmInstallInstruction.join('\n\n');
+			
+			if (this.config.getPlugin(EPlugins.jspm_bundle)) {
+				if (!this.jspmActived) {
+					this.jspmActived = true;
+					ret += '# enable jspm for plugin\n';
+					ret += jspm_install_command(this.config);
+				}
+			}
+			return ret;
 		} else {
-			return '# no plugins';
+			return '# no plugins enabled';
 		}
 	}
 }

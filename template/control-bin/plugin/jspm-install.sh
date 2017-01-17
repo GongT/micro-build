@@ -3,26 +3,43 @@
 set -e
 set -x
 
-update-resolve
+PACKAGE_FILE=$1
 
-#{PREPEND}
+if [ "finish" == "${PACKAGE_FILE}" ]; then
+	jspm cache-clear
+#{REMOVE_CACHES}
+	rm -rfv /tmp/*
+	exit 0
+fi
 
-# jspm-install.sh $PACKAGE_JSON $TARGET $BASE_DIR
+PACKAGE_FOLDER=$(dirname "${PACKAGE_FILE}")
+CONFIG_FILE=$2
+CONFIG_FOLDER=$(dirname "${CONFIG_FILE}")
+TARGET=$3
+BASE_DIR=$4
 
-PACKAGE_JSON=$1
-TARGET=$2
-BASE_DIR=$3
+IS_CONTINUE=$5
 
-mkdir -p /tmp/${PACKAGE_JSON}
-cd /tmp/${PACKAGE_JSON}
+INSTALL_ROOT="/npm-install/package-json/${PACKAGE_FOLDER}"
+
+#{UPDATE_RESOLVE}
+
+# jspm-install.sh jspm-a/ ./public/jspm.js /data ./jspm_packages
+
+cd "${TARGET}"
+
+mkdir -p "${BASE_DIR}"
+mkdir -p "${CONFIG_FOLDER}"
 
 
-cp /package-json/${PACKAGE_JSON} ./package.json
+if [ -f package.json ]; then
+	mv package.json package.json.jspm_install_bak
+fi
+cp "${INSTALL_ROOT}/package.json" ./package.json
 
-mkdir -p `dirname ${BASE_DIR}`
-mkdir -p "${TARGET}/${BASE_DIR}"
-ln -s "${TARGET}/${BASE_DIR}" ./${BASE_DIR}
-ln -s "${TARGET}/node_modules" ./node_modules
+if [ ! -f "./${CONFIG_FILE}" ]; then
+	cp "${INSTALL_ROOT}/${CONFIG_FILE}" ./${CONFIG_FILE}
+fi
 
 if [ -n "${NPM_REGISTRY}" ]; then
 	jspm config registries.npm.registry ${NPM_REGISTRY}
@@ -36,9 +53,15 @@ fi
 #{JSPM_GITHUB_CONFIG}
 #jspm config strictSSL false
 
+# ls -al --color=always
+
 jspm install -y
 
-rm -rf ~/.npm ~/.node-gyp /npm-install/npm-cache
+if [ -z "${IS_CONTINUE}" ]; then
+	jspm cache-clear
+#{REMOVE_CACHES}
+	rm -rfv /tmp/*
+fi
 
 if [ -n "${HTTP_PROXY}" ]; then
 	git config --system --unset-all global.proxy
@@ -46,4 +69,7 @@ if [ -n "${HTTP_PROXY}" ]; then
 	git config --system --unset-all https.proxy
 fi
 
-#{APPEND}
+if [ -f package.json.jspm_install_bak ]; then
+	unlink ./package.json
+	mv package.json.jspm_install_bak package.json
+fi

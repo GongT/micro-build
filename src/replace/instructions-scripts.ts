@@ -2,8 +2,18 @@ import {TemplateVariables} from "./base";
 import {getTempPath, getProjectPath} from "../library/file-paths";
 import {resolve} from "path";
 import {renderTemplate} from "./replace-scripts";
+import {updateResolve, removeCache} from "../build/scripts";
 
 export class ScriptVariables extends TemplateVariables {
+	
+	UPDATE_RESOLVE() {
+		return updateResolve(this.config).join('\n');
+	}
+	
+	REMOVE_CACHES() {
+		return removeCache();
+	}
+	
 	SHELL_COMMAND() {
 		return this.scriptArgsWrap(this.config.toJSON().shell);
 	}
@@ -63,6 +73,10 @@ export class ScriptVariables extends TemplateVariables {
 		});
 	}
 	
+	DEBUG_LISTEN_PORT() {
+		return `export LISTEN_PORT=${this.config.toJSON().port}`;
+	}
+	
 	JSON_ENV_HASH() {
 		if (!this.jsonEnvEnabled) {
 			return '# no json env';
@@ -83,7 +97,7 @@ export class ScriptVariables extends TemplateVariables {
 	}
 	
 	EXTERNAL_PORTS() {
-		return this.walk(this.config.toJSON().forwardPort, ({host, client, method})=> {
+		return this.walk(this.config.toJSON().forwardPort, ({host, client, method}) => {
 			if (host !== null) {
 				return `--publish ${host}:${client}` + (method? '/' + method : '');
 			}
@@ -97,13 +111,13 @@ export class ScriptVariables extends TemplateVariables {
 	DOCKER_ARGS() {
 		let arr = this.config.toJSON().dockerRunArguments;
 		arr = arr.concat(this.config.getNetworkTypeArg());
-		return this.walk(arr, (arg)=> {
+		return this.walk(arr, (arg) => {
 			return JSON.stringify(arg);
 		}, ' ');
 	}
 	
 	NETWORKING_ENVIRONMENTS_VARS() {
-		return this.walk(this.config.getNetworkConfig(), (v, k)=> {
+		return this.walk(this.config.getNetworkConfig(), (v, k) => {
 			if (v) {
 				return 'export ' + k + '=' + JSON.stringify(v);
 			}
@@ -111,7 +125,7 @@ export class ScriptVariables extends TemplateVariables {
 	}
 	
 	NETWORKING_ENVIRONMENTS_ARGS() {
-		return this.walk(this.config.getNetworkConfig(), (v, k)=> {
+		return this.walk(this.config.getNetworkConfig(), (v, k) => {
 			if (v) {
 				return '-e ' + k + '=' + JSON.stringify(v);
 			}
@@ -119,10 +133,10 @@ export class ScriptVariables extends TemplateVariables {
 	}
 	
 	RUN_MOUNT_VOLUMES() {
-		return this.walk(this.config.toJSON().volume, (hostFolder, mountPoint: string)=> {
+		return this.walk(this.config.toJSON().volume, (hostFolder, mountPoint: string) => {
 			if (hostFolder.path) {
 				return `--volume ${this.wrapEnv(hostFolder.path)}:${this.wrapEnv(mountPoint)}`
-			}else{
+			} else {
 				return `--volume ${this.wrapEnv(mountPoint)}`
 			}
 		}, ' ');

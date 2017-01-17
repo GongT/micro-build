@@ -34,7 +34,7 @@ export class TemplateRender {
 }
 
 export abstract class TemplateVariables {
-	protected config: MicroBuildConfig;
+	public readonly config: MicroBuildConfig;
 	protected jsonEnvEnabled = false;
 	public saved: any = {};
 	

@@ -14,4 +14,4 @@ if [ $? -ne 0 ]; then
 fi
 echo -e "\e[38;5;10m install success... \e[0m" >&2
 
-rm -rf ~/.npm ~/.node-gyp /npm-install/npm-cache
+#{REMOVE_CACHES}

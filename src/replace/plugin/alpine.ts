@@ -1,4 +1,5 @@
 import {MicroBuildConfig, EPlugins} from "../../library/microbuild-config";
+import {updateResolve} from "../../build/scripts";
 
 export function alpineUninstall(config: MicroBuildConfig, installList: string[]): string[] {
 	if (installList.length === 0) {
@@ -31,13 +32,11 @@ export function alpineInstall(config: MicroBuildConfig, installList: string[]): 
 			`echo "http://mirrors.aliyun.com/alpine/v${version}/main" > /etc/apk/repositories`,
 			`echo "http://mirrors.aliyun.com/alpine/v${version}/community" >> /etc/apk/repositories`,
 			`apk -U add ${installList.join(' ')}`,
-			`apk cache clean || true`,
 		];
 	} else {
 		return [
 			`update-resolve`,
 			`apk -U add ${installList.join(' ')}`,
-			`apk cache clean || true`,
 		];
 	}
 }

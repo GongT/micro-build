@@ -45,9 +45,14 @@ interface IContextDefine {
 }
 
 const removeReg = /^[\s\S]*<\*\*DON'T EDIT ABOVE THIS LINE\*\*>/;
+let lastConfigPath: string;
+let lastBuilder: MicroBuildConfig;
 
 export function readBuildConfig(): MicroBuildConfig {
 	const filename = getConfigPath();
+	if (filename === lastConfigPath) {
+		return lastBuilder;
+	}
 	
 	const constDefines = [
 		'const ELabelNames = ' + JSON.stringify(ELabelNames),
@@ -85,6 +90,13 @@ export function readBuildConfig(): MicroBuildConfig {
 	labelArr.push(builder.toJSON().projectName);
 	labelArr.push(builder.toJSON().domain);
 	builder.specialLabel(ELabelNames.alias, labelArr);
+	
+	if (builder.toJSON().onConfig) {
+		builder.toJSON().onConfig(process.env.MICRO_BUILD_RUN === 'build');
+	}
+	
+	lastBuilder = builder;
+	lastConfigPath = filename;
 	
 	return builder;
 }

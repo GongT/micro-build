@@ -5,9 +5,9 @@ die () {
 	exit 127
 }
 
-update-resolve
+#{UPDATE_RESOLVE}
 
-export NPM_RC_PATH=/npm-install/config
+export NPM_RC_PATH=$HOME
 mkdir -p "${NPM_RC_PATH}"
 export NPM_RC_FILE=${NPM_RC_PATH}/.npmrc
 
@@ -25,8 +25,15 @@ NPM_ARGUMENTS=`echo "${NPM_ARGUMENTS}
 	--registry=${NPM_REGISTRY}
 	--cache=/npm-install/npm-cache
 	--userconfig=${NPM_RC_FILE}
+	--progress true --loglevel error
 	"`
 
-NPM_INSTALL=`echo "npm install
+TYPE=install
+if [ "$1" == "uninstall" ]; then
+	TYPE=uninstall
+	shift
+fi
+
+NPM_INSTALL=`echo "npm ${TYPE}
 	${NPM_ARGUMENTS}
 	"`

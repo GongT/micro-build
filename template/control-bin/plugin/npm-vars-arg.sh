@@ -4,4 +4,4 @@
 
 npm ${NPM_ARGUMENTS} "$@"
 
-rm -rf ~/.npm ~/.node-gyp /npm-install/npm-cache
+#{REMOVE_CACHES}

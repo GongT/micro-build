@@ -12,7 +12,7 @@ export class ScriptVariablesPlugins extends ScriptVariables {
 		return [
 			this.scss(),
 			this.typescript(),
-			this.browserify(),
+			// this.browserify(),
 		].join('\n');
 	}
 	

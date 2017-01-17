@@ -29,6 +29,7 @@ export interface GFWInterface {
 }
 
 export interface MicroServiceConfig {
+	port: number;
 	github: GithubInterface;
 	forwardPort: {
 		host: number;
@@ -45,8 +46,8 @@ export interface MicroServiceConfig {
 	reloadCommand: string[];
 	stopCommand: string[];
 	domain: string;
-	appendDockerFile: string[];
-	prependDockerFile: string[];
+	appendDocker: {file?: string, content?: string}[];
+	prependDocker: {file?: string, content?: string}[];
 	projectName: string;
 	plugins: any[];
 	base: string;
@@ -84,6 +85,7 @@ export interface MicroServiceConfig {
 	};
 	disableCopyFolder: boolean;
 	disableBinfiles: boolean;
+	onConfig?: (isDebug?: boolean) => void;
 }
 
 export enum ELabelNames{
@@ -98,6 +100,7 @@ export enum EPlugins{
 	typescript,
 	browserify,
 	alpine,
+	jspm_bundle,
 }
 
 export interface KeyValueObject<T> {
@@ -106,6 +109,7 @@ export interface KeyValueObject<T> {
 
 export class MicroBuildConfig {
 	private storage: MicroServiceConfig = {
+		port: 80,
 		volume: {},
 		forwardPort: [],
 		stopCommand: ['echo', 'no stop command.'],
@@ -115,8 +119,8 @@ export class MicroBuildConfig {
 		projectName: '',
 		command: ['npm', 'start'],
 		shell: ['/bin/sh', '-c'],
-		appendDockerFile: [],
-		prependDockerFile: [],
+		appendDocker: [],
+		prependDocker: [],
 		plugins: [],
 		base: 'node:latest',
 		dockerRunArguments: [],
@@ -216,6 +220,14 @@ export class MicroBuildConfig {
 		this.storage.domain = name;
 	}
 	
+	listenPort(port: number) {
+		this.storage.port = port;
+	}
+	
+	onConfig(cb) {
+		this.storage.onConfig = cb;
+	}
+	
 	startupCommand(...command: string[]) {
 		this.storage.command = command;
 	}
@@ -246,18 +258,26 @@ export class MicroBuildConfig {
 	
 	prependDockerFile(filePath: string) {
 		if (existsSync(filePath)) {
-			this.storage.prependDockerFile.push(filePath);
+			this.storage.prependDocker.push({file: filePath});
 		} else {
 			throw new Error(`can't find prepend Dockerfile at ${filePath}`);
 		}
 	}
 	
+	prependDockerFileContent(lines: string) {
+		this.storage.prependDocker.push({content: lines});
+	}
+	
 	appendDockerFile(filePath: string) {
 		if (existsSync(filePath)) {
-			this.storage.appendDockerFile.push(filePath);
+			this.storage.appendDocker.push({file: filePath});
 		} else {
 			throw new Error(`can't find append Dockerfile at ${filePath}`);
 		}
+	}
+	
+	appendDockerFileContent(lines: string) {
+		this.storage.appendDocker.push({content: lines});
 	}
 	
 	permantalStorage(imageMountpoint: string) {
@@ -305,12 +325,12 @@ export class MicroBuildConfig {
 		}
 	}
 	
-	noDataCopy(b: boolean = true) {
-		this.storage.disableCopyFolder = b;
+	noDataCopy(noCopy: boolean = true) {
+		this.storage.disableCopyFolder = noCopy;
 	}
 	
-	noBinFiles(b: boolean = true) {
-		this.storage.disableBinfiles = b;
+	noBinFiles(noBin: boolean = true) {
+		this.storage.disableBinfiles = noBin;
 	}
 	
 	/** @deprecated */

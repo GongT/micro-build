@@ -4,9 +4,16 @@ import {ScriptVariables} from "../replace/instructions-scripts";
 import {renderTemplate} from "../replace/replace-scripts";
 
 export function createScripts(config: MicroBuildConfig) {
-	let extraScript;
+	const extraScript = updateResolve(config).join('\n');
+	saveFile('bin/update-resolve', '#!/bin/sh\n\n'+extraScript, '755');
+}
+
+export function updateResolve(config: MicroBuildConfig) {
 	const replacer = new ScriptVariables(config);
 	
-	extraScript = renderTemplate('scripts', 'update-resolve.sh', replacer);
-	saveFile('bin/update-resolve', extraScript, '755');
+	return renderTemplate('scripts', 'update-resolve.sh', replacer).split(/\n/g);
+}
+
+export function removeCache(){
+    return 'rm -rf /tmp/npm-* ~/.npm ~/.node-gyp /npm-install/npm-cache';
 }

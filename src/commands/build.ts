@@ -3,6 +3,7 @@ import {spawnMainCommand} from "../library/spawn-child";
 import {createBuildTempFiles, readBuildConfig} from "../build/all";
 
 export default function build(this: any) {
+	process.env.MICRO_BUILD_RUN = 'build';
 	const args = Array.prototype.slice.call(this.parent.rawArgs);
 	args.shift(); // node
 	args.shift(); // microbuild

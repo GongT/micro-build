@@ -7,6 +7,7 @@ import {saveFile} from "../../build/all";
 import {ScriptVariables} from "../instructions-scripts";
 import {renderTemplate} from "../replace-scripts";
 import {_guid} from "./_guid";
+import {removeCache} from "../../build/scripts";
 
 export function npm_install_command(config: MicroBuildConfig) {
 	let helperScript;
@@ -14,7 +15,7 @@ export function npm_install_command(config: MicroBuildConfig) {
 	
 	const npm = config.getNpmConfig();
 	
-	npmPrependIns = `
+	npmPrependIns = `# set cache layer env
 ENV NPM_LAYER_ENABLED=${npm.enabled? 'yes' : 'no'} \\
 	NPM_REGISTRY=${wrapVal(npm.url)} \\
 	NPM_USER=${wrapVal(npm.user)} \\
@@ -26,13 +27,15 @@ ENV NPM_LAYER_ENABLED=${npm.enabled? 'yes' : 'no'} \\
 COPY .micro-build/npm-install /npm-install
 `;
 	if (npm.enabled) {
-		npmPrependIns += `
-RUN /npm-install/global-installer npm-cli-login && \
-	npm config set registry "${npm.url}" && \
-	sh /npm-install/prepare-user
+		npmPrependIns += `# private npm
+RUN /npm-install/global-installer npm-cli-login && \\
+	npm config set registry "${npm.url}" && \\
+	sh /npm-install/prepare-user && \\
+	npm un --global npm-cli-login && \\
+	${removeCache()}
 `;
 	} else {
-		npmPrependIns += `
+		npmPrependIns += `# no private npm
 RUN npm config set registry "${npm.url}"
 `;
 	}

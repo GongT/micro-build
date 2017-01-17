@@ -42,10 +42,12 @@ if [ -n "${BACKGROUND_WORKERS}" ]; then
 	"
 	
 	{
-	export SHELL="/bin/sh"
-	"@{CONCURRENTLY_BIN}" \
-		--names "${BACKGROUND_WORKERS_NAMES}" -p "name" \
-		"${BACKGROUND_WORKERS[@]}" </dev/null
+		set -x
+		export SHELL="/bin/sh"
+		"@{CONCURRENTLY_BIN}" \
+			--names "${BACKGROUND_WORKERS_NAMES}" -p "name" \
+			"${BACKGROUND_WORKERS[@]}" </dev/null
+		set +x
 		echo -e "\e[38;5;9m    background process quited...\e[0m"
 	} &
 	BACKGROUND_PID=$!
@@ -54,13 +56,14 @@ fi
 echo -e "\e[38;5;14m[micro-build]\e[0m debug: SELF_PID=${SELF_PID}"
 
 trap 'RET=$?
+set -x
 echo -e "\n\e[38;5;14m[micro-build]\e[0m exit..."
 trap - SIGTERM EXIT
 JOBS=$(jobs -p)
 if [ -n "${JOBS}" ]; then
 	echo "killing job commands:"
 	kill -2 -- ${JOBS} 2>/dev/null
-	echo "  waitting..."
+	echo "  waitting... ${JOBS}"
 	wait -- ${JOBS} 2>/dev/null
 	echo "  killed."
 fi
@@ -74,6 +77,8 @@ jenv --hint &> /dev/null
 
 RUN_ARGUMENTS=
 get_run_arguments "$@"
+
+#{DEBUG_LISTEN_PORT}
 
 [ -n "${BACKGROUND_PID}" ] && sleep 3
 

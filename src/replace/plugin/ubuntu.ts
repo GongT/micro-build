@@ -1,4 +1,5 @@
 import {MicroBuildConfig, EPlugins} from "../../library/microbuild-config";
+import {updateResolve} from "../../build/scripts";
 
 export function ubuntuUninstall(config: MicroBuildConfig, installList: string[]): string[] {
 	if (installList.length === 0) {
