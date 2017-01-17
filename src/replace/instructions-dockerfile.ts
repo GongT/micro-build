@@ -10,8 +10,9 @@ import {EPlugins} from "../library/microbuild-config";
 import {systemInstall, systemUninstall} from "./plugin/system-install";
 import {parse} from "url";
 import {createJspmInstallScript, jspm_install_command} from "./plugin/jspm";
-import {jspm_bundle} from "./plugin/jspm-bundle";
+import {jspm_bundle, jspm_bundle_after} from "./plugin/jspm-bundle";
 import {updateResolve, removeCache} from "../build/scripts";
+import {npm_publish_after, npm_publish_command} from "./plugin/npm-publish";
 
 const nextGuid = createGuid();
 
@@ -213,7 +214,15 @@ ${content}`;
 		].join('\n\n\n');
 	}
 	
+	COMPILE_PLUGIN_AFTER() {
+		return [
+			jspm_bundle_after(this),
+			npm_publish_after(this),
+		].join('\n\n\n');
+	}
+	
 	private jspmActived = false;
+	private npmPubActived = false;
 	
 	JSPM_INSTALL_INSTRUCTIONS() {
 		const jspmInst = this.config.toJSON().jspmInstall.map((packagejsonPath) => {
@@ -288,7 +297,8 @@ RUN ${inst.join(' && \\\n\t')}`;
 		if (this.config.getPlugin(EPlugins.typescript) ||
 		    this.config.getPlugin(EPlugins.browserify) ||
 		    this.config.getPlugin(EPlugins.node_scss) ||
-		    this.config.getPlugin(EPlugins.jspm_bundle)
+		    this.config.getPlugin(EPlugins.jspm_bundle) ||
+		    this.config.getPlugin(EPlugins.npm_publish)
 		) {
 			let ret: string = '# some nodejs plugin enbled\n';
 			if (!this.npmActived) {
@@ -302,6 +312,14 @@ RUN ${inst.join(' && \\\n\t')}`;
 					this.jspmActived = true;
 					ret += '# enable jspm for plugin\n';
 					ret += jspm_install_command(this.config);
+				}
+			}
+			
+			if (this.config.getPlugin(EPlugins.npm_publish)) {
+				if (!this.npmPubActived) {
+					this.npmPubActived = true;
+					ret += '# enable npm publish\n';
+					ret += npm_publish_command(this.config);
 				}
 			}
 			return ret;

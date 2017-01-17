@@ -29,7 +29,7 @@ NPM_ARGUMENTS=`echo "${NPM_ARGUMENTS}
 	"`
 
 TYPE=install
-if [ "$1" == "uninstall" ]; then
+if [ "$1" = "uninstall" ] ; then
 	TYPE=uninstall
 	shift
 fi

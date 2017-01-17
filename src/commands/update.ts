@@ -102,6 +102,7 @@ const dockerIgnores = [
 	`!${tempDirName}/bin`,
 	`!${tempDirName}/package-json`,
 	`!${tempDirName}/jspm-install`,
+	`!${tempDirName}/plugins`,
 ];
 
 function slashEnd(str) {

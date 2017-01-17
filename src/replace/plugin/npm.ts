@@ -9,6 +9,17 @@ import {renderTemplate} from "../replace-scripts";
 import {_guid} from "./_guid";
 import {removeCache} from "../../build/scripts";
 
+export function getNpmScriptReplacer(config: MicroBuildConfig) {
+	const r = new ScriptVariables(config, {});
+	const prependScript = renderTemplate('plugin', 'npm-installer-detect.sh', r);
+	
+	return new ScriptVariables(config, {
+		PREPEND_NPM_SCRIPT () {
+			return prependScript;
+		},
+	});
+}
+
 export function npm_install_command(config: MicroBuildConfig) {
 	let helperScript;
 	let npmPrependIns = '';
@@ -40,14 +51,7 @@ RUN npm config set registry "${npm.url}"
 `;
 	}
 	
-	const r = new ScriptVariables(config, {});
-	const prependScript = renderTemplate('plugin', 'npm-installer-detect.sh', r);
-	
-	const replacer = new ScriptVariables(config, {
-		PREPEND_NPM_SCRIPT () {
-			return prependScript;
-		},
-	});
+	const replacer = getNpmScriptReplacer(config);
 	
 	helperScript = renderTemplate('plugin', 'npm-vars-source.sh', replacer);
 	saveFile('npm-install/source', helperScript, '644');

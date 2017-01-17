@@ -101,6 +101,7 @@ export enum EPlugins{
 	browserify,
 	alpine,
 	jspm_bundle,
+	npm_publish,
 }
 
 export interface KeyValueObject<T> {

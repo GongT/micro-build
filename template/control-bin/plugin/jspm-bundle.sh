@@ -7,7 +7,7 @@ shift
 TARGET_FOLDER=$1 # save folder
 shift
 
-if [ ${TYPE} == 'src' ]; then
+if [ "${TYPE}" = 'src' ]; then
 	MAIN_FILE=$1 # app main file
 	jspm bundle "$@" ${TARGET_FOLDER}/client.js --no-mangle --minify --inject
 	jspm bundle-sfx "$MAIN_FILE" - babel-runtime ${TARGET_FOLDER}/full.js --minify

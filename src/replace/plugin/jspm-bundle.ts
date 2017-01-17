@@ -7,6 +7,30 @@ import {existsSync, writeFileSync, readFileSync} from "fs";
 import {_guid} from "./_guid";
 import {sync} from "mkdirp";
 
+export function jspm_bundle_after(replacer: CustomInstructions) {
+	const config = replacer.config;
+	const jspm_plugin = config.getPluginList(EPlugins.jspm_bundle);
+	
+	const content: string[] = [];
+	jspm_plugin.forEach(({options}) => {
+		const PACKAGE = options.packageJson;
+		const targetPath = resolve('/data', PACKAGE, '..');
+		const targetPackagePath = resolve(getProjectPath(), PACKAGE);
+		
+		const pkg: IPackageJson = require(targetPackagePath);
+		
+		const target = getConfigFilePath(pkg.jspm, targetPath);
+		
+		content.push(`mv ${JSON.stringify(target)} ${JSON.stringify(`${target}.backup`)}`);
+		content.push(`mv ${JSON.stringify(`${target}.overwrite`)} ${JSON.stringify(target)}`);
+	});
+	if (content.length) {
+		return 'RUN ' + content.join('&& \\\n\t');
+	} else {
+		return '';
+	}
+}
+
 export function jspm_bundle(replacer: CustomInstructions) {
 	const config = replacer.config;
 	const jspm_plugin = config.getPluginList(EPlugins.jspm_bundle);
@@ -56,7 +80,7 @@ export interface JspmBundleOptions {
 function bundleSinglePackage(options: JspmBundleOptions, config: MicroBuildConfig, install: string[], build: string[], copy: string[][]) {
 	const SOURCE = options.source;
 	if (!SOURCE) {
-		throw new Error('EPlugins.jspm_bundle: require `source` argument')
+		throw new Error('EPlugins.jspm_bundle: require `source` argument. (to main file)')
 	}
 	const PACKAGE = options.packageJson;
 	if (!PACKAGE) {
