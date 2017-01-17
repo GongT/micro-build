@@ -5,4 +5,4 @@ fi
 echo "npm layer enabled, rewrite /etc/resolv.conf"
 echo "nameserver ${HOST_LOOP_IP}" > /etc/resolv.conf
 echo "nameserver 8.8.8.8" >> /etc/resolv.conf
-echo "nameserver 223.5.5.5" >> /etc/resolv.conf
+echo "nameserver 100.100.2.136" >> /etc/resolv.conf
