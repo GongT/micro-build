@@ -1,5 +1,8 @@
-import {MicroBuildConfig, ELabelNames} from "./x/microbuild-config";
+import {MicroBuildHelper} from "./x/microbuild-helper";
+import {MicroBuildConfig, ELabelNames, EPlugins} from "./x/microbuild-config";
+import {JsonEnv} from "../.jsonenv/_current_result";
 declare const build: MicroBuildConfig;
+declare const helper: MicroBuildHelper;
 /*
  +==================================+
  | <**DON'T EDIT ABOVE THIS LINE**> |
@@ -8,6 +11,8 @@ declare const build: MicroBuildConfig;
  |    ES6 FEATURES NOT AVAILABLE    |
  +==================================+
  */
+
+/* Example config file */
 
 const projectName = 'your-project-name';
 
@@ -33,7 +38,7 @@ build.label('microbuild', 'yes');
 build.specialLabel(ELabelNames.alias, []);
 // build.specialLabel(ELabelNames.proxy, 'nginx');
 
-// build.addPlugin(EPlugins.jenv);
+build.addPlugin(EPlugins.jenv);
 
 /*
  build.addPlugin(EPlugins.node_scss, {
@@ -48,3 +53,8 @@ build.environmentVariable('DEBUG', 'some-tag:*');
 
 // build.prependDockerFile('/path/to/docker/file');
 // build.appendDockerFile('/path/to/docker/file');
+
+build.onConfig((isBuild) => {
+	const config = buildHelper.create(`ts`);
+	// config.write('xxxxx');
+});

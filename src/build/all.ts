@@ -11,6 +11,7 @@ import {createDebugScript} from "./debug-script";
 import {ConfigJsonFile} from "../library/config-json-file";
 import {sync as mkdirpSync} from "mkdirp";
 import {createScripts} from "./scripts";
+import {MicroBuildHelper} from "../library/microbuild-helper";
 
 export function createBuildTempFiles(builder: MicroBuildConfig) {
 	createDockerfile(builder);
@@ -44,7 +45,9 @@ interface IContextDefine {
 	JsonEnv?: any,
 }
 
-const removeReg = /^[\s\S]*<\*\*DON'T EDIT ABOVE THIS LINE\*\*>/;
+export const dontRemoveReg = /^[\s\S]*\|\s+<\*\*DON'T EDIT ABOVE THIS LINE\*\*>\s+\|/;
+export const dontRemoveString = ` +==================================+
+ | <**DON'T EDIT ABOVE THIS LINE**> |`;
 let lastConfigPath: string;
 let lastBuilder: MicroBuildConfig;
 
@@ -60,13 +63,19 @@ export function readBuildConfig(): MicroBuildConfig {
 	];
 	
 	const code = readFileSync(filename, 'utf-8')
-		.replace(removeReg, constDefines.join(';') + '/*$&');
+		.replace(dontRemoveReg, `${constDefines.join(';')}
+
+/*
+${dontRemoveString}`);
+	
 	let builder = new MicroBuildConfig();
+	let helper = new MicroBuildHelper(builder);
 	
 	try {
 		console.log('include config file...');
 		run_script(code, filename, {
 			build: builder,
+			helper: helper,
 		});
 	} catch (e) {
 		if (e.message.indexOf('JsonEnv is not defined') !== -1) {
@@ -75,8 +84,10 @@ export function readBuildConfig(): MicroBuildConfig {
 			console.log('create builder...');
 			builder = new MicroBuildConfig();
 			builder.addPlugin(EPlugins.jenv);
+			let helper = new MicroBuildHelper(builder);
 			run_script(code, filename, {
 				build: builder,
+				helper: helper,
 				JsonEnv
 			});
 		} else {

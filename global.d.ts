@@ -1,36 +1,26 @@
 declare const JsonEnv: any;
 
-interface Console {
-	assert(test?: boolean, message?: string, ...optionalParams: any[]): void;
-	clear(): void;
-	count(countTitle?: string): void;
-	debug(message?: string, ...optionalParams: any[]): void;
-	dir(value?: any, ...optionalParams: any[]): void;
-	dirxml(value: any): void;
-	error(message?: any, ...optionalParams: any[]): void;
-	group(groupTitle?: string): void;
-	groupCollapsed(groupTitle?: string): void;
-	groupEnd(): void;
-	info(message?: any, ...optionalParams: any[]): void;
-	log(message?: any, ...optionalParams: any[]): void;
-	profile(reportName?: string): void;
-	profileEnd(): void;
-	time(timerName?: string): void;
-	timeEnd(timerName?: string): void;
-	trace(message?: any, ...optionalParams: any[]): void;
-	warn(message?: any, ...optionalParams: any[]): void;
-}
-
-declare var console: Console;
-
-declare namespace NodeJS {
-	export interface WritableStream {
-		fd?: number;
-	}
-}
-
 declare interface KVP<V> {
 	[id: string]: V;
+}
+
+declare interface JspmPackageConfig {
+	directories: {
+		[id: string]: string;
+		baseURL: string;
+		packages: string;
+	},
+	configFiles?: {
+		[id: string]: string;
+		jspm: string;
+	},
+	configFile?: string;
+	dependencies: {
+		[id: string]: string;
+	};
+	overrides: {
+		[id: string]: any;
+	};
 }
 
 declare interface IPackageJson {
@@ -53,7 +43,7 @@ declare interface IPackageJson {
 	devDependencies?: {
 		[name: string]: string;
 	};
-	jspm: any;
+	jspm: JspmPackageConfig;
 }
 
 interface WritableStream {

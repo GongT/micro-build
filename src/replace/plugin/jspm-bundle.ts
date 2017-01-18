@@ -57,7 +57,7 @@ export function jspm_bundle(replacer: CustomInstructions) {
 	
 	content += '\n';
 	content += 'RUN ' + ['set -x'].concat(
-			['/npm-install/global-installer jspm',],
+			['/npm-install/global-installer jspm@beta',],
 			['# sys install'],
 			systemInstall(config, ['git']).map(e => `\t${e}`),
 			install,
@@ -96,16 +96,17 @@ function bundleSinglePackage(options: JspmBundleOptions, config: MicroBuildConfi
 	if (!pkg.jspm) {
 		throw new Error(`No jspm config found in ${targetPath.replace(/^\/data/, '.')}/package.json.`);
 	}
+	const jspm = pkg.jspm;
 	
 	const savePath = resolve(targetPath, options.target || './public/bundles');
 	
-	const names = Object.keys(pkg.jspm['dependencies']).filter((n) => {
+	const names = Object.keys(jspm.dependencies).filter((n) => {
 		return n !== 'babel-runtime';
 	});
 	
 	install.push(createJspmInstall(
 		config,
-		pkg,
+		jspm,
 		targetPath,
 		copy
 	));
@@ -122,25 +123,52 @@ function bundleSinglePackage(options: JspmBundleOptions, config: MicroBuildConfi
 	build.push(`    /npm-install/jspm-bundle-helper src "${savePath}" "${SOURCE}" ${names.map(e => ' - ' + JSON.stringify(e)).join(' ')}`);
 }
 
+export function getSavePaths(options: JspmBundleOptions) {
+	const PACKAGE = options.packageJson;
+	if (!PACKAGE) {
+		throw new Error('EPlugins.jspm_bundle: require `packageJson` argument.')
+	}
+	const savePath = resolve('/', PACKAGE, '..', options.target || './public/bundles')
+		.replace(/^\//, '');
+	
+	return [
+		`${savePath}/client.js`,
+		`${savePath}/full.js`,
+		`${savePath}/dependencies.js`
+	];
+}
+
 function getConfigFilePath(jspm, targetPath) {
 	let configFile = getConfigFileRelative(jspm);
 	return resolve('/', targetPath, configFile);
 }
 function getConfigFileRelative(jspm) {
-	return jspm.configFile || './config.js';
+	if (jspm.configFiles && jspm.configFiles.jspm) {
+		return jspm.configFiles.jspm;
+	} else if (jspm.configFile) {
+		return jspm.configFile;
+	} else {
+		return './config.js';
+	}
 }
 function getConfigFileSource(jspm, targetPath) {
 	let configFile = getConfigFileRelative(jspm);
 	return resolve(getProjectPath(), targetPath.replace(/^\/data/, '.'), configFile);
 }
 function getPackageDir(jspm) {
-	if (jspm['directories'] && jspm['directories']['packages']) {
-		return jspm['directories']['packages'];
+	if (jspm.directories) {
+		if (jspm.directories.packages) {
+			return jspm.directories.packages;
+		} else if (jspm.directories.baseURL) {
+			return `./${jspm.directories.baseURL}/jspm_packages`
+		} else {
+			return './jspm_packages';
+		}
 	} else {
 		return './jspm_packages';
 	}
 }
-function createJspmBundlePackage(config: MicroBuildConfig, {jspm}: IPackageJson, targetPath: string, copy: string[][]) {
+function createJspmBundlePackage(config: MicroBuildConfig, jspm: JspmPackageConfig, targetPath: string, copy: string[][]) {
 	const id = `jspm-${_guid()}`;
 	const source = getConfigFileSource(jspm, targetPath);
 	if (!existsSync(source)) {
@@ -151,9 +179,15 @@ function createJspmBundlePackage(config: MicroBuildConfig, {jspm}: IPackageJson,
 	
 	const packageFileContent = {
 		name: 'installing-package',
-		jspm: Object.assign({}, jspm, {
+		jspm: {
+			directories: jspm.directories,
+			configFiles: Object.assign({}, jspm.configFiles, {
+				jspm: target,
+			}),
+			overrides: jspm.overrides,
 			configFile: target,
-		}),
+			dependencies: jspm.dependencies,
+		},
 	};
 	
 	const tempDir = resolve(getTempPath(), 'package-json', id);
@@ -169,10 +203,10 @@ function createJspmBundlePackage(config: MicroBuildConfig, {jspm}: IPackageJson,
 	return [`${id}/package.json`, target];
 }
 
-function createJspmInstall(config: MicroBuildConfig, {jspm}: IPackageJson, targetPath: string, copy: string[][]) {
+function createJspmInstall(config: MicroBuildConfig, jspm: JspmPackageConfig, targetPath: string, copy: string[][]) {
 	const packageDir = getPackageDir(jspm);
 	
-	const [packageFile, configFile] = createJspmBundlePackage(config, {jspm}, targetPath, copy);
+	const [packageFile, configFile] = createJspmBundlePackage(config, jspm, targetPath, copy);
 	
 	return `/npm-install/jspm-install "${packageFile}" "${configFile}" "${targetPath}" "${packageDir}" "yes"`;
 }

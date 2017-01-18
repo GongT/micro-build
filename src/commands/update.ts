@@ -1,17 +1,27 @@
 import {resolve, basename} from "path";
-import {realpathSync, symlinkSync, unlinkSync, existsSync} from "fs";
-import {PackageJsonFile} from "../library/package-json-file";
-import {sync as mkdirpSync} from "mkdirp";
 import {
-	MicroFilesRoot,
+	readFileSync,
+	writeFileSync,
+	realpathSync,
+	symlinkSync,
+	unlinkSync,
+	existsSync,
+	lstatSync,
+	readlinkSync
+} from "fs";
+import {PackageJsonFile} from "../library/package-json-file";
+import {
 	projectFile,
 	projectFileObject,
 	tempDirName,
 	getProjectPath,
-	getTempPath
+	getTempPath,
+	MicroBuildRoot
 } from "../library/file-paths";
-import {readBuildConfig} from "../build/all";
+import {readBuildConfig, dontRemoveReg} from "../build/all";
 import {EPlugins} from "../library/microbuild-config";
+import {getSavePaths} from "../replace/plugin/jspm-bundle";
+import {rmdirsSync} from "nodejs-fs-utils";
 
 const sectionStart = 'START MICRO-BUILD SECTION >>> ';
 const sectionEnd = '<<< END MICRO-BUILD SECTION';
@@ -29,6 +39,14 @@ export default function update() {
 			extraFolders.push(slashEnd(options.target));
 		}
 	});
+	builder.getPluginList(EPlugins.jspm_bundle).forEach(({options}) => {
+		getSavePaths(options).forEach((path) => {
+			extraFolders.push(path);
+		});
+	});
+	builder.registedIgnore.forEach((path) => {
+		extraFolders.push(path);
+	});
 	
 	const gitIgnore = projectFileObject('.gitignore');
 	gitIgnore.section(sectionStart, sectionEnd, defaultIgnores.concat(gitIgnores, extraFolders));
@@ -38,15 +56,19 @@ export default function update() {
 	dockerIgnore.section(sectionStart, sectionEnd, defaultIgnores.concat(dockerIgnores, extraFolders));
 	dockerIgnore.write();
 	
-	const targetDts = resolve(getTempPath(), 'x/microbuild-config.d.ts');
-	if (!existsSync(targetDts)) {
-		console.log('update microbuild-config.d.ts file');
-		mkdirpSync(resolve(getTempPath(), 'x'));
-		try {
-			unlinkSync(targetDts);
-		} catch (e) {
+	const targetDts = resolve(getTempPath(), 'x');
+	const dtsFilePath = realpathSync(resolve(MicroBuildRoot, 'template/x'));
+	if (existsSync(targetDts)) {
+		if (lstatSync(targetDts).isSymbolicLink()) {
+			if (readlinkSync(targetDts) !== dtsFilePath) {
+				unlinkSync(targetDts);
+				symlinkSync(dtsFilePath, targetDts);
+			}
+		} else {
+			rmdirsSync(targetDts);
+			symlinkSync(dtsFilePath, targetDts);
 		}
-		const dtsFilePath = realpathSync(resolve(MicroFilesRoot, 'library/microbuild-config.d.ts'));
+	} else {
 		symlinkSync(dtsFilePath, targetDts);
 	}
 	
@@ -68,6 +90,20 @@ export default function update() {
 		}
 		
 		pkgJsonFile.write();
+	}
+	
+	const configFile = resolve(getTempPath(), 'config.ts');
+	const cfgContent = readFileSync(configFile, 'utf-8');
+	const currentContent = readFileSync(resolve(MicroBuildRoot, 'template/default-build-config.ts'), 'utf-8');
+	const xxx = dontRemoveReg.exec(currentContent);
+	const yyy = dontRemoveReg.exec(cfgContent);
+	if (!yyy) {
+		const defFile = resolve(MicroBuildRoot, 'template/default-build-config.ts');
+		throw new Error('do not remove header lines. \n    you can copy them from ' + defFile);
+	}
+	if (xxx[0] !== yyy[0]) {
+		const newContent = cfgContent.replace(dontRemoveReg, xxx[0]);
+		writeFileSync(configFile, newContent, 'utf-8');
 	}
 };
 
@@ -107,8 +143,8 @@ const dockerIgnores = [
 
 function slashEnd(str) {
 	if (/\/$/.test(str)) {
-		return str + '/';
-	} else {
 		return str;
+	} else {
+		return str + '/';
 	}
 }

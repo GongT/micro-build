@@ -12,6 +12,7 @@ if [ "finish" == "${PACKAGE_FILE}" ]; then
 	exit 0
 fi
 
+# jspm-install.sh jspm-a/ ./public/jspm.js /data ./jspm_packages
 PACKAGE_FOLDER=$(dirname "${PACKAGE_FILE}")
 CONFIG_FILE=$2
 CONFIG_FOLDER=$(dirname "${CONFIG_FILE}")
@@ -24,13 +25,10 @@ INSTALL_ROOT="/npm-install/package-json/${PACKAGE_FOLDER}"
 
 #{UPDATE_RESOLVE}
 
-# jspm-install.sh jspm-a/ ./public/jspm.js /data ./jspm_packages
-
 cd "${TARGET}"
 
 mkdir -p "${BASE_DIR}"
 mkdir -p "${CONFIG_FOLDER}"
-
 
 if [ -f package.json ]; then
 	mv package.json package.json.jspm_install_bak

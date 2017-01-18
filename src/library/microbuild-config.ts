@@ -158,6 +158,7 @@ export class MicroBuildConfig {
 		disableCopyFolder: false,
 		disableBinfiles: false,
 	};
+	public readonly registedIgnore: string[] = [];
 	
 	constructor(data?: any) {
 		if (data) {
@@ -527,5 +528,12 @@ export class MicroBuildConfig {
 			// ret.HOST_LOOP_IP6 = nw.hostIp;
 		}
 		return ret;
+	}
+	
+	registerIgnore(path: string) {
+		path = path
+			.replace(getProjectPath(), '.')
+			.replace(/^\.\//g, '');
+		this.registedIgnore.push(path);
 	}
 }
