@@ -109,11 +109,9 @@ export default function update() {
 
 const defaultIgnores = [
 	'.*',
-	'.tgz',
-	'node_modules',
-	'jspm_packages',
-	'**/node_modules',
-	'**/jspm_packages',
+	'*.tgz',
+	'node_modules/',
+	'jspm_packages/',
 	'*.log',
 	'npm-debug.log*',
 	'coverage/',

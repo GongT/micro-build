@@ -14,7 +14,7 @@ export class MicroBuildHelper {
 export class ConfigFileHelper {
 	constructor(private build: MicroBuildConfig, private fileContent: string = '') {
 		const port = build.toJSON().port;
-		const baseDomain = '//' + build.toJSON().base;
+		const baseDomain = '//' + build.toJSON().domain;
 		
 		let isDebug = false;
 		if (global.hasOwnProperty(JsonEnv)) {
@@ -23,7 +23,22 @@ export class ConfigFileHelper {
 		this.fileContent += `
 export const CONFIG_BASE_DOMAIN = ${JSON.stringify(baseDomain)};
 export const CONFIG_BASE_DOMAIN_DEBUG = ${JSON.stringify(baseDomain)};
-export const IS_PACKAGE_DEBUG_MODE = ${isDebug? 'true' : 'false'};
+let debug = ${isDebug? 'true' : 'false'};
+if(typeof window === 'object'){
+	if(window.hasOwnProperty('IS_DEBUG')){
+		debug = window['IS_DEBUG'];
+	} else if(global && global.process && global.process.env.NODE_ENV) {
+		debug = global.process.env.NODE_ENV !== 'production';
+	}
+} else {
+	if(global.hasOwnProperty('JsonEnv')){
+		debug = global['JsonEnv'].isDebug;
+	} else {
+			debug = global.process.env.NODE_ENV !== 'production';
+	}
+}
+export const IS_PACKAGE_DEBUG_MODE = debug;
+export const AUTO_CONFIG_BASE_DOMAIN = debug ? CONFIG_BASE_DOMAIN : CONFIG_BASE_DOMAIN_DEBUG;
 `;
 	}
 	
