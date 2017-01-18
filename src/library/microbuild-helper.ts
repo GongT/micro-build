@@ -12,7 +12,9 @@ export class MicroBuildHelper {
 	}
 }
 export class ConfigFileHelper {
-	constructor(private build: MicroBuildConfig, private fileContent: string = '') {
+	private fileContent;
+	
+	constructor(private build: MicroBuildConfig,  content: string = '') {
 		const port = build.toJSON().port;
 		const baseDomain = '//' + build.toJSON().domain;
 		
@@ -20,7 +22,10 @@ export class ConfigFileHelper {
 		if (global.hasOwnProperty(JsonEnv)) {
 			isDebug = JsonEnv.isDebug;
 		}
-		this.fileContent += `
+		this.fileContent = `/// <reference types="node"/>
+
+${content}
+
 export const CONFIG_BASE_DOMAIN = ${JSON.stringify(baseDomain)};
 export const CONFIG_BASE_DOMAIN_DEBUG = ${JSON.stringify(baseDomain)};
 let debug = ${isDebug? 'true' : 'false'};

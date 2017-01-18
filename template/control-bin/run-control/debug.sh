@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 
+export PROJECT_NAME="@{PROJECT_NAME}"
+echo -en "\e]0;${PROJECT_NAME} - MICRO-BUILD: loading ...\007"
+
 cd "@{PWD}/.."
 
 source "@{PWD}/arg-parse.sh"
 source "@{PWD}/functions.sh"
-
-export PROJECT_NAME="@{PROJECT_NAME}"
 
 #{DETECT_CURRENT}
 #{START_DEPENDENCY}
@@ -42,12 +43,13 @@ if [ -n "${BACKGROUND_WORKERS}" ]; then
 	"
 	
 	{
-		set -x
 		export SHELL="/bin/sh"
+		echo -e 'background run :\n' -- "@{CONCURRENTLY_BIN}" \
+			--names "${BACKGROUND_WORKERS_NAMES}" -p "name" \
+			"${BACKGROUND_WORKERS[@]}" \</dev/null
 		"@{CONCURRENTLY_BIN}" \
 			--names "${BACKGROUND_WORKERS_NAMES}" -p "name" \
 			"${BACKGROUND_WORKERS[@]}" </dev/null
-		set +x
 		echo -e "\e[38;5;9m    background process quited...\e[0m"
 	} &
 	BACKGROUND_PID=$!
@@ -56,7 +58,6 @@ fi
 echo -e "\e[38;5;14m[micro-build]\e[0m debug: SELF_PID=${SELF_PID}"
 
 trap 'RET=$?
-set -x
 echo -e "\n\e[38;5;14m[micro-build]\e[0m exit..."
 trap - SIGTERM EXIT
 JOBS=$(jobs -p)
@@ -64,6 +65,7 @@ if [ -n "${JOBS}" ]; then
 	echo "killing job commands:"
 	kill -2 -- ${JOBS} 2>/dev/null
 	echo "  waitting... ${JOBS}"
+	echo -en "\e]0;MICRO-BUILD: quitting ... (press Ctrl-C if no response) \007"
 	wait -- ${JOBS} 2>/dev/null
 	echo "  killed."
 fi
@@ -80,7 +82,7 @@ get_run_arguments "$@"
 
 #{DEBUG_LISTEN_PORT}
 
-[ -n "${BACKGROUND_PID}" ] && sleep 3
+# [ -n "${BACKGROUND_PID}" ] && sleep $(( ${#BACKGROUND_WORKERS[@]} * 2 ))
 
 echo "[microbuild] run script:"
 if [ "${WATCH}" == "no" ]; then
@@ -90,10 +92,9 @@ if [ "${WATCH}" == "no" ]; then
 	RET=$?
 else
 	echo "    @{NODEMON_BIN} \\"
-	echo "         -d 2 --config \"@{PWD}/nodemon.json\" -x \"${SHELL}\" -- ${COMMAND}"
-	echo " ::: start :::"
+	echo "         -C -d 2 --config \"@{PWD}/nodemon.json\" -x \"${SHELL}\" -- ${COMMAND}"
 #{NODEMON_BIN} \
-		-d 2 --config "@{PWD}/nodemon.json" -x "${SHELL}" -- \
+		-C -d 2 --config "@{PWD}/nodemon.json" -x "${SHELL}" -- \
 		${COMMAND} ${RUN_ARGUMENTS}
 	RET=$?
 fi
@@ -102,3 +103,5 @@ kill -2 -- $$
 sleep .5
 
 echo -e "\e[38;5;14m[micro-build]\e[0m finished.\n"
+
+echo -en "\e]0;\007"

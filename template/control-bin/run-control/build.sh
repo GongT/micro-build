@@ -2,6 +2,9 @@
 
 set -e
 
+export PROJECT_NAME="@{PROJECT_NAME}"
+echo -en "\e]0;${PROJECT_NAME} - MICRO-BUILD: building ...\007"
+
 cd "@{PWD}/.."
 
 echo -e "start build \e[38;5;14m@{SERVICE_NAME}...\e[0m"
@@ -20,6 +23,8 @@ source "@{PWD}/functions.sh"
 #{DETECT_CURRENT}
 #{PULL_DEPEND_IMAGES}
 #{BUILD_DEPEND_SERVICE}
+
+echo -en "\e]0;${PROJECT_NAME} - MICRO-BUILD: building ...\007"
 
 cat "@{PWD}/Dockerfile"| \
 	sed "s/\${COMMAND_LINE_ARGS}/${RUN_ARGUMENTS}/g" > "@{PWD}/Dockerfile.args"
