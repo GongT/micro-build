@@ -102,9 +102,7 @@ ${dontRemoveString}`);
 	labelArr.push(builder.toJSON().domain);
 	builder.specialLabel(ELabelNames.alias, labelArr);
 	
-	if (builder.toJSON().onConfig) {
-		builder.toJSON().onConfig(process.env.MICRO_BUILD_RUN === 'build');
-	}
+	builder.runOnConfig();
 	
 	lastBuilder = builder;
 	lastConfigPath = filename;

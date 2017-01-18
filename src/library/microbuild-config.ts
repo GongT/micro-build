@@ -223,7 +223,7 @@ export class MicroBuildConfig {
 	}
 	
 	listenPort(port: number) {
-		this.storage.port = port;
+		this.storage.port = parseInt('' + port);
 	}
 	
 	onConfig(cb) {
@@ -535,5 +535,18 @@ export class MicroBuildConfig {
 			.replace(getProjectPath(), '.')
 			.replace(/^\.\//g, '');
 		this.registedIgnore.push(path);
+	}
+	
+	isBuilding() {
+		return process.env.MICRO_BUILD_RUN === 'build';
+	}
+	
+	private isCallbackTriggerd: boolean;
+	
+	runOnConfig() {
+		if (!this.isCallbackTriggerd && this.storage.onConfig) {
+			this.isCallbackTriggerd = true;
+			this.storage.onConfig(this.isBuilding());
+		}
 	}
 }
