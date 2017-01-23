@@ -14,8 +14,6 @@ BUILD_DOCKER_ARGUMENTS=
 
 #{JSON_ENV_HASH}
 
-get_run_build_arguments "$@"
-
 source "@{PWD}/functions.sh"
 #{DETECT_CURRENT}
 #{PULL_DEPEND_IMAGES}
