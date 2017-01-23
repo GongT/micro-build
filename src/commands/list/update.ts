@@ -9,7 +9,7 @@ import {
 	lstatSync,
 	readlinkSync
 } from "fs";
-import {PackageJsonFile} from "../library/package-json-file";
+import {PackageJsonFile} from "../../library/package-json-file";
 import {
 	projectFile,
 	projectFileObject,
@@ -17,16 +17,22 @@ import {
 	getProjectPath,
 	getTempPath,
 	MicroBuildRoot
-} from "../library/file-paths";
-import {readBuildConfig, dontRemoveReg} from "../build/all";
-import {EPlugins} from "../library/microbuild-config";
-import {getSavePaths} from "../replace/plugin/jspm-bundle";
+} from "../../library/file-paths";
+import {readBuildConfig, dontRemoveReg} from "../../build/all";
+import {EPlugins} from "../../library/microbuild-config";
+import {getSavePaths} from "../../replace/plugin/jspm-bundle";
 import {rmdirsSync} from "nodejs-fs-utils";
+import {CommandDefine} from "../command-library";
+
+export const commandDefine: CommandDefine = {
+	command: 'update',
+	description: '/* update */',
+};
 
 const sectionStart = 'START MICRO-BUILD SECTION >>> ';
 const sectionEnd = '<<< END MICRO-BUILD SECTION';
 
-export default function update() {
+export function update() {
 	const builder = readBuildConfig();
 	const extraFolders = [];
 	builder.getPluginList(EPlugins.node_scss).forEach(({options}) => {
@@ -105,7 +111,7 @@ export default function update() {
 		const newContent = cfgContent.replace(dontRemoveReg, xxx[0]);
 		writeFileSync(configFile, newContent, 'utf-8');
 	}
-};
+}
 
 const defaultIgnores = [
 	'.*',

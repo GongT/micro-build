@@ -1,4 +1,4 @@
-import {writeFileSync, readFileSync} from "fs";
+import {writeFileSync, readFileSync, existsSync} from "fs";
 import {resolve} from "path";
 import {getProjectPath} from "./file-paths";
 import {MicroBuildConfig, EPlugins} from "./microbuild-config";
@@ -17,7 +17,7 @@ export class ConfigFileHelper {
 	
 	constructor(private build: MicroBuildConfig, content: string = '') {
 		const port = build.toJSON().port;
-		const resultPort: string = port && !build.isBuilding()? port.toFixed(0) : '';
+		const resultPort: string = port && !build.isBuilding() ? port.toFixed(0) : '';
 		const baseDomain = build.toJSON().domain;
 		
 		let isDebug = false;
@@ -31,7 +31,7 @@ export class ConfigFileHelper {
 ${content}
 
 // 发布这个包的服务当前的状态
-export const IS_PACKAGE_DEBUG_MODE = JSON.parse('${isDebug? "true" : "false"}');
+export const IS_PACKAGE_DEBUG_MODE = JSON.parse('${isDebug ? "true" : "false"}');
 
 // 试图探测客户端的状态
 let clientDebugging = IS_PACKAGE_DEBUG_MODE;
@@ -76,7 +76,7 @@ export const CONFIG_BASE_DOMAIN: string = https + '://' + debug_prefix + '${base
 	
 	save(path: string) {
 		const absPath = resolve(getProjectPath(), path);
-		if (readFileSync(absPath, 'utf-8') !== this.fileContent) {
+		if (!existsSync(absPath) || readFileSync(absPath, 'utf-8') !== this.fileContent) {
 			writeFileSync(absPath, this.fileContent, 'utf-8');
 		}
 		this.build.registerIgnore(path);

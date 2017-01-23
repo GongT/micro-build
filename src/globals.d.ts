@@ -1,3 +1,5 @@
+/// <reference types="node"/>
+
 declare const JsonEnv: any;
 
 declare interface KVP<V> {
@@ -24,6 +26,7 @@ declare interface JspmPackageConfig {
 }
 
 declare interface IPackageJson {
+	private?: boolean;
 	name?: string;
 	version?: string;
 	description?: string;
@@ -32,9 +35,9 @@ declare interface IPackageJson {
 		[id: string]: string;
 	};
 	scripts?: {
-		start: string;
-		build: string;
-		service: string;
+		start?: string;
+		build?: string;
+		service?: string;
 		[id: string]: string;
 	};
 	dependencies?: {

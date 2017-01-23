@@ -9,10 +9,7 @@ cd "@{PWD}/.."
 
 echo -e "start build \e[38;5;14m@{SERVICE_NAME}...\e[0m"
 
-ARGUMENT_DELIMITER=", "
-source "@{PWD}/arg-parse.sh"
-RUN_ARGUMENTS=
-BUILD_ARGUMENTS=
+# todo arguments
 BUILD_DOCKER_ARGUMENTS=
 
 #{JSON_ENV_HASH}
@@ -26,21 +23,18 @@ source "@{PWD}/functions.sh"
 
 echo -en "\e]0;${PROJECT_NAME} - MICRO-BUILD: building ...\007"
 
-cat "@{PWD}/Dockerfile"| \
-	sed "s/\${COMMAND_LINE_ARGS}/${RUN_ARGUMENTS}/g" > "@{PWD}/Dockerfile.args"
-
 echo -e "-- RUN BUILD -
 docker build \\
 	${BUILD_DOCKER_ARGUMENTS} \\
-	${BUILD_ARGUMENTS} \\
-	-f=\"@{PWD}/Dockerfile.args\" \\
+	$@ \\
+	-f=\"@{PWD}/Dockerfile\" \\
 	-t=\"@{BASE_DOMAIN_NAME}/@{SERVICE_NAME}\" \\
 	."
 
 docker build \
 	${BUILD_DOCKER_ARGUMENTS} \
-	${BUILD_ARGUMENTS} \
-	-f="@{PWD}/Dockerfile.args" \
+	"$@" \
+	-f="@{PWD}/Dockerfile" \
 	-t="@{BASE_DOMAIN_NAME}/@{SERVICE_NAME}" \
 	.
 

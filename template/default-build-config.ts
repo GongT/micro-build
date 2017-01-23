@@ -18,8 +18,7 @@ const projectName = 'your-project-name';
 
 build.baseImage('node', 'alpine');
 build.projectName(projectName);
-build.domainName(projectName + '.' + JsonEnv.baseDomain);
-// build.domainName(projectName + '.' + JsonEnv.baseDomainName);
+build.domainName(projectName + '.' + JsonEnv.baseDomainName);
 
 // build.isInChina(JsonEnv.gfw.isInChina);
 build.npmCacheLayer(JsonEnv.gfw.npmRegistry);
@@ -55,6 +54,6 @@ build.environmentVariable('DEBUG', 'some-tag:*');
 // build.appendDockerFile('/path/to/docker/file');
 
 build.onConfig((isBuild) => {
-	const config = buildHelper.create(`ts`);
+	const config = helper.createConfig(`ts`);
 	// config.write('xxxxx');
 });

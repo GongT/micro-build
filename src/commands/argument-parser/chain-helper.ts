@@ -1,0 +1,94 @@
+import {IArgumentOption, IArgumentParam, IArgumentCommand, IArgument, ArgumentValueChecker} from "./base";
+import {ArgumentStore, SubCommandParser} from "./index";
+import {UsageHelper} from "./help";
+export abstract class HelperBase<Z extends IArgument> {
+	constructor(protected object: Z, protected parent: ArgumentStore) {
+	}
+	
+	finish(): SubCommandParser {
+		if (!this.parent) {
+			throw TypeError('nothing to finish().');
+		}
+		return <any> this.parent;
+	}
+	
+	description(description) {
+		this.object.description = description;
+		return this;
+	}
+	
+	defaultValue(defaultValue: string) {
+		this.object.defaultValue = defaultValue;
+		return this;
+	}
+	
+	getObject(): Z {
+		return this.object;
+	}
+}
+
+export class OptionHelper extends HelperBase<IArgumentOption> {
+	constructor(object: IArgumentOption, parent: ArgumentStore) {
+		super(object, parent);
+		parent.getObject().options.push(object);
+	}
+	
+	multiple(multiple = true) {
+		this.object.multipleTimes = multiple;
+		return this;
+	}
+	
+	aliases(...aliases: string[]) {
+		this.object.alias = aliases;
+		return this;
+	}
+	
+	acceptValue(acceptValue = true) {
+		this.object.acceptValue = acceptValue;
+		return this;
+	}
+	
+	notAcceptValue() {
+		this.object.acceptValue = false;
+		return this;
+	}
+}
+
+export class ParamHelper extends HelperBase<IArgumentParam> {
+	constructor(object: IArgumentParam, parent: ArgumentStore) {
+		if (object.name.indexOf('...') === 0) {
+			object.variable_length = true;
+		}
+		super(object, parent);
+		object.placement = parent.getObject().params.push(object);
+	}
+	
+	variableLength(multiple = true) {
+		this.object.variable_length = multiple;
+		return this;
+	}
+	
+	required(required: boolean = true) {
+		this.object.isRequired = required;
+		return this;
+	}
+}
+
+export abstract class CommandHelper extends HelperBase<IArgumentCommand> {
+	constructor(object: IArgumentCommand, parent: ArgumentStore) {
+		super(object, parent);
+		this.object.options = [];
+		this.object.subCommands = [];
+		this.object.params = [];
+		if (parent) {
+			parent.object.subCommands.push(this.object);
+			if (parent.object.$0) {
+				this.object.$0 = parent.object.$0 + ' ' + object.name;
+			} else {
+				this.object.$0 = object.name;
+			}
+		} else {
+			this.object.$0 = '';
+		}
+	}
+}

@@ -1,179 +1,77 @@
-/// <reference types="node"/>
-/// <reference path="../global.d.ts" />
+/// <reference path="./globals.d.ts"/>
+import {UsageHelper} from "./commands/argument-parser/help";
+require("source-map-support/register");
 
-import "source-map-support/register";
-import {Command} from "commander";
-import {commandList} from "./commands/all";
-import {tempDirName} from "./library/file-paths";
+import {
+	startDefine,
+	stopDefine,
+	restartDefine,
+	statusDefine,
+	psDefine,
+	enableDefine,
+	disableDefine,
+	uninstallDefine,
+	installDefine
+} from "./commands/list/control";
+import {createCommand, parser, callCommandFunction} from "./commands/command-library";
+import {debug, commandDefine as cmdDebug} from "./commands/list/debug";
+import {build, commandDefine as cmdBuild} from "./commands/list/build";
+import {exec, commandDefine as cmdExec} from "./commands/list/exec";
+import {dist_clean, commandDefine as cmdDistClean} from "./commands/list/dist_clean";
+import {clean, commandDefine as cmdClean} from "./commands/list/clean";
+import {update, commandDefine as cmdUpdate} from "./commands/list/update";
+import {initialize, commandDefine as cmdInitialize} from "./commands/list/initialize";
+import {run, commandDefine as cmdRun} from "./commands/list/run";
+import {foreground, commandDefine as cmdForeground} from "./commands/list/foreground";
+import {reload, commandDefine as cmdReload} from "./commands/list/reload";
+import {mkconfig, commandDefine as cmdMkConfig} from "./commands/list/mkconfig";
+import {deploy, commandDefine as cmdDeploy} from "./commands/list/deploy";
+import {updateCurrentDir} from "./library/file-paths";
 
-const {version} = require("../package.json");
+createCommand(debug, cmdDebug);
+createCommand(build, cmdBuild);
 
-const requiredItems = [];
+createCommand(installDefine.handler, installDefine.config);
+createCommand(uninstallDefine.handler, uninstallDefine.config);
 
-let currentActionName;
-export function currentAction() {
-	return currentActionName;
-}
+createCommand(startDefine.handler, startDefine.config);
+createCommand(stopDefine.handler, stopDefine.config);
+createCommand(restartDefine.handler, restartDefine.config);
+createCommand(statusDefine.handler, statusDefine.config);
 
-const commander = new Command;
-commander.version(version);
-commander.usage('<command> [arguments...]');
-commander.allowUnknownOption(false);
+createCommand(psDefine.handler, psDefine.config);
+createCommand(enableDefine.handler, enableDefine.config);
+createCommand(disableDefine.handler, disableDefine.config);
 
-commander.command('init [target]')
-         .allowUnknownOption(false)
-         .description(`create or update "${tempDirName}" in current working dir (or in target).`)
-         .action(call_command);
+createCommand(exec, cmdExec);
+createCommand(initialize, cmdInitialize);
+createCommand(update, cmdUpdate);
+createCommand(run, cmdRun);
+createCommand(foreground, cmdForeground);
+createCommand(reload, cmdReload);
+createCommand(mkconfig, cmdMkConfig);
+createCommand(deploy, cmdDeploy);
 
-commander.command('build [args...]')
-         .allowUnknownOption(true)
-         .description('build image in current working dir')
-         .action(call_command);
+createCommand(clean, cmdClean);
+createCommand(dist_clean, cmdDistClean);
 
-commander.command('deploy <git-url> [save-path]')
-         .allowUnknownOption(false)
-         .option('-s', 'auto start after build', 'yes')
-         .description('download service files from [git-url].\n\t\tsave to /data/services or /opt/services or [save-path]\n\t\tthen build it.')
-         .action(call_command);
+const argv = process.argv.slice(2);
+const args = parser.parse(argv);
 
-commander.command('install')
-         .allowUnknownOption(false)
-         .description('install built image as system service, auto start on boot.')
-         .action(call_command);
-
-commander.command('uninstall')
-         .allowUnknownOption(false)
-         .description('stop and uninstall service.')
-         .action(call_command);
-
-commander.command('start')
-         .allowUnknownOption(false)
-         .description('start service.')
-         .action(call_command);
-
-commander.command('stop')
-         .allowUnknownOption(false)
-         .description('stop service.')
-         .action(call_command);
-
-commander.command('restart')
-         .allowUnknownOption(false)
-         .description('restart service.')
-         .action(call_command);
-
-commander.command('reload')
-         .allowUnknownOption(false)
-         .description('run reload command (if have).')
-         .action(call_command);
-
-commander.command('status')
-         .allowUnknownOption(false)
-         .description('check service status.')
-         .action(call_command);
-
-commander.command('enable')
-         .allowUnknownOption(false)
-         .description('start service on system bootup.')
-         .action(call_command);
-
-commander.command('disable')
-         .allowUnknownOption(false)
-         .description('don\'t auto start service on system bootup.')
-         .action(call_command);
-
-commander.command('debug [args...]')
-         .allowUnknownOption(true)
-         .description('run script on host machine. arguments will pass to starup command.')
-         .action(call_command);
-
-commander.command('foreground')
-         .allowUnknownOption(true)
-         .description('start docker container in foreground (for debugging).')
-         .action(call_command);
-
-commander.command('run')
-         .allowUnknownOption(false)
-         .description('start docker container in docker daemon, not controlled by system.')
-         .action(call_command);
-
-commander.command('script <cmdline> [arguments...]')
-         .allowUnknownOption(true)
-         .description('run command in already running container.')
-         .action(call_command);
-
-commander.command('mkconfig [args...]')
-         .allowUnknownOption(false)
-         .description('create build script for debug.')
-         .action(call_command);
-
-commander.command('update')
-         .allowUnknownOption(false)
-         .description('update current folder status.')
-         .action(call_command);
-
-commander.command('clean')
-         .allowUnknownOption(false)
-         .description('remove temp files.')
-         .action(call_command);
-
-commander.command('stop-command')
-         .allowUnknownOption(false)
-         .description('internal command, run stop command.')
-         .action(call_command);
-
-commander.action(function (command) {
-	commander.unknownOption(command);
-});
-
-commander.parse(process.argv);
-
-commander.outputHelp();
-process.exit(1);
-
-function call_command(...args) {
-	const command = args.pop();
-	const commandName = currentActionName = command.name();
-	
-	requiredItems.forEach((item) => {
-		if (!command[item]) {
-			command.outputHelp();
-			command.missingArgument(item);
-			process.exit(1);
-		}
-	});
-	
-	const fn = commandList[commandName];
-	if (!fn) {
-		console.error('command `' + commandName + '` not exists');
-		process.exit(9);
-	}
-	try {
-		const ret = fn.apply(command, args);
-		if (fn && fn.then) {
-			ret.then((ret) => {
-				return ret;
-			}, (e) => {
-				displayError(e.stack);
-				process.exit(1);
-			});
-		} else {
-			process.exit(ret || 0);
-		}
-	} catch (e) {
-		displayError(e.stack);
-		process.exit(9);
+if (args.namedOptions['help']) {
+	if (args.next) {
+		new UsageHelper(args.nextConfig).print();
+	} else {
+		parser.usageInstance().print();
 	}
 }
 
-function required(n: string, cb = undefined) {
-	requiredItems.push(n);
-	return cb;
+if (!args.next) {
+	parser.usageInstance().error(new Error('Command is required'));
 }
 
-function displayError(stack) {
-	const err = stack.split(/\n/g).slice(0, 4);
-	if (err[1]) {
-		err[1] = '\x1B[2m' + err[1];
-	}
-	console.error(err.join('\n') + '\x1B[0m');
+if (args.namedParams['project']) {
+	updateCurrentDir(args.namedParams['project']);
 }
+
+callCommandFunction(args.nextConfig, args.next);

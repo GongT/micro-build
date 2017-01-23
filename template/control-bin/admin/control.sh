@@ -2,7 +2,7 @@
 
 #{DETECT_CURRENT}
 
-case $@ in
+case "${1}" in
 start)
 	if [ -t 1 ] ; then
 		trap 'sleep 1 && [ -n "$(jobs -p)" ] && kill $(jobs -p)' EXIT
@@ -49,9 +49,6 @@ install)
 	;;
 uninstall)
 	s_uninstall
-	;;
-disable)
-	s_disable
 	;;
 *)
 	echo "Unknown action: ${1}

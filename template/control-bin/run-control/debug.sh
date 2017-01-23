@@ -5,7 +5,6 @@ echo -en "\e]0;${PROJECT_NAME} - MICRO-BUILD: loading ...\007"
 
 cd "@{PWD}/.."
 
-source "@{PWD}/arg-parse.sh"
 source "@{PWD}/functions.sh"
 
 #{DETECT_CURRENT}
@@ -77,8 +76,8 @@ jenv --hint &> /dev/null
 
 #{ENVIRONMENT_VARS}
 
-RUN_ARGUMENTS=
-get_run_arguments "$@"
+# todo arguments ?
+DEBUG_RUN_ARGUMENTS=
 
 #{DEBUG_LISTEN_PORT}
 
@@ -86,16 +85,16 @@ get_run_arguments "$@"
 
 echo "[microbuild] run script:"
 if [ "${WATCH}" == "no" ]; then
-	echo "    ${SHELL} ${COMMAND} ${RUN_ARGUMENTS}"
+	echo "    ${SHELL} ${COMMAND} ${@}"
 	echo " ::: start :::"
-	eval ${SHELL} "${COMMAND}" ${RUN_ARGUMENTS}
+	eval ${SHELL} "${COMMAND}" "${@}"
 	RET=$?
 else
 	echo "    @{NODEMON_BIN} \\"
 	echo "         -C -d 2 --config \"@{PWD}/nodemon.json\" -x \"${SHELL}\" -- ${COMMAND}"
 #{NODEMON_BIN} \
 		-C -d 2 --config "@{PWD}/nodemon.json" -x "${SHELL}" -- \
-		${COMMAND} ${RUN_ARGUMENTS}
+		${COMMAND} "${DEBUG_RUN_ARGUMENTS[@]}" "${@}"
 	RET=$?
 fi
 

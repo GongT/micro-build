@@ -11,8 +11,8 @@ export function createAdminScript(config: MicroBuildConfig) {
 	adminScript = renderTemplate('run-control', 'build.sh', replacer);
 	saveFile('build.sh', adminScript, '755');
 	
-	adminScript = renderTemplate('run-control', 'arg-parse.sh', new ArgParseVars(replacer));
-	saveFile('arg-parse.sh', adminScript);
+	adminScript = renderTemplate('run-control', 'arg-pass.sh', new ArgParseVars(replacer));
+	saveFile('arg-pass.sh', adminScript);
 	
 	adminScript = renderTemplate('run-control', 'functions.sh', null);
 	saveFile('functions.sh', adminScript);

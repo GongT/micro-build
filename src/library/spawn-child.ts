@@ -3,6 +3,16 @@ import {resolve, basename} from "path";
 import extend = require("extend");
 import {spawnSync} from "child_process";
 
+export function spawnExternalCommand(command, args: string[] = []) {
+	const ret = spawnSyncWrap(command, args, {
+		cwd: getProjectPath(),
+		stdio: 'inherit',
+		env: process.env,
+		encoding: 'utf8',
+		shell: '/bin/bash',
+	});
+	return ret.status;
+}
 export function spawnMainCommand(command, args: string[] = []) {
 	const fullPath = resolve(getTempPath(), command);
 	const ret = spawnSyncWrap(fullPath, args, {
@@ -15,14 +25,14 @@ export function spawnMainCommand(command, args: string[] = []) {
 	return ret.status;
 }
 
-export function spawnRun(docker_env: string, args: string[] = []) {
+export function spawnRun(docker_env: string, args: string[] = [], otherEnv: {[id: string]: string} = {}) {
 	const fullPath = resolve(getTempPath(), 'start.sh');
 	const ret = spawnSyncWrap(fullPath, args, {
 		cwd: getProjectPath(),
 		stdio: 'inherit',
 		env: extend({}, process.env, {
 			DOCKER_START_ARGS: docker_env
-		}),
+		}, otherEnv),
 		encoding: 'utf8',
 		shell: '/bin/bash',
 	});

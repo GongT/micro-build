@@ -395,7 +395,12 @@ export class MicroBuildConfig {
 	}
 	
 	dockerRunArgument(...args: string[]) {
-		this.storage.dockerRunArguments = args;
+		args.forEach((e) => {
+		    if(e.indexOf('-') !== 0){
+		    	throw new Error(`dockerRunArgument('${e}') is invalid`);
+		    }
+		});
+		this.storage.dockerRunArguments = this.storage.dockerRunArguments.concat(args);
 	}
 	
 	runArgument(name: string, description: string, defaultValue: string = null) {
