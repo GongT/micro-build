@@ -50,12 +50,9 @@ export function update() {
 			extraFolders.push(path);
 		});
 	});
-	builder.registedIgnore.forEach((path) => {
-		extraFolders.push(path);
-	});
 	
 	const gitIgnore = projectFileObject('.gitignore');
-	gitIgnore.section(sectionStart, sectionEnd, defaultIgnores.concat(gitIgnores, extraFolders));
+	gitIgnore.section(sectionStart, sectionEnd, defaultIgnores.concat(gitIgnores, extraFolders, builder.registedIgnore));
 	gitIgnore.write();
 	
 	const dockerIgnore = projectFileObject('.dockerignore');
