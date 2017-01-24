@@ -3,11 +3,7 @@ import {dirname} from "path";
 import {MicroBuildRoot} from "./file-paths";
 const extend = require("util")._extend;
 
-if (!process.env.NODE_PATH) {
-	process.env.NODE_PATH = MicroBuildRoot+'/node_modules';
-} else {
-	process.env.NODE_PATH += ':' + MicroBuildRoot+'/node_modules';
-}
+require("app-module-path").addPath(MicroBuildRoot+'/node_modules');
 
 export function run_script(code: string, filename: string, context: any, options?: {}) {
 	const Module = require("module");
