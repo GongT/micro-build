@@ -8,12 +8,16 @@ import {
 	projectFileObject,
 	getTempPath,
 	getConfigPath,
-	updateCurrentDir, assertCurrentDirOk, projectPackageJson, getProjectPath
+	updateCurrentDir,
+	assertCurrentDirOk,
+	projectPackageJson,
+	getProjectPath
 } from "../../library/file-paths";
 import {PackageJsonFile} from "../../library/package-json-file";
-import {spawnMainCommand, spawnExternalCommand} from "../../library/spawn-child";
+import {spawnExternalCommand} from "../../library/spawn-child";
 import {CommandDefine, die} from "../command-library";
 import {update} from "./update";
+import {NormalizedArguments} from "../argument-parser/real-parse";
 
 export const commandDefine: CommandDefine = {
 	command: 'initialize',
@@ -21,26 +25,23 @@ export const commandDefine: CommandDefine = {
 	description: 'Create the micro-build config files. (or update if exists)',
 	builder(parser){
 		parser.addOption('force')
-		      .acceptValue(false)
-		      .aliases('f')
-		      .defaultValue('')
-		      .description('force create config, even the dir is empty.');
+			.acceptValue(false)
+			.aliases('f')
+			.defaultValue('')
+			.description('force create config, even the dir is empty.');
 		parser.addParam('target')
-		      .description('create config in this folder')
-		      .defaultValue('.');
+			.description('create config in this folder')
+			.defaultValue('.');
 	},
 };
 
-export interface InitializeSwitchs {
-	force?: boolean;
-}
 
-export function initialize(this: void | InitializeSwitchs, target: string = '.') {
-	const opt: InitializeSwitchs = this || {};
+export function initialize(this: NormalizedArguments | any, target: string = '.') {
+	const opt = this && this.namedOptions || {};
 	updateCurrentDir(target, true);
 	
 	if (!assertCurrentDirOk()) {
-		if (opt.force) {
+		if (opt['force']) {
 			console.error('    run npm init: ');
 			if (!existsSync(resolve(getProjectPath(), 'package.json'))) {
 				spawnExternalCommand('npm', ['init']) || die('npm init run failed');

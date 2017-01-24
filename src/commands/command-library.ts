@@ -25,8 +25,12 @@ const switchProject: IArgumentOption = {
 parser.addOption(switchProject);
 
 export function createCommand(func: Function, config: CommandDefine): SubCommandParser {
-	const commander = parser.addCommand(config.command, func)
+	const commander:SubCommandParser = parser.addCommand(config.command, func)
 	                        .description(config.description);
+	
+	if (config.aliases) {
+		commander.aliases(...config.aliases);
+	}
 	if (config.builder) {
 		config.builder(commander);
 	}
