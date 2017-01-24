@@ -27,8 +27,6 @@ fi
 if [ -n "${RUN_IN_DOCKER}" ]; then
 	rm -f *.tgz
 	/npm-install/global-installer uninstall "@gongt/make-next-private-version"
-fi
-
-if [ -n "${RUN_IN_DOCKER}" ]; then
+else
 	make-private-version-restore .
 fi
