@@ -1,4 +1,4 @@
-import {ArgumentError, IArgumentCommand} from "./base";
+import {ArgumentError, IArgumentCommand, IArgumentOption, IArgumentParam} from "./base";
 const stringWidth = require('string-width');
 
 const isOption = /^-/;
@@ -27,15 +27,20 @@ export class UsageHelper {
 	}
 	
 	private getParamsLines() {
-		
+		const options = this.obj.params.map((opt: IArgumentParam) => {
+			return [opt.name, opt.description];
+		});
+		return formatColumn(options);
 	}
 	
 	private getOptionsLines() {
 		const options = [].concat(
 			this.obj.options,
 			this.obj.globalOptions || []
-		);
-		
+		).map((opt: IArgumentOption) => {
+			return ['--' + opt.name, opt.description];
+		});
+		return formatColumn(options);
 	}
 	
 	private getCommandLines() {
@@ -89,7 +94,6 @@ export class UsageHelper {
 	}
 	
 	print() {
-		console.log('\n    [Micro Build] is a collection of tools, to build micro-service with docker.\n');
 		console.log(this.getString() + '\n');
 		process.exit(0);
 	}

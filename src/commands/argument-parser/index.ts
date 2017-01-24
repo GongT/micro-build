@@ -74,7 +74,7 @@ export class CommandParser extends ArgumentStore {
 	
 	parse(argv: string[]): NormalizedArguments {
 		try {
-			return realParseArguments(argv, this.object, this.object.globalOptions);
+			return realParseArguments(argv, this.object);
 		} catch (e) {
 			if (e instanceof ArgumentError) {
 				this.usage.error(e);

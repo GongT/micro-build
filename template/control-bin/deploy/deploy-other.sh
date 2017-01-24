@@ -61,10 +61,13 @@ fi
 
 cd "${SAVE_PATH}/${DIR}"
 echo -e "\e[38;5;14mstart 'microbuild build' at $(pwd) !\e[0m"
+
+set -x
 microbuild build
 microbuild install
 if [ -n "${START}" ]; then
 	microbuild start | tee
 fi
+set +x
 
-echo "deploy complete"
+echo -e "\e[38;5;10mdeploy complete!\e[0m"

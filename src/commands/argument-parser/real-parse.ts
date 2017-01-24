@@ -4,7 +4,8 @@ import {
 	IArgumentCommand,
 	getKnownOption,
 	getKnownCommand,
-	getOptionByName
+	getOptionByName,
+	IArgumentParam
 } from "./base";
 
 export interface NormalizedArguments {
@@ -22,12 +23,8 @@ export interface NormalizedArguments {
 	namedOptions: {[id: string]: any};
 }
 
-export function realParseArguments(argv: string[], config: IArgumentCommand, globalOpts: IArgumentOption[]) {
-	const argument = tokenizeOptions(
-		argv,
-		config,
-		globalOpts
-	);
+export function realParseArguments(argv: string[], config: IArgumentCommand) {
+	const argument = tokenizeOptions(argv, config);
 	
 	let argItr = argument;
 	while (argItr.nextConfig) {
@@ -45,7 +42,7 @@ const SHORT_ARG = /^-(?!-)/;
 const LONG_ARG = /^--/;
 const LONG_ARG_WITH_VALUE = /^--\S+?=/;
 
-function tokenizeOptions(argv: string[], config: IArgumentCommand, globalArgs?: IArgumentOption[]): NormalizedArguments {
+function tokenizeOptions(argv: string[], config: IArgumentCommand): NormalizedArguments {
 	argv = argv.slice();
 	let paramsDefineItr: number = 0;
 	
@@ -59,7 +56,8 @@ function tokenizeOptions(argv: string[], config: IArgumentCommand, globalArgs?: 
 		nextConfig: null,
 	};
 	
-	let watchingGlobalOptions = !!globalArgs;
+	const globalArgs = config.globalOptions;
+	let watchingGlobalOptions = (!!globalArgs) && globalArgs.length > 0;
 	let watchingOptions = true;
 	
 	for (let argPart = argv[0], itrIndex = 0; itrIndex < argv.length; itrIndex += 1, argPart = argv[itrIndex]) {
@@ -179,6 +177,27 @@ function tokenizeOptions(argv: string[], config: IArgumentCommand, globalArgs?: 
 				throw new ArgumentError('Duplicate options: ' + name);
 			}
 			ret.namedOptions[name] = value;
+		}
+	});
+	
+	[].concat(config.globalOptions || [], config.options || []).forEach((e: IArgumentOption) => {
+		if (<any>e.defaultValue === false && !ret.namedOptions.hasOwnProperty(e.name)) {
+			if (e.defaultValue) {
+				ret.namedOptions[e.name] = e.defaultValue;
+			} else {
+				throw new ArgumentError('Missing required options: --' + e.name);
+			}
+		}
+	});
+	config.params.forEach((e: IArgumentParam) => {
+		if (!ret.namedParams.hasOwnProperty(e.name)) {
+			if (e.defaultValue) {
+				ret.namedParams[e.name] = e.defaultValue;
+			} else if (e.isRequired) {
+				throw new ArgumentError('Missing required param: ' + e.name);
+			} else {
+				ret.namedParams[e.name] = undefined;
+			}
 		}
 	});
 	

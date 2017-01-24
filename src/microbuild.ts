@@ -1,7 +1,5 @@
 /// <reference path="./globals.d.ts"/>
 import {UsageHelper} from "./commands/argument-parser/help";
-require("source-map-support/register");
-
 import {
 	startDefine,
 	stopDefine,
@@ -27,6 +25,7 @@ import {reload, commandDefine as cmdReload} from "./commands/list/reload";
 import {mkconfig, commandDefine as cmdMkConfig} from "./commands/list/mkconfig";
 import {deploy, commandDefine as cmdDeploy} from "./commands/list/deploy";
 import {updateCurrentDir} from "./library/file-paths";
+require("source-map-support/register");
 
 createCommand(debug, cmdDebug);
 createCommand(build, cmdBuild);
@@ -62,6 +61,7 @@ if (args.namedOptions['help']) {
 	if (args.next) {
 		new UsageHelper(args.nextConfig).print();
 	} else {
+		console.log('\n    [Micro Build] is a collection of tools, to build micro-service with docker.\n');
 		parser.usageInstance().print();
 	}
 }

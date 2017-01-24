@@ -63,10 +63,9 @@ export function readBuildConfig(): MicroBuildConfig {
 	];
 	
 	const code = readFileSync(filename, 'utf-8')
-		.replace(dontRemoveReg, `${constDefines.join(';')}
-
-/*
-${dontRemoveString}`);
+		.replace(dontRemoveReg, (str) => {
+			return constDefines.join(';')+ ` /* `+ str;
+		});
 	
 	let builder = new MicroBuildConfig();
 	let helper = new MicroBuildHelper(builder);
@@ -88,7 +87,7 @@ ${dontRemoveString}`);
 			run_script(code, filename, {
 				build: builder,
 				helper: helper,
-				JsonEnv
+				JsonEnv,
 			});
 		} else {
 			throw e;

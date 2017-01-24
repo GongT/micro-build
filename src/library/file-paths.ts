@@ -23,7 +23,7 @@ export function projectPackageJson() {
 }
 
 export function updateCurrentDir(dir: string, ignore: boolean = false) {
-	if (existsSync(resolve('/data/services', dir))) {
+	if (existsSync(resolve('/data/services', dir, 'package.json'))) {
 		dir = resolve('/data/services', dir);
 	}
 	console.error('chdir(%s)', dir);

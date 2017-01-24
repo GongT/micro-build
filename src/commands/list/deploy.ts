@@ -1,15 +1,14 @@
 import {W_OK} from "constants";
-import {accessSync, existsSync, lstatSync, unlinkSync} from "fs";
+import {accessSync, existsSync, lstatSync, unlinkSync, writeFileSync} from "fs";
 import {dirname} from "path";
 import {sync as mkdirpSync} from "mkdirp";
 import {initialize} from "./initialize";
 import {CommandDefine} from "../command-library";
 import {MicroBuildConfig} from "../../library/microbuild-config";
-import {getConfigPath, updateCurrentDir} from "../../library/file-paths";
+import {getConfigPath, updateCurrentDir, projectPackageJson} from "../../library/file-paths";
 import {readBuildConfig} from "../../build/all";
 import {createDeployScript} from "../../build/deploy-script";
 import {spawnMainCommand} from "../../library/spawn-child";
-const defaultPaths = ['/data/services', '/opt/services'];
 
 export const commandDefine: CommandDefine = {
 	command: 'deploy',
@@ -19,76 +18,60 @@ export const commandDefine: CommandDefine = {
 		      .required()
 		      .description('project git remote url');
 		parser.addParam('target')
-		      .description('project git remote url')
+		      .description('deploy project to directory')
 		      .defaultValue('/data/services');
+		parser.addOption('start')
+		      .aliases('s')
+		      .description('auto start this service after successful deploy')
+		      .notAcceptValue();
 	},
 };
 
 export function deploy(this: any, gitUrl: string, target: string = '/data/services') {
-	const auto_start: boolean = !!this.S;
+	const auto_start: boolean = !!this.start;
 	
-	if (target) {
-		if (!testFolder(target)) {
-			console.error(`can't write to ${target}, use sudo?`);
-			return 1;
-		}
-	} else {
-		target = tryDefault();
-		if (!target) {
-			console.error(`can't write to any install path:\n\t/data/services\n\t/opt/services\nuse sudo?`);
-			return 1;
-		}
+	testAndCreateFolder(target);
+	
+	const TEMP_ROOT = '/tmp/d3c421664a752384c71fe2ad46c67451';
+	console.log('using %s', TEMP_ROOT);
+	updateCurrentDir(TEMP_ROOT, true);
+	if (!existsSync(projectPackageJson())) {
+		mkdirpSync(TEMP_ROOT);
+		writeFileSync(projectPackageJson(), '{"name":"temp-deploy"}', 'utf-8');
 	}
-	
-	let builder: MicroBuildConfig;
-	updateCurrentDir(process.env.HOME);
 	if (existsSync(getConfigPath())) {
-		builder = readBuildConfig();
-	} else {
-		console.log('using /tmp/d3c421664a752384c71fe2ad46c67451');
-		updateCurrentDir('/tmp/d3c421664a752384c71fe2ad46c67451', true);
-		if (existsSync(getConfigPath())) {
-			unlinkSync(getConfigPath());
-		}
-		initialize();
-		builder = readBuildConfig();
+		unlinkSync(getConfigPath());
 	}
+	initialize(TEMP_ROOT);
+	
+	const builder: MicroBuildConfig = readBuildConfig();
 	createDeployScript(builder);
 	
 	return spawnMainCommand('deploy-other.sh', [gitUrl, target, auto_start? 'yes' : '']);
 }
 
-function tryDefault(): string {
-	let ret;
-	defaultPaths.some((p) => {
-		if (testFolder(p)) {
-			ret = p;
-			return true;
-		}
-	});
-	return ret;
-}
-function testFolder(folder) {
+function testAndCreateFolder(folder) {
 	if (existsSync(folder)) {
 		if (!lstatSync(folder).isDirectory()) {
-			return false;
+			throw new Error(`the target directory "${folder}" is not a directory.`);
 		}
 	} else {
 		if (!existsSync(dirname(folder))) {
-			return false;
+			throw new Error(`the target path "${dirname(folder)}" is not a directory, please create it manually.`);
+		}
+		if (!lstatSync(dirname(folder)).isDirectory()) {
+			throw new Error(`the target path "${dirname(folder)}" is not a directory.`);
 		}
 		try {
-			accessSync(dirname(folder), W_OK);
+			mkdirpSync(folder);
 		} catch (e) {
-			return false;
+			throw new Error(`can't create directory "${dirname(folder)}", use sudo?`);
 		}
-		mkdirpSync(folder);
 	}
 	
 	try {
 		accessSync(folder, W_OK);
 	} catch (e) {
-		return false;
+		throw new Error(`the target directory "${folder}" is not writable, use sudo?`);
 	}
-	return true;
 }
