@@ -93,9 +93,9 @@ export class CustomInstructions extends TemplateVariables {
 	
 	COPY_BIN_FILES() {
 		if (this.config.toJSON().disableBinfiles) {
-			return '# disabled: COPY .micro-build/bin/* /usr/local/bin';
+			return '# disabled: COPY .micro-build/bin/* /usr/local/bin/';
 		} else {
-			return `COPY .micro-build/bin/* /usr/local/bin`
+			return `COPY .micro-build/bin/* /usr/local/bin/`
 		}
 	}
 	

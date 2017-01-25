@@ -99,7 +99,6 @@ export enum EPlugins{
 	node_scss,
 	typescript,
 	browserify,
-	alpine,
 	jspm_bundle,
 	npm_publish,
 }

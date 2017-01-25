@@ -3,7 +3,7 @@ import {update} from "./update";
 import {readBuildConfig, createBuildTempFiles} from "../../build/all";
 
 export const commandDefine: CommandDefine = {
-	command: 'mkconfig [target]',
+	command: 'mkconfig',
 	description: 'Create main scripts & Dockerfile & so on.',
 };
 

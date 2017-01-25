@@ -2,8 +2,7 @@
 
 cleanup() {
     rv=$?
-    id
-    echo "EXIT WITH ${rv}"
+    echo "start.sh EXIT WITH ${rv}"
     trap - INT TERM EXIT
     exit ${rv}
 }

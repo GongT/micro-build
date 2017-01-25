@@ -5,7 +5,12 @@ import {renderTemplate} from "../replace/replace-scripts";
 
 export function createScripts(config: MicroBuildConfig) {
 	const extraScript = updateResolve(config).join('\n');
-	saveFile('bin/update-resolve', '#!/bin/sh\n\n'+extraScript, '755');
+	saveFile('bin/update-resolve', '#!/bin/sh\n\n' + extraScript, '755');
+	
+	const replacer = new ScriptVariables(config);
+	
+	let script = renderTemplate('scripts', 'update-alpine.sh', replacer).split(/\n/g);
+	saveFile('bin/update-alpine', script, '755');
 }
 
 export function updateResolve(config: MicroBuildConfig) {
@@ -14,6 +19,6 @@ export function updateResolve(config: MicroBuildConfig) {
 	return renderTemplate('scripts', 'update-resolve.sh', replacer).split(/\n/g);
 }
 
-export function removeCache(){
-    return 'rm -rf /tmp/npm-* ~/.npm ~/.node-gyp /npm-install/npm-cache';
+export function removeCache() {
+	return 'rm -rf /tmp/npm-* ~/.npm ~/.node-gyp /npm-install/npm-cache';
 }

@@ -13,8 +13,8 @@ source "@{PWD}/functions.sh"
 
 export CONFIG_FILE="@{PWD}/json-env-data.json"
 
-SHELL="@{SHELL_COMMAND}"
-COMMAND="@{DEBUG_COMMAND}"
+SHELL=@{SHELL_COMMAND}
+COMMAND=@{DEBUG_COMMAND}
 
 echo -e "\e[38;5;14m[micro-build]\e[0m debug: SHELL=${SHELL}"
 echo -e "\e[38;5;14m[micro-build]\e[0m debug: SHELL=${COMMAND}"
@@ -83,6 +83,10 @@ DEBUG_RUN_ARGUMENTS=
 
 # [ -n "${BACKGROUND_PID}" ] && sleep $(( ${#BACKGROUND_WORKERS[@]} * 2 ))
 
+if [ -n "${BACKGROUND_PID}" ]; then
+	WAIT_COMPILE='-C'
+fi
+
 echo "[microbuild] run script:"
 if [ "${WATCH}" == "no" ]; then
 	echo "    ${SHELL} ${COMMAND} ${@}"
@@ -91,10 +95,10 @@ if [ "${WATCH}" == "no" ]; then
 	RET=$?
 else
 	echo "    @{NODEMON_BIN} \\"
-	echo "         -C -d 2 --config \"@{PWD}/nodemon.json\" -x \"${SHELL}\" -- ${COMMAND}"
+	echo "         ${WAIT_COMPILE} -d 2 --config \"@{PWD}/nodemon.json\" -x \"${SHELL}\" -- ${COMMAND}"
 #{NODEMON_BIN} \
-		-C -d 2 --config "@{PWD}/nodemon.json" -x "${SHELL}" -- \
-		${COMMAND} "${DEBUG_RUN_ARGUMENTS[@]}" "${@}"
+		-d 2 --config "@{PWD}/nodemon.json" -x "${SHELL}" -- \
+		${WAIT_COMPILE} ${COMMAND} "${DEBUG_RUN_ARGUMENTS[@]}" "${@}"
 	RET=$?
 fi
 
