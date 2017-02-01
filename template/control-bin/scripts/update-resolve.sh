@@ -13,3 +13,7 @@ else
 	tail -n +2 /tmp/xxxxxresolve.conf >>/etc/resolv.conf
 	unlink /tmp/xxxxxresolve.conf
 fi
+
+echo '--------------'
+cat /etc/resolv.conf
+echo '--------------'
