@@ -89,16 +89,17 @@ fi
 
 echo "[microbuild] run script:"
 if [ "${WATCH}" == "no" ]; then
-	echo "    ${SHELL} ${COMMAND} ${@}"
+	echo "${SHELL} ${COMMAND} ${@}"
 	echo " ::: start :::"
 	eval ${SHELL} "${COMMAND}" "${@}"
 	RET=$?
 else
-	echo "    @{NODEMON_BIN} \\"
-	echo "         ${WAIT_COMPILE} -d 2 --config \"@{PWD}/nodemon.json\" -x \"${SHELL}\" -- ${COMMAND}"
+	echo "@{NODEMON_BIN} \\
+		${WAIT_COMPILE} -d 2 --config \"@{PWD}/nodemon.json\" -x \"${SHELL}\" -- \\
+		${COMMAND}"
 #{NODEMON_BIN} \
-		-d 2 --config "@{PWD}/nodemon.json" -x "${SHELL}" -- \
-		${WAIT_COMPILE} ${COMMAND} "${DEBUG_RUN_ARGUMENTS[@]}" "${@}"
+		${WAIT_COMPILE} -d 2 --config "@{PWD}/nodemon.json" -x "${SHELL}" -- \
+		${COMMAND} "${DEBUG_RUN_ARGUMENTS[@]}" "${@}"
 	RET=$?
 fi
 
