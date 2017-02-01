@@ -9,7 +9,7 @@ export function createScripts(config: MicroBuildConfig) {
 	
 	const replacer = new ScriptVariables(config);
 	
-	let script = renderTemplate('scripts', 'update-alpine.sh', replacer).split(/\n/g);
+	let script = renderTemplate('scripts', 'update-alpine.sh', replacer);
 	saveFile('bin/update-alpine', script, '755');
 }
 
