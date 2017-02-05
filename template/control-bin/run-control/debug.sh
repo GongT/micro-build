@@ -10,6 +10,7 @@ source "@{PWD}/functions.sh"
 #{DETECT_CURRENT}
 #{START_DEPENDENCY}
 #{BUILD_DEPEND_SERVICE}
+#{NETWORKING_ENVIRONMENTS_VARS}
 
 export CONFIG_FILE="@{PWD}/json-env-data.json"
 
