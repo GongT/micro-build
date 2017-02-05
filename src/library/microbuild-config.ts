@@ -474,7 +474,7 @@ export class MicroBuildConfig {
 	}
 	
 	getDomainBase() {
-		return this.storage.domain.replace(this.storage.projectName, '').replace(/^\./, '');
+		return this.storage.domain;
 	}
 	
 	getPlugin(name: EPlugins): any {

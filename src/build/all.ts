@@ -96,11 +96,6 @@ export function readBuildConfig(): MicroBuildConfig {
 	
 	console.log('config success!');
 	
-	const labelArr: string[] = <string[]>builder.getSpecialLabel(ELabelNames.alias) || [];
-	labelArr.push(builder.toJSON().projectName);
-	labelArr.push(builder.toJSON().domain);
-	builder.specialLabel(ELabelNames.alias, labelArr);
-	
 	builder.runOnConfig();
 	
 	lastBuilder = builder;
