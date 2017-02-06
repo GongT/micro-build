@@ -4,7 +4,7 @@
 
 case "${1}" in
 start)
-	if [ -t 1 ] ; then
+	if [ -t 0 ] ; then
 		trap 'sleep 1 && [ -n "$(jobs -p)" ] && kill $(jobs -p)' EXIT
 		
 		( journalctl -fu "@{SERVICE_NAME}" 2> /dev/null & echo $! > /tmp/microbuild_start_pid )
