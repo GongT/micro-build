@@ -28,8 +28,9 @@ echo "PWD=`pwd` ${NPM_INSTALL} --color=true --progress=true"
 ls -l
 cat ./package.json
 ${NPM_INSTALL} --color=true --progress=true
+RET=$?
 
-if [ $? -ne 0 ]; then
+if [ ${RET} -ne 0 ]; then
 	echo -e "\e[38;5;9m install failed... \e[0m" >&2
 	
 	echo "==========================================="
@@ -37,7 +38,7 @@ if [ $? -ne 0 ]; then
 	echo "==========================================="
 	
 	echo -e "\e[38;5;9m install failed... \e[0m" >&2
-	exit $?
+	exit ${RET}
 fi
 echo -e "\e[38;5;10m install success... \e[0m" >&2
 
