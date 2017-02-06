@@ -11,9 +11,9 @@ RET=$?
 if [ ${RET} -ne 0 ]; then
 	echo -e "\e[38;5;9m install failed... \e[0m" >&2
 	
-	echo "===========================================" >&2
-	cat npm-debug.log >&2
-	echo "===========================================" >&2
+	echo "==================== LOG LAST 100 LINES =======================" >&2
+	tail -n 100 npm-debug.log >&2
+	echo "==================== LOG LAST 100 LINES =======================" >&2
 	
 	echo -e "\e[38;5;9m install failed... \e[0m" >&2
 	exit ${RET}
