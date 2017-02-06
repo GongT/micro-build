@@ -113,12 +113,14 @@ export function update() {
 const defaultIgnores = [
 	'.*',
 	'*.tgz',
-	'node_modules/',
-	'jspm_packages/',
+	'node_modules',
+	'jspm_packages',
+	'**/node_modules',
+	'**/jspm_packages',
 	'*.log',
 	'npm-debug.log*',
 	'coverage/',
-	'typings/',
+	'typings',
 ];
 
 const gitIgnores = [
