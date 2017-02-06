@@ -537,6 +537,7 @@ export class MicroBuildConfig {
 		const ret = {
 			HOST_LOOP_IP: nw.hostIp,
 			HOST_LOOP_IP6: undefined,
+			USE_LOCAL_DNS: this.storage.dnsConfig.onlyLocalCache? 'yes' : '',
 		};
 		if (nw.hostIp6) {
 			// ret.HOST_LOOP_IP6 = nw.hostIp;
