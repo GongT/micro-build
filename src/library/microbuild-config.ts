@@ -72,6 +72,9 @@ export interface MicroServiceConfig {
 	npmUpstream: NpmRegistry & {
 		enabled: boolean;
 	};
+	dnsConfig: {
+		onlyLocalCache: boolean;
+	};
 	systemInstall: string[];
 	systemMethod: string;
 	npmInstall: NpmInstall[];
@@ -153,6 +156,9 @@ export class MicroBuildConfig {
 		npmUpstream: {
 			enabled: false,
 			url: 'http://registry.npmjs.org'
+		},
+		dnsConfig: {
+			onlyLocalCache: false,
 		},
 		disableCopyFolder: false,
 		disableBinfiles: false,
@@ -334,6 +340,10 @@ export class MicroBuildConfig {
 		this.storage.disableBinfiles = noBin;
 	}
 	
+	forceLocalDns(force: boolean = true) {
+		this.storage.dnsConfig.onlyLocalCache = force;
+	}
+	
 	/** @deprecated */
 	install(packageJsonRelativePath: string) {
 		this.npmInstall(packageJsonRelativePath);
@@ -395,9 +405,9 @@ export class MicroBuildConfig {
 	
 	dockerRunArgument(...args: string[]) {
 		args.forEach((e) => {
-		    if(e.indexOf('-') !== 0){
-		    	throw new Error(`dockerRunArgument('${e}') is invalid`);
-		    }
+			if (e.indexOf('-') !== 0) {
+				throw new Error(`dockerRunArgument('${e}') is invalid`);
+			}
 		});
 		this.storage.dockerRunArguments = this.storage.dockerRunArguments.concat(args);
 	}
