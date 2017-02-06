@@ -6,7 +6,7 @@ export function alpineUninstall(config: MicroBuildConfig, installList: string[])
 		return [];
 	}
 	return [
-		`apk del ${installList.join(' ')}`
+		`HTTP_PROXY='' HTTPS_PROXY='' apk del ${installList.join(' ')}`
 	];
 }
 
@@ -18,6 +18,6 @@ export function alpineInstall(config: MicroBuildConfig, installList: string[]): 
 	return [
 		`update-resolve`,
 		`update-alpine`,
-		`apk -U add ${installList.join(' ')}`,
+		`HTTP_PROXY='' HTTPS_PROXY='' apk -U add ${installList.join(' ')}`,
 	];
 }
