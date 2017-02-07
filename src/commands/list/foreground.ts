@@ -36,10 +36,14 @@ export function foreground(this: any, entrypoint: string = undefined, image: str
 	if (entrypoint !== undefined) {
 		builder.dockerRunArgument('--entrypoint', entrypoint);
 	} else if (shell) {
-		if (builder.toJSON().base.indexOf('alpine') === -1) {
-			builder.dockerRunArgument('--entrypoint', '/bin/bash');
+		if (shell === true) {
+			if (builder.toJSON().base.indexOf('alpine') === -1) {
+				builder.dockerRunArgument('--entrypoint', '/bin/bash');
+			} else {
+				builder.dockerRunArgument('--entrypoint', '/bin/sh');
+			}
 		} else {
-			builder.dockerRunArgument('--entrypoint', '/bin/sh');
+			builder.dockerRunArgument('--entrypoint', shell);
 		}
 	}
 	if (map_root) {
