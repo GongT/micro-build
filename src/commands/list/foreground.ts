@@ -3,6 +3,7 @@ import {CommandDefine} from "../command-library";
 import {readBuildConfig} from "../../build/all";
 import {spawnRun} from "../../library/spawn-child";
 import {createForegroundTestScript} from "../../build/foreground-test";
+import {update} from "./update";
 
 export const commandDefine: CommandDefine = {
 	command: 'foreground',
@@ -29,8 +30,6 @@ export const commandDefine: CommandDefine = {
 export function foreground(this: any, entrypoint: string = undefined, image: string = '', shell: boolean = false, map_root: boolean = false, ...commands: string[]) {
 	process.env.MICRO_BUILD_RUN = 'build';
 	
-	mkconfig();
-	
 	const builder = readBuildConfig();
 	builder.dockerRunArgument('--rm');
 	if (entrypoint !== undefined) {
@@ -48,12 +47,16 @@ export function foreground(this: any, entrypoint: string = undefined, image: str
 	}
 	if (map_root) {
 		builder.volume('./', '/data');
-		if (builder.toJSON().base.indexOf('alpine') === -1) {
-			builder.shellCommand('/bin/bash');
-		} else {
-			builder.shellCommand('/bin/sh');
+		if (!shell) {
+			if (builder.toJSON().base.indexOf('alpine') === -1) {
+				builder.shellCommand('/bin/bash');
+			} else {
+				builder.shellCommand('/bin/sh');
+			}
 		}
 		builder.startupCommand('--login', '-i');
+		
+		mkconfig();
 		createForegroundTestScript(builder);
 		
 		console.log("\0x1B]0;${PROJECT_NAME} - MICRO-BUILD: foreground testing ...\x07");
@@ -63,6 +66,9 @@ export function foreground(this: any, entrypoint: string = undefined, image: str
 		}, 'foreground-test/run-foreground.sh');
 	} else {
 		console.log("\0x1B]0;${PROJECT_NAME} - MICRO-BUILD: foreground running ...\x07");
+		
+		mkconfig();
+		
 		return spawnRun('--restart=no', commands, {
 			START_DOCKER_IMAGE_NAME: image || ''
 		});
