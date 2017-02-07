@@ -32,6 +32,9 @@ function s_stop {
 function s_status {
 	systemctl status "@{SERVICE_NAME}"
 }
+function s_restart {
+	systemctl restart "@{SERVICE_NAME}"
+}
 function s_install {
 	echo "installing service @{SERVICE_NAME} to systemd"
 	echo "    file: /usr/lib/systemd/system/@{SERVICE_NAME}.service"

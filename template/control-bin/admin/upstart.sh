@@ -43,6 +43,9 @@ function s_stop {
 function s_status {
 	service "@{SERVICE_NAME}" status
 }
+function s_restart {
+	service "@{SERVICE_NAME}" restart
+}
 function s_install {
 	echo "installing service @{SERVICE_NAME} to /etc/init"
 	echo "    file: /etc/init/@{SERVICE_NAME}.conf"

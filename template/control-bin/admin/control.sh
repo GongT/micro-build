@@ -35,8 +35,7 @@ status)
 	s_status
 	;;
 restart)
-	s_stop
-	s_start
+	s_restart
 	;;
 enable)
 	s_enable
