@@ -37,6 +37,10 @@ if [ -t 0 ] ; then
 fi
 echo "commandline arguments: $@"
 
+if [ -z "${START_DOCKER_IMAGE_NAME}" ]; then
+	export START_DOCKER_IMAGE_NAME="@{BASE_DOMAIN_NAME}/@{SERVICE_NAME}"
+fi
+
 echo ""
 echo "docker run '@{SERVICE_NAME}' from '@{BASE_DOMAIN_NAME}/@{SERVICE_NAME}'"
 cat <<DOCKER_RUN_COMMAND
@@ -52,7 +56,7 @@ docker run \\
 	--name "@{SERVICE_NAME}" \\
 	${FOREGROUND_DOCKER_PARAMS} \\
 	${BACKGROUND_DOCKER_PARAMS} \\
-	"@{BASE_DOMAIN_NAME}/@{SERVICE_NAME}" \\
+	"${START_DOCKER_IMAGE_NAME}" \\
 	${FOREGROUND_RUN_ARGUMENT} \\
 	${BACKGROUND_RUN_ARGUMENT} \\
 	"$@"
@@ -70,7 +74,7 @@ docker run \
 	--name "@{SERVICE_NAME}" \
 	${FOREGROUND_DOCKER_PARAMS} \
 	${BACKGROUND_DOCKER_PARAMS} \
-	"@{BASE_DOMAIN_NAME}/@{SERVICE_NAME}" \
+	"${START_DOCKER_IMAGE_NAME}" \
 	${FOREGROUND_RUN_ARGUMENT} \
 	${BACKGROUND_RUN_ARGUMENT} \
 	"$@"

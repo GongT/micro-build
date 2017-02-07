@@ -53,6 +53,9 @@ fi
 
 # ls -al --color=always
 
+echo "HTTP_PROXY=${HTTP_PROXY}"
+echo "HTTPS_PROXY=${HTTPS_PROXY}"
+
 jspm install -y
 
 if [ -z "${IS_CONTINUE}" ]; then

@@ -25,8 +25,8 @@ export function spawnMainCommand(command, args: string[] = []) {
 	return ret.status;
 }
 
-export function spawnRun(docker_env: string, args: string[] = [], otherEnv: {[id: string]: string} = {}) {
-	const fullPath = resolve(getTempPath(), 'start.sh');
+export function spawnRun(docker_env: string, args: string[] = [], otherEnv: {[id: string]: string} = {}, script = 'start.sh') {
+	const fullPath = resolve(getTempPath(), script);
 	const ret = spawnSyncWrap(fullPath, args, {
 		cwd: getProjectPath(),
 		stdio: 'inherit',

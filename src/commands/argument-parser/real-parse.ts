@@ -181,12 +181,11 @@ function tokenizeOptions(argv: string[], config: IArgumentCommand): NormalizedAr
 	});
 	
 	[].concat(config.globalOptions || [], config.options || []).forEach((e: IArgumentOption) => {
-		if (<any>e.defaultValue === false && !ret.namedOptions.hasOwnProperty(e.name)) {
-			if (e.defaultValue) {
-				ret.namedOptions[e.name] = e.defaultValue;
-			} else {
+		if (!ret.namedOptions.hasOwnProperty(e.name)) {
+			if (e['isRequired']) {
 				throw new ArgumentError('Missing required options: --' + e.name);
 			}
+			ret.namedOptions[e.name] = e.defaultValue;
 		}
 	});
 	config.params.forEach((e: IArgumentParam) => {

@@ -25,7 +25,7 @@ export function extractArgs(fn): ArgDefine[] {
 			
 			return {
 				inspect: arg,
-				name: name.replace(/^\.\.\./, ''),
+				name: name.replace(/^\.\.\./, '').replace(/_/g, '-'),
 				isOptional: !!def,
 				isVaArg: /^\.\.\./.test(name),
 			};

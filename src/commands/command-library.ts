@@ -25,8 +25,8 @@ const switchProject: IArgumentOption = {
 parser.addOption(switchProject);
 
 export function createCommand(func: Function, config: CommandDefine): SubCommandParser {
-	const commander:SubCommandParser = parser.addCommand(config.command, func)
-	                        .description(config.description);
+	const commander: SubCommandParser = parser.addCommand(config.command, func)
+	                                          .description(config.description);
 	
 	if (config.aliases) {
 		commander.aliases(...config.aliases);
@@ -46,11 +46,13 @@ export function callCommandFunction(config: IArgumentCommand, argument: Normaliz
 	const realArgs = [];
 	extractArgs(config.callback).forEach((arg) => {
 		if (arg.isVaArg) {
-			realArgs.push(argument.paramsList);
+			argument.paramsList.forEach(i => realArgs.push(i));
 		} else if (argument.namedOptions.hasOwnProperty(arg.name)) {
 			realArgs.push(argument.namedOptions[arg.name]);
 		} else if (argument.namedParams.hasOwnProperty(arg.name)) {
 			realArgs.push(argument.namedParams[arg.name]);
+		} else if (arg.isOptional) {
+			realArgs.push(void 0);
 		} else {
 			throw new ArgumentError('Expected argument: ' + arg.name);
 		}

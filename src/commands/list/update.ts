@@ -50,6 +50,12 @@ export function update() {
 			extraFolders.push(path);
 		});
 	});
+	const root = getProjectPath();
+	Object.values(builder.toJSON().volume).forEach(({path}) => {
+		if (path.indexOf(root) === 0 || !/^\//.test(path)) {
+			extraFolders.push(path.replace(root, '').replace(/^\//g, ''));
+		}
+	});
 	
 	const gitIgnore = projectFileObject('.gitignore');
 	gitIgnore.section(sectionStart, sectionEnd, defaultIgnores.concat(gitIgnores, extraFolders, builder.registedIgnore));
