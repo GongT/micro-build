@@ -51,11 +51,16 @@ export function foreground(this: any, entrypoint: string = undefined, image: str
 		}
 		builder.startupCommand('--login', '-i');
 		createForegroundTestScript(builder);
+		
+		console.log("\0x1B]0;${PROJECT_NAME} - MICRO-BUILD: foreground testing ...\x07");
+		
+		return spawnRun('--restart=no', commands, {
+			START_DOCKER_IMAGE_NAME: image || ''
+		}, 'foreground-test/run-foreground.sh');
+	} else {
+		console.log("\0x1B]0;${PROJECT_NAME} - MICRO-BUILD: foreground running ...\x07");
+		return spawnRun('--restart=no', commands, {
+			START_DOCKER_IMAGE_NAME: image || ''
+		});
 	}
-	
-	console.log("\0x1B]0;${PROJECT_NAME} - MICRO-BUILD: foreground testing ...\x07");
-	
-	return spawnRun('--restart=no', commands, {
-		START_DOCKER_IMAGE_NAME: image || ''
-	}, 'foreground-test/run-foreground.sh');
 }
