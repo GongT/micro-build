@@ -34,16 +34,16 @@ export function foreground(this: any, entrypoint: string = undefined, image: str
 	const builder = readBuildConfig();
 	builder.dockerRunArgument('--rm');
 	if (entrypoint !== undefined) {
-		builder.dockerRunArgument('--entrypoint', entrypoint);
+		builder.dockerRunArgument('--entrypoint=' + entrypoint);
 	} else if (shell) {
 		if (shell === true) {
 			if (builder.toJSON().base.indexOf('alpine') === -1) {
-				builder.dockerRunArgument('--entrypoint', '/bin/bash');
+				builder.dockerRunArgument('--entrypoint=/bin/bash');
 			} else {
-				builder.dockerRunArgument('--entrypoint', '/bin/sh');
+				builder.dockerRunArgument('--entrypoint=/bin/sh');
 			}
 		} else {
-			builder.dockerRunArgument('--entrypoint', shell);
+			builder.dockerRunArgument('--entrypoint=' + shell);
 		}
 	}
 	if (map_root) {
