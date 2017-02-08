@@ -9,8 +9,8 @@ shift
 
 if [ "${TYPE}" = 'src' ]; then
 	MAIN_FILE=$1 # app main file
-	jspm bundle "$@" ${TARGET_FOLDER}/client.js --no-mangle --minify --inject
-	jspm bundle-sfx "$MAIN_FILE" ${TARGET_FOLDER}/full.js --minify
+	jspm bundle "$@" ${TARGET_FOLDER}/client.js --inject # --minify --no-mangle
+	jspm bundle-sfx "$MAIN_FILE" ${TARGET_FOLDER}/full.js # --minify
 else
-	jspm bundle "$@" ${TARGET_FOLDER}/dependencies.js --no-mangle --minify --inject
+	jspm bundle "$@" ${TARGET_FOLDER}/dependencies.js --inject # --minify --no-mangle
 fi
