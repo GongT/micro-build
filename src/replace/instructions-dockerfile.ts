@@ -46,7 +46,7 @@ export class CustomInstructions extends TemplateVariables {
 				}
 			}
 		}, ' ');
-		return ret.trim()? 'ENV ' + ret : '# NO ENV';
+		return ret.trim() ? 'ENV ' + ret : '# NO ENV';
 	}
 	
 	CHINA_ENVIRONMENTS() {
@@ -145,9 +145,10 @@ COPY . /data`;
 	}
 	
 	VOLUMES() {
-		return this.walk(this.config.toJSON().volume, (v, k) => {
-			return `VOLUME ${k}`;
-		});
+		const vols = this.walk(this.config.toJSON().volume, (v, k) => {
+			return JSON.stringify(k);
+		}, ' ');
+		return vols ? `VOLUME ${vols}` : '# no any volumes';
 	}
 	
 	CUSTOM_SYSTEM_INSTALL() {
@@ -198,7 +199,7 @@ ${content}`;
 		const ports = this.config.toJSON().forwardPort;
 		if (ports.length) {
 			return 'EXPOSE ' + this.walk(ports, ({client, method}) => {
-					return client + (method? '/' + method : '');
+					return client + (method ? '/' + method : '');
 				}, ' ')
 		} else {
 			return '# no exposed port';
@@ -295,10 +296,10 @@ RUN ${inst.join(' && \\\n\t')}`;
 	
 	PLUGINS_NPM_INSTALL() {
 		if (this.config.getPlugin(EPlugins.typescript) ||
-		    this.config.getPlugin(EPlugins.browserify) ||
-		    this.config.getPlugin(EPlugins.node_scss) ||
-		    this.config.getPlugin(EPlugins.jspm_bundle) ||
-		    this.config.getPlugin(EPlugins.npm_publish)
+			this.config.getPlugin(EPlugins.browserify) ||
+			this.config.getPlugin(EPlugins.node_scss) ||
+			this.config.getPlugin(EPlugins.jspm_bundle) ||
+			this.config.getPlugin(EPlugins.npm_publish)
 		) {
 			let ret: string = '# some nodejs plugin enbled\n';
 			if (!this.npmActived) {
