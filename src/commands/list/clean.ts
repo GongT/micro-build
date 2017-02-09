@@ -12,8 +12,6 @@ export const commandDefine: CommandDefine = {
 const protectedFiles = [
 	'.',
 	'..',
-	'x',
-	'config.ts',
 	'start.sh',
 	'stop.sh',
 	'functions.sh',

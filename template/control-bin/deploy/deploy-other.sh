@@ -31,8 +31,8 @@ function download {
 	
 	sleep 1
 	
-	if [ ! -e "${TEMP}/.micro-build/config.ts" ]; then
-		echo "file not exists: ${TEMP}/.micro-build/config.ts"
+	if [ ! -e "${TEMP}/build.config.ts" ]; then
+		echo "file not exists: ${TEMP}/build.config.ts"
 		die "the source git-url is not a service: ${GIT_URL}"
 	fi
 	

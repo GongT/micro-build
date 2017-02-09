@@ -1,0 +1,1 @@
+../../../../dist/library/config-helper/text-file.d.ts

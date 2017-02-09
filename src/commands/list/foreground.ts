@@ -17,7 +17,7 @@ export const commandDefine: CommandDefine = {
 		      .acceptValue()
 		      .defaultValue(undefined)
 		      .aliases('e')
-		      .description('overwrite `shellCommand` in config.ts');
+		      .description('overwrite `shellCommand` in build.config.ts');
 		parser.addOption('shell')
 		      .acceptValue()
 		      .defaultValue(false)

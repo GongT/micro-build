@@ -1,0 +1,1 @@
+../../../dist/library/microbuild-config.d.ts

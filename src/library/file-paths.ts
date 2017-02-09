@@ -1,6 +1,7 @@
 import {resolve} from "path";
 import {existsSync} from "fs";
 import {TextFile} from "./text-file";
+import {moveSync} from "nodejs-fs-utils";
 
 export const MicroBuildRoot = resolve(__dirname, '../..');
 export const MicroFilesRoot = resolve(MicroBuildRoot, 'dist');
@@ -32,7 +33,12 @@ export function updateCurrentDir(dir: string, ignore: boolean = false) {
 		assertCurrentDirOk() || process.exit(1);
 	}
 	tempPath = resolve(projectPath, tempDirName);
-	configPath = resolve(tempPath, 'config.ts');
+	configPath = resolve(projectPath, 'build.config.ts');
+	
+	const oldConfigFile = resolve(tempPath, 'config.ts');
+	if (existsSync(oldConfigFile) && !existsSync(configPath)) {
+		moveSync(oldConfigFile, configPath);
+	}
 }
 export function getConfigPath(): string {
 	if (!projectPath) {

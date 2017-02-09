@@ -1,48 +1,49 @@
 {
-  "name": "@gongt/micro-build",
-  "version": "2.0.1",
-  "description": "simple micro service builder system with nodejs & docker",
-  "bin": {
-    "microbuild": "./bin/microbuild"
-  },
-  "scripts": {
-    "start": "tsc -w -p src",
-    "build": "tsc -p src",
-    "test": "mocha --timeout 10s --slow 1000 --bail bin/test.js || true",
-    "post-install": "typings install ; cli-depend git || true"
-  },
-  "preferGlobal": true,
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/GongT/micro-build.git"
-  },
-  "author": "GongT <gongteng524702837@gmail.com>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/GongT/micro-build/issues"
-  },
-  "homepage": "https://github.com/GongT/micro-build#readme",
-  "dependencies": {
-    "@gongt/jenv": "*",
-    "@gongt/jenv-data": "*",
-    "@types/chai": "^3.4.34",
-    "@types/extend": "^2.0.30",
-    "@types/mkdirp": "^0.3.29",
-    "@types/mocha": "^2.2.38",
-    "@types/node": "^7.0.0",
-    "app-module-path": "^2.2.0",
-    "concurrently": "^3.1.0",
-    "debug": "^2.6.0",
-    "extend": "^3.0.0",
-    "mkdirp": "^0.5.1",
-    "nodejs-fs-utils": "^1.0.26",
-    "nodemon": "^1.11.0",
-    "readline-sync": "^1.4.5",
-    "source-map-support": "^0.4.10",
-    "string-width": "^2.0.0"
-  },
-  "devDependencies": {
-    "chai": "^3.5.0",
-    "mocha": "^3.2.0"
-  }
+	"name": "@gongt/micro-build",
+	"version": "2.0.1",
+	"description": "simple micro service builder system with nodejs & docker",
+	"bin": {
+		"microbuild": "./bin/microbuild"
+	},
+	"scripts": {
+		"start": "tsc -w -p src",
+		"build": "tsc -p src",
+		"test": "mocha --timeout 10s --slow 1000 --bail bin/test.js || true",
+		"pre-publish": "tsc -p src && bash -c ./template/create-symlinks.sh",
+		"post-install": "cli-depend git || true"
+	},
+	"preferGlobal": true,
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/GongT/micro-build.git"
+	},
+	"author": "GongT <gongteng524702837@gmail.com>",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/GongT/micro-build/issues"
+	},
+	"homepage": "https://github.com/GongT/micro-build#readme",
+	"dependencies": {
+		"@gongt/jenv": "*",
+		"@gongt/jenv-data": "*",
+		"@types/chai": "^3.4.34",
+		"@types/extend": "^2.0.30",
+		"@types/mkdirp": "^0.3.29",
+		"@types/mocha": "^2.2.38",
+		"@types/node": "^7.0.0",
+		"app-module-path": "^2.2.0",
+		"concurrently": "^3.1.0",
+		"debug": "^2.6.0",
+		"extend": "^3.0.0",
+		"mkdirp": "^0.5.1",
+		"nodejs-fs-utils": "^1.0.26",
+		"nodemon": "^1.11.0",
+		"readline-sync": "^1.4.5",
+		"source-map-support": "^0.4.10",
+		"string-width": "^2.0.0"
+	},
+	"devDependencies": {
+		"chai": "^3.5.0",
+		"mocha": "^3.2.0"
+	}
 }

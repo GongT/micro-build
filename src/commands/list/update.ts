@@ -23,6 +23,7 @@ import {EPlugins} from "../../library/microbuild-config";
 import {getSavePaths} from "../../replace/plugin/jspm-bundle";
 import {rmdirsSync} from "nodejs-fs-utils";
 import {CommandDefine} from "../command-library";
+import {moveSync} from "nodejs-fs-utils";
 
 export const commandDefine: CommandDefine = {
 	command: 'update',
@@ -66,18 +67,31 @@ export function update() {
 	dockerIgnore.write();
 	
 	const targetDts = resolve(getTempPath(), 'x');
-	const dtsFilePath = realpathSync(resolve(MicroBuildRoot, 'template/x'));
-	if (existsSync(targetDts)) {
-		if (lstatSync(targetDts).isSymbolicLink()) {
+	const dtsFilePath = realpathSync(resolve(MicroBuildRoot, 'template/.micro-build/x'));
+	
+	let exists = true;
+	let isSymbolicLink = false;
+	try {
+		isSymbolicLink = lstatSync(targetDts).isSymbolicLink()
+	} catch (e) {
+		exists = false;
+	}
+	if (exists) {
+		if (isSymbolicLink) {
 			if (readlinkSync(targetDts) !== dtsFilePath) {
+				console.log('link target "%s" invalid, unlinkSync(%s)', readlinkSync(targetDts), targetDts);
 				unlinkSync(targetDts);
+				console.log('link %s -> %s', targetDts, dtsFilePath);
 				symlinkSync(dtsFilePath, targetDts);
 			}
 		} else {
+			console.log('rmdirsSync(%s)', targetDts);
 			rmdirsSync(targetDts);
+			console.log('link %s -> %s', targetDts, dtsFilePath);
 			symlinkSync(dtsFilePath, targetDts);
 		}
 	} else {
+		console.log('link %s -> %s', targetDts, dtsFilePath);
 		symlinkSync(dtsFilePath, targetDts);
 	}
 	
@@ -101,7 +115,7 @@ export function update() {
 		pkgJsonFile.write();
 	}
 	
-	const configFile = resolve(getTempPath(), 'config.ts');
+	const configFile = resolve(getProjectPath(), 'build.config.ts');
 	const cfgContent = readFileSync(configFile, 'utf-8');
 	const currentContent = readFileSync(resolve(MicroBuildRoot, 'template/default-build-config.ts'), 'utf-8');
 	const xxx = dontRemoveReg.exec(currentContent);
@@ -130,10 +144,6 @@ const defaultIgnores = [
 ];
 
 const gitIgnores = [
-	`!${tempDirName}`,
-	`${tempDirName}/*`,
-	`!${tempDirName}/config.ts`,
-	
 	'!.*ignore',
 ];
 
@@ -141,7 +151,7 @@ const dockerIgnores = [
 	'*.md',
 	'Dockerfile',
 	'*.Dockerfile',
-	'!.micro-build/json-env-data.json',
+	`!${tempDirName}/json-env-data.json`,
 	'!.jsonenv/_current_result.json.d.ts',
 	`!${tempDirName}/npm-install`,
 	`!${tempDirName}/bin`,
