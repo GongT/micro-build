@@ -24,6 +24,7 @@ import {foreground, commandDefine as cmdForeground} from "./commands/list/foregr
 import {reload, commandDefine as cmdReload} from "./commands/list/reload";
 import {mkconfig, commandDefine as cmdMkConfig} from "./commands/list/mkconfig";
 import {deploy, commandDefine as cmdDeploy} from "./commands/list/deploy";
+import {stop_command, commandDefine as cmdStopCommand} from "./commands/list/stop_command";
 import {updateCurrentDir} from "./library/file-paths";
 require("source-map-support/register");
 
@@ -53,6 +54,7 @@ createCommand(deploy, cmdDeploy);
 
 createCommand(clean, cmdClean);
 createCommand(dist_clean, cmdDistClean);
+createCommand(stop_command, cmdStopCommand);
 
 const argv = process.argv.slice(2);
 const args = parser.parse(argv);

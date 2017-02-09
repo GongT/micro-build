@@ -30,7 +30,10 @@ function s_stop {
 	systemctl stop "@{SERVICE_NAME}"
 }
 function s_status {
-	systemctl status "@{SERVICE_NAME}"
+	systemctl status "@{SERVICE_NAME}" --no-pager -l -n 0
+}
+function s_status_started {
+	systemctl is-active "@{SERVICE_NAME}"
 }
 function s_restart {
 	systemctl restart "@{SERVICE_NAME}"

@@ -3,7 +3,7 @@
 set -e
 
 export PROJECT_NAME="@{PROJECT_NAME}"
-echo -en "\e]0;${PROJECT_NAME} - MICRO-BUILD: building ...\007"
+echo -en "\e]0;${PREPEND_TITLE_STRING}${PROJECT_NAME} - MICRO-BUILD: building ...\007"
 
 cd "@{PWD}/.."
 
@@ -19,7 +19,8 @@ source "@{PWD}/functions.sh"
 #{PULL_DEPEND_IMAGES}
 #{BUILD_DEPEND_SERVICE}
 
-echo -en "\e]0;${PROJECT_NAME} - MICRO-BUILD: building ...\007"
+echo -en "\e]0;${PREPEND_TITLE_STRING}${PROJECT_NAME} - MICRO-BUILD: building ...\007"
+export PREPEND_TITLE_STRING="${PROJECT_NAME} -> "
 
 echo -e "-- RUN BUILD -
 docker build \\

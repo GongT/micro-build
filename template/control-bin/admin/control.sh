@@ -2,19 +2,50 @@
 
 #{DETECT_CURRENT}
 
+source "@{PWD}/functions.sh"
+
 case "${1}" in
 start)
+	if s_status_started ; then
+		if is_container_running "@{SERVICE_NAME}" ; then
+			echo -e "\e[38;5;10mservice is already started, and container is running.\e[0m"
+			exit 0
+		else
+			s_stop
+		fi
+	fi
 	if [ -t 0 ] ; then
-		trap 'sleep 1 && [ -n "$(jobs -p)" ] && kill $(jobs -p)' EXIT
+		trap '[ -n "$(jobs -p)" ] && kill $(jobs -p) ; echo ""' EXIT
 		
-		( journalctl -fu "@{SERVICE_NAME}" 2> /dev/null & echo $! > /tmp/microbuild_start_pid )
-		PID=$(</tmp/microbuild_start_pid)
-		unlink /tmp/microbuild_start_pid
+		journalctl  -o cat -fu "@{SERVICE_NAME}" &
+		PID=$!
 		
 		s_start
-		sleep 5
+		RET=$?
+		if [ ${RET} -ne 0 ]; then
+			s_status
+			set +x
+			echo -e "
+\x1B[38;5;9mservice failed to start.\x1B[0m
+" >&2
+			exit ${RET}
+		fi
+		
+		i=5
+		while [ $((i--)) -gt 0 ]; do
+			sleep 1
+			echo -ne '\rwaitting....\e[K\r'
+		done
 		
 		kill "${PID}"
+		
+		if ! s_status_started; then
+			s_status
+			echo -e "
+\x1B[38;5;9mservice failed to start.\x1B[0m
+" >&2
+			exit ${RET}
+		fi
 		
 		echo -e "
 		

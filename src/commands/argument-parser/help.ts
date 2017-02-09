@@ -128,7 +128,6 @@ function formatColumn(aoa: string[][]) {
 				line += createPad(left - usageWidth);
 				// console.log('|%s|', line);
 				line += positionStringPack(desc, left, 0);
-				line += '\n';
 			} else {
 				// console.log('%s - %s < 0', left, usageWidth);
 				line += '\n' + createPad(left);

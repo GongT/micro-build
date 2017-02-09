@@ -8,13 +8,14 @@ PartOf=docker.service @{DEPEND_SERVICES_SYSTEMD}
 Type=simple
 Restart=always
 RestartSec=5
-StartLimitInterval=20
-StartLimitBurst=3
+RestartPreventExitStatus=
+StartLimitInterval=30
+StartLimitBurst=2
 Environment='DOCKER_START_ARGS=--rm --restart=no'
 WorkingDirectory=@{PWD}
 ExecStart=/bin/bash @{PWD}/start.sh
 ExecStop=/bin/bash @{PWD}/stop.sh
-# OnFailure=report-xxxx.service
+# OnFailure=report-xxxx.service "%N"
 
 [Install]
 WantedBy=multi-user.target

@@ -41,7 +41,10 @@ function s_stop {
 	service "@{SERVICE_NAME}" stop
 }
 function s_status {
-	service "@{SERVICE_NAME}" status
+	service "@{SERVICE_NAME}" status | cat
+}
+function s_status_started {
+	service "@{SERVICE_NAME}" status -q
 }
 function s_restart {
 	service "@{SERVICE_NAME}" restart
