@@ -35,7 +35,7 @@ const sectionEnd = '<<< END MICRO-BUILD SECTION';
 
 export function update() {
 	const builder = readBuildConfig();
-	const extraFolders = [];
+	const extraFolders = [], extraDockerIgnores = [];
 	builder.getPluginList(EPlugins.node_scss).forEach(({options}) => {
 		if (options && options.target) {
 			extraFolders.push(slashEnd(options.target));
@@ -54,7 +54,14 @@ export function update() {
 	const root = getProjectPath();
 	Object.values(builder.toJSON().volume).forEach(({path}) => {
 		if (path.indexOf(root) === 0 || !/^\//.test(path)) {
-			extraFolders.push(path.replace(root, '').replace(/^\//g, ''));
+			const sigFile = resolve(root, path, '.gitinclude');
+			const relPath = path.replace(root, '').replace(/^\//g, '');
+			if (existsSync(sigFile)) {
+				extraDockerIgnores.push(relPath);
+				return;
+			}
+			
+			extraFolders.push(relPath);
 		}
 	});
 	
@@ -63,7 +70,7 @@ export function update() {
 	gitIgnore.write();
 	
 	const dockerIgnore = projectFileObject('.dockerignore');
-	dockerIgnore.section(sectionStart, sectionEnd, defaultIgnores.concat(dockerIgnores, extraFolders));
+	dockerIgnore.section(sectionStart, sectionEnd, defaultIgnores.concat(dockerIgnores, extraFolders, extraDockerIgnores));
 	dockerIgnore.write();
 	
 	const targetDts = resolve(getTempPath(), 'x');
@@ -145,6 +152,7 @@ const defaultIgnores = [
 
 const gitIgnores = [
 	'!.*ignore',
+	'!.gitinclude',
 ];
 
 const dockerIgnores = [
