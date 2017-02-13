@@ -18,7 +18,9 @@ export function spawnMainCommand(command, args: string[] = []) {
 	const ret = spawnSyncWrap(fullPath, args, {
 		cwd: getProjectPath(),
 		stdio: 'inherit',
-		env: process.env,
+		env: Object.assign({}, process.env, {
+			PATH: process.env.PATH + ':' + resolve(getProjectPath(), 'node_modules/.bin')
+		}),
 		encoding: 'utf8',
 		shell: '/bin/bash',
 	});

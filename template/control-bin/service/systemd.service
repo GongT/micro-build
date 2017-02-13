@@ -8,7 +8,7 @@ PartOf=docker.service @{DEPEND_SERVICES_SYSTEMD}
 Type=simple
 Restart=always
 RestartSec=5
-RestartPreventExitStatus=
+RestartPreventExitStatus=130
 StartLimitInterval=30
 StartLimitBurst=2
 Environment='DOCKER_START_ARGS=--rm --restart=no'
