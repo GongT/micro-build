@@ -61,8 +61,8 @@ export const CONFIG_PORT: string = '${resultPort}';
 const portPart = CONFIG_PORT? ':' + CONFIG_PORT : '';
 
 // 服务器客户端通用的请求url
-const debug_prefix = CONFIG_PORT? 'debug-' : '';
-export const CONFIG_BASE_DOMAIN: string = https + '://' + debug_prefix + '${baseDomain}' + portPart;
+// const debug_prefix = CONFIG_PORT? 'debug-' : '';
+export const CONFIG_BASE_DOMAIN: string = https + '://' /*+ debug_prefix*/ + '${baseDomain}' + portPart;
 `;
 	}
 	
