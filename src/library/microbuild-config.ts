@@ -23,6 +23,11 @@ export interface GithubInterface {
 	token: string;
 }
 
+export interface ISystemdConfig {
+	type: string;
+	watchdog?: number;
+}
+
 export interface GFWInterface {
 	active?: boolean;
 	proxy?: string;
@@ -88,6 +93,7 @@ export interface MicroServiceConfig {
 	};
 	disableCopyFolder: boolean;
 	disableBinfiles: boolean;
+	service: ISystemdConfig;
 	onConfig?: (isDebug?: boolean) => void;
 }
 
@@ -162,6 +168,9 @@ export class MicroBuildConfig {
 		},
 		disableCopyFolder: false,
 		disableBinfiles: false,
+		service: {
+			type: 'simple',
+		},
 	};
 	public readonly registedIgnore: string[] = [];
 	
@@ -461,6 +470,14 @@ export class MicroBuildConfig {
 	/** @deprecated */
 	nsgLabel(name: ELabelNames, value: any) {
 		this.storage.specialLabels[name] = value;
+	}
+	
+	systemdType(type: string) {
+		this.storage.service.type = type;
+	}
+	
+	systemdWatchdog(watchdog: number) {
+		this.storage.service.watchdog = watchdog;
 	}
 	
 	/** getters **/

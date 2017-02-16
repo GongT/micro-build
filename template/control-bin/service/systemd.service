@@ -5,7 +5,7 @@ After=docker.service @{DEPEND_SERVICES_SYSTEMD}
 PartOf=docker.service @{DEPEND_SERVICES_SYSTEMD}
 
 [Service]
-Type=simple
+Type=@{SERVICE_TYPE_SYSTEMD}
 Restart=always
 RestartSec=5
 RestartPreventExitStatus=130
@@ -16,6 +16,8 @@ WorkingDirectory=@{PWD}
 ExecStart=/bin/bash @{PWD}/start.sh
 ExecStop=/bin/bash @{PWD}/stop.sh
 # OnFailure=report-xxxx.service "%N"
+
+#{CONFIG_SYSTEMD}
 
 [Install]
 WantedBy=multi-user.target

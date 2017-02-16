@@ -224,4 +224,13 @@ export class ScriptVariables extends TemplateVariables {
 			return serviceName + '.service';
 		}, ' ');
 	}
+	
+	CONFIG_SYSTEMD() {
+		return `WatchdogSec=${this.config.toJSON().service.watchdog}
+Environment=SYSTEMD_TYPE=${this.config.toJSON().service.type}`
+	}
+	
+	SERVICE_TYPE_SYSTEMD() {
+		return this.config.toJSON().service.type;
+	}
 }
