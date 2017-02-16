@@ -34,7 +34,7 @@ export class CustomInstructions extends TemplateVariables {
 	}
 	
 	ENVIRONMENT_VARS() {
-		const ret = this.walk(this.config.toJSON().environments, ({name, value, insideOnly, append}) => {
+		let ret = this.walk(this.config.toJSON().environments, ({name, value, insideOnly, append}) => {
 			if (insideOnly !== false) {
 				if (append) {
 					if (append === true) {
@@ -46,7 +46,12 @@ export class CustomInstructions extends TemplateVariables {
 				}
 			}
 		}, ' ');
-		return ret.trim() ? 'ENV ' + ret : '# NO ENV';
+		
+		ret = ret.trim();
+		const sdType = (this.config.toJSON().service.type || 'simple').toLowerCase();
+		ret += ` SYSTEMD_TYPE=${this.safeEnv(sdType)}`;
+		
+		return `ENV ${ret} `;
 	}
 	
 	CHINA_ENVIRONMENTS() {
@@ -148,7 +153,7 @@ COPY . /data`;
 		const vols = this.walk(this.config.toJSON().volume, (v, k) => {
 			return JSON.stringify(k);
 		}, ' ');
-		return vols ? `VOLUME ${vols}` : '# no any volumes';
+		return vols? `VOLUME ${vols}` : '# no any volumes';
 	}
 	
 	CUSTOM_SYSTEM_INSTALL() {
@@ -199,7 +204,7 @@ ${content}`;
 		const ports = this.config.toJSON().forwardPort;
 		if (ports.length) {
 			return 'EXPOSE ' + this.walk(ports, ({client, method}) => {
-					return client + (method ? '/' + method : '');
+					return client + (method? '/' + method : '');
 				}, ' ')
 		} else {
 			return '# no exposed port';
@@ -263,10 +268,14 @@ ${content}`;
 	
 	NPM_INSTALL_INSTRUCTIONS() {
 		const npmInstallInstruction = this.config.toJSON().npmInstall.map(({path, systemDepend}) => {
+			const pkg = new PackageJsonFile(path);
+			if (pkg.content.dependencies.hasOwnProperty('typescript-common-library')) {
+				systemDepend = systemDepend.concat(['python', 'make', 'g++']);
+			}
+			
 			const INSTALL_SYSTEM_DEPEND = systemInstall(this.config, systemDepend);
 			const REMOVE_SYSTEM_DEPEND = systemUninstall(this.config, systemDepend);
 			
-			const pkg = new PackageJsonFile(path);
 			let targetPath = path.replace(/^\.\//, '').replace(/\/?package\.json$/, '');
 			if (targetPath) {
 				targetPath += '/';
@@ -296,10 +305,10 @@ RUN ${inst.join(' && \\\n\t')}`;
 	
 	PLUGINS_NPM_INSTALL() {
 		if (this.config.getPlugin(EPlugins.typescript) ||
-			this.config.getPlugin(EPlugins.browserify) ||
-			this.config.getPlugin(EPlugins.node_scss) ||
-			this.config.getPlugin(EPlugins.jspm_bundle) ||
-			this.config.getPlugin(EPlugins.npm_publish)
+		    this.config.getPlugin(EPlugins.browserify) ||
+		    this.config.getPlugin(EPlugins.node_scss) ||
+		    this.config.getPlugin(EPlugins.jspm_bundle) ||
+		    this.config.getPlugin(EPlugins.npm_publish)
 		) {
 			let ret: string = '# some nodejs plugin enbled\n';
 			if (!this.npmActived) {

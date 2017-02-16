@@ -226,8 +226,21 @@ export class ScriptVariables extends TemplateVariables {
 	}
 	
 	CONFIG_SYSTEMD() {
-		return `WatchdogSec=${this.config.toJSON().service.watchdog}
-Environment=SYSTEMD_TYPE=${this.config.toJSON().service.type}`
+		const ret: string[] = [];
+		
+		const sdWatch = this.config.toJSON().service.watchdog;
+		if (sdWatch) {
+			ret.push(`WatchdogSec=${sdWatch}`);
+		}
+		
+		const sdType = (this.config.toJSON().service.type || 'simple').toLowerCase();
+		ret.push(`Environment=SYSTEMD_TYPE=${sdType}`);
+		if (sdType === 'notify') {
+			ret.push(`NotifyAccess=all`);
+			ret.push(`PrivateNetwork=no`);
+		}
+		
+		return ret.join('\n');
 	}
 	
 	SERVICE_TYPE_SYSTEMD() {
