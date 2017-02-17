@@ -1,8 +1,11 @@
 import {CommandDefine} from "../command-library";
-import {updateCurrentDir} from "../../library/file-paths";
 import {update} from "./update";
-import {readBuildConfig, createBuildTempFiles} from "../../build/all";
-import {spawnMainCommand} from "../../library/spawn-child";
+import {readBuildConfig} from "../../library/read-config";
+import {spawnMainCommand} from "../../library/system/spawn/spawn-child";
+import {createDockerBuildFiles} from "../../build/build-scripts";
+import {clean} from "./clean";
+import {updateCurrentDir} from "../../library/common/file-paths";
+import {defaultEnvironment} from "../../library/common/runenv";
 
 export const commandDefine: CommandDefine = {
 	command: 'build',
@@ -15,17 +18,17 @@ export const commandDefine: CommandDefine = {
 };
 
 export function build(...args) {
+	defaultEnvironment('docker');
 	updateCurrentDir('./');
-	process.env.MICRO_BUILD_RUN = 'build';
 	
+	clean();
 	update();
 	
-	const builder = readBuildConfig();
-	createBuildTempFiles(builder);
+	createDockerBuildFiles();
 	
 	const ret = spawnMainCommand('build.sh', args);
 	if (ret !== 0) {
-		console.error('\x1B[38;5;9m%s build failed...\x1B[0m', builder.toJSON().projectName);
+		console.error('\x1B[38;5;9m%s build failed...\x1B[0m', readBuildConfig().toJSON().projectName);
 	}
 	return ret;
 }

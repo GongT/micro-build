@@ -1,11 +1,5 @@
-
-if  readlink /proc/1/exe | grep -q systemd ; then
-	source "@{PWD}/systemd.sh"
-else
-	source "@{PWD}/upstart.sh"
+if [ -z "${INITD_TYPE}" ]; then
+	echo "Error: no INITD_TYPE." > /dev/stderr
+	exit 1
 fi
-
-if [ `id -u` -ne "0" ]; then
-	echo "Error: you must have root access" > /dev/stderr
-	exit
-fi
+source "@{PWD}/service-control.sh"

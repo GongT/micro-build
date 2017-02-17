@@ -1,6 +1,7 @@
 import {mkconfig} from "./mkconfig";
 import {CommandDefine} from "../command-library";
-import {spawnMainCommand} from "../../library/spawn-child";
+import {spawnMainCommand} from "../../library/system/spawn/spawn-child";
+import {switchEnvironment} from "../../library/common/runenv";
 
 export const commandDefine: CommandDefine = {
 	command: 'exec',
@@ -8,7 +9,8 @@ export const commandDefine: CommandDefine = {
 };
 
 export function exec(...args) {
-	mkconfig();
+	switchEnvironment('docker');
+	mkconfig(true, false);
 	
 	return spawnMainCommand('run-script.sh', args);
 }

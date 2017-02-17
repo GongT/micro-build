@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-export PROJECT_NAME="@{PROJECT_NAME}"
+set -o allexport
+source "@{PWD}/EnvironmentFile.host.sh"
+set +o allexport
 echo -en "\e]0;${PROJECT_NAME} - MICRO-BUILD: loading ...\007"
 
 cd "@{PWD}/.."
@@ -10,7 +12,7 @@ source "@{PWD}/functions.sh"
 #{DETECT_CURRENT}
 #{START_DEPENDENCY}
 #{BUILD_DEPEND_SERVICE}
-#{NETWORKING_ENVIRONMENTS_VARS}
+
 
 export CONFIG_FILE="@{PWD}/json-env-data.json"
 
@@ -74,8 +76,6 @@ exit ${RET}
 ' SIGINT SIGTERM EXIT
 
 jenv --hint &> /dev/null
-
-#{ENVIRONMENT_VARS}
 
 # todo arguments ?
 DEBUG_RUN_ARGUMENTS=

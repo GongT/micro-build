@@ -1,18 +1,18 @@
 import {CustomInstructions} from "../instructions-dockerfile";
 import {EPlugins, MicroBuildConfig} from "../../library/microbuild-config";
-import {saveFile} from "../../build/all";
-import {renderTemplate} from "../replace-scripts";
+import {renderTemplateScripts} from "../replace-scripts";
 import {getNpmScriptReplacer} from "./npm";
 import {existsSync} from "fs";
 import {resolve} from "path";
-import {getProjectPath} from "../../library/file-paths";
+import {saveFile} from "../../library/config-file/fast-save";
+import {getProjectPath} from "../../library/common/file-paths";
 
 export function npm_publish_command(config: MicroBuildConfig) {
 	const replacer = getNpmScriptReplacer(config);
-	const helperScript = renderTemplate('plugin', 'npm-publish-private-package.sh', replacer);
+	const helperScript = renderTemplateScripts('plugin', 'npm-publish-private-package.sh', replacer);
 	saveFile('plugins/npm-publish-private', helperScript, '755');
 	
-	return `COPY .micro-build/plugins/npm-publish-private /npm-install/npm-publish-private
+	return `COPY .micro-build/plugins/npm-publish-private /install/npm/npm-publish-private
 `;
 }
 
@@ -28,7 +28,7 @@ export function npm_publish_after(replacer: CustomInstructions) {
 			throw new Error(`npm publish: package.json not found in ${options.path}`);
 		}
 		const target = `/data/${options.path}`;
-		ret.push(`cd ${JSON.stringify(target)} && /npm-install/npm-publish-private`)
+		ret.push(`cd ${JSON.stringify(target)} && /install/npm/npm-publish-private`)
 	});
 	
 	if (ret.length) {

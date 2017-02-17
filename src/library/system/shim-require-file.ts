@@ -1,9 +1,9 @@
 import {Script} from "vm";
 import {dirname} from "path";
-import {MicroBuildRoot} from "./file-paths";
+import {MicroBuildRoot} from "../common/file-paths";
 const extend = require("util")._extend;
 
-require("app-module-path").addPath(MicroBuildRoot+'/node_modules');
+require("app-module-path").addPath(MicroBuildRoot + '/node_modules');
 
 export function run_script(code: string, filename: string, context: any, options?: {}) {
 	const Module = require("module");

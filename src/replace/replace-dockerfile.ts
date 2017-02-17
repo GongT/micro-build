@@ -4,7 +4,7 @@ import {CustomInstructions} from "./instructions-dockerfile";
 
 const templateDir = resolve(__dirname, '../../template/Dockerfile');
 
-export function renderTemplate(fileName: string, ins: CustomInstructions) {
+export function renderTemplateDockerFile(fileName: string, ins: CustomInstructions) {
 	const renderObject = new TemplateRender(resolve(templateDir, fileName));
 	return renderObject.render(ins);
 }

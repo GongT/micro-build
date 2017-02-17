@@ -1,6 +1,10 @@
 import {CommandDefine} from "../command-library";
 import {update} from "./update";
-import {readBuildConfig, createBuildTempFiles} from "../../build/all";
+import {createDockerBuildFiles} from "../../build/build-scripts";
+import {switchEnvironment} from "../../library/common/runenv";
+import {createDebugScript} from "../../build/debug-script";
+import {createServiceFile} from "../../build/service-supports";
+import {createPlugins} from "../../build/create-plugins";
 
 export const commandDefine: CommandDefine = {
 	command: 'mkconfig',
@@ -19,15 +23,19 @@ export const commandDefine: CommandDefine = {
 };
 
 export function mkconfig(build: boolean = false, debug: boolean = false) {
-	if (build) {
-		process.env.MICRO_BUILD_RUN = 'build';
-	}
 	if (debug) {
-		process.env.MICRO_BUILD_RUN = 'debug';
+		switchEnvironment('host');
+		update();
+		createDebugScript();
 	}
-	update();
-	
-	const builder = readBuildConfig();
-	
-	return createBuildTempFiles(builder);
+	if (build) {
+		switchEnvironment('docker');
+		update();
+		createDockerBuildFiles();
+		createServiceFile();
+		/*if(isInstalled()){
+		 reinstall();
+		 }*/
+	}
+	createPlugins();
 }

@@ -3,7 +3,7 @@
 #{PREPEND_NPM_SCRIPT}
 
 if [ -n "${RUN_IN_DOCKER}" ]; then
-	/npm-install/global-installer "@gongt/make-next-private-version"
+	/install/npm/global-installer "@gongt/make-next-private-version"
 fi
 
 set +e
@@ -26,7 +26,7 @@ fi
 
 if [ -n "${RUN_IN_DOCKER}" ]; then
 	rm -f *.tgz
-	/npm-install/global-installer uninstall "@gongt/make-next-private-version"
+	/install/npm/global-installer uninstall "@gongt/make-next-private-version"
 else
 	make-private-version-restore .
 fi

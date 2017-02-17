@@ -2,7 +2,7 @@ import {readdirSync, lstatSync, unlinkSync} from "fs";
 import {resolve} from "path";
 import {rmdirsSync} from "nodejs-fs-utils";
 import {CommandDefine} from "../command-library";
-import {getTempPath} from "../../library/file-paths";
+import {getGeneratePath} from "../../library/common/file-paths";
 
 export const commandDefine: CommandDefine = {
 	command: 'clean',
@@ -12,13 +12,12 @@ export const commandDefine: CommandDefine = {
 const protectedFiles = [
 	'.',
 	'..',
-	'start.sh',
-	'stop.sh',
-	'functions.sh',
+	'check-external-dependencies.sh',
+	'EnvironmentFile.sh',
 ];
 
 export function clean() {
-	const t = getTempPath();
+	const t = getGeneratePath();
 	readdirSync(t).forEach((f) => {
 		if (protectedFiles.indexOf(f) !== -1) {
 			return;

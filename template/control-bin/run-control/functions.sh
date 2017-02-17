@@ -17,3 +17,18 @@ function remove_container {
 		docker rm -f "$@" >/dev/null
 	fi
 }
+
+cleanup() {
+    rv=$?
+    echo "$0 EXIT WITH ${rv}"
+    trap - INT TERM EXIT
+    exit ${rv}
+}
+
+trap "cleanup" INT TERM EXIT
+
+set -o allexport
+source "./EnvironmentFile.sh"
+set +o allexport
+
+cd "@{PWD}/../.."

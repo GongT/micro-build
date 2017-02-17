@@ -1,12 +1,12 @@
-import {getTempPath, tempDirName} from "../../library/file-paths";
 import {resolve} from "path";
 import {writeFileSync} from "fs";
 import {_guid} from "./_guid";
 import {MicroBuildConfig} from "../../library/microbuild-config";
 import {ScriptVariables} from "../instructions-scripts";
-import {renderTemplate} from "../replace-scripts";
-import {saveFile} from "../../build/all";
+import {renderTemplateScripts} from "../replace-scripts";
 import {systemInstall, systemUninstall} from "./system-install";
+import {saveFile} from "../../library/config-file/fast-save";
+import {getTempPath} from "../../library/common/file-paths";
 
 export function jspm_install_command(config: MicroBuildConfig) {
 	const github = config.getGithubConfig();
@@ -23,17 +23,17 @@ cat ~/.jspm/config`;
 		}
 	});
 	
-	const helperScript = renderTemplate('plugin', 'jspm-install.sh', replacer);
+	const helperScript = renderTemplateScripts('plugin', 'jspm-install.sh', replacer);
 	saveFile('jspm-install/jspm-install', helperScript, '755');
 	
 	create_helper_script(config);
 	
 	if (actions.length) {
-		return `COPY ${tempDirName}/jspm-install /npm-install
+		return `COPY ${getTempPath(true)}/jspm-install /install/jspm
 RUN ${actions.join(' && \\ \n\t')}
 `;
 	} else {
-		return `COPY ${tempDirName}/jspm-install /npm-install
+		return `COPY ${getTempPath(true)}/jspm-install /install/jspm
 `;
 	}
 }
@@ -69,10 +69,10 @@ export function createJspmInstallScript(config: MicroBuildConfig, {jspm}: IPacka
 	
 	writeFileSync(resolve(getTempPath(), 'package-json', jsonFile), JSON.stringify(packageFileContent, null, 8), 'utf-8');
 	
-	return `COPY ${tempDirName}/package-json/${jsonFile} /package-json/${jsonFile}
+	return `COPY ${getTempPath(true)}/package-json/${jsonFile} /package-json/${jsonFile}
 RUN ` + [].concat(
 			systemInstall(config, ['git']),
-			[`/npm-install/jspm-install ${jsonFile} "${targetPath}" "${packageDir}"`],
+			[`/install/jspm/install ${jsonFile} "${targetPath}" "${packageDir}"`],
 			systemUninstall(config, ['git']),
 		).join(' && \\\n\t');
 }
@@ -80,6 +80,6 @@ RUN ` + [].concat(
 function create_helper_script(config: MicroBuildConfig) {
 	const replacer = new ScriptVariables(config);
 	
-	const script = renderTemplate('plugin', 'jspm-bundle.sh', replacer);
+	const script = renderTemplateScripts('plugin', 'jspm-bundle.sh', replacer);
 	saveFile('jspm-install/jspm-bundle-helper', script, '755');
 }

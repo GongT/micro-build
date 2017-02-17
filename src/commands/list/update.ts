@@ -9,21 +9,22 @@ import {
 	lstatSync,
 	readlinkSync
 } from "fs";
-import {PackageJsonFile} from "../../library/package-json-file";
-import {
-	projectFile,
-	projectFileObject,
-	tempDirName,
-	getProjectPath,
-	getTempPath,
-	MicroBuildRoot
-} from "../../library/file-paths";
-import {readBuildConfig, dontRemoveReg} from "../../build/all";
+import {sync as mkdirpSync} from "mkdirp";
 import {EPlugins} from "../../library/microbuild-config";
 import {getSavePaths} from "../../replace/plugin/jspm-bundle";
 import {rmdirsSync} from "nodejs-fs-utils";
 import {CommandDefine} from "../command-library";
-import {moveSync} from "nodejs-fs-utils";
+import {readBuildConfig, dontRemoveReg} from "../../library/read-config";
+import {defaultEnvironment} from "../../library/common/runenv";
+import {
+	getProjectPath,
+	projectFileObject,
+	getTempPath,
+	MicroBuildRoot,
+	projectFile,
+	getGeneratePath
+} from "../../library/common/file-paths";
+import {PackageJsonFile} from "../../library/config-file/package-json-file";
 
 export const commandDefine: CommandDefine = {
 	command: 'update',
@@ -34,6 +35,7 @@ const sectionStart = 'START MICRO-BUILD SECTION >>> ';
 const sectionEnd = '<<< END MICRO-BUILD SECTION';
 
 export function update() {
+	defaultEnvironment('docker');
 	const builder = readBuildConfig();
 	const extraFolders = [], extraDockerIgnores = [];
 	builder.getPluginList(EPlugins.node_scss).forEach(({options}) => {
@@ -73,7 +75,8 @@ export function update() {
 	dockerIgnore.section(sectionStart, sectionEnd, defaultIgnores.concat(dockerIgnores, extraFolders, extraDockerIgnores));
 	dockerIgnore.write();
 	
-	const targetDts = resolve(getTempPath(), 'x');
+	const targetDts = resolve(getGeneratePath(), 'x');
+	mkdirpSync(targetDts);
 	const dtsFilePath = realpathSync(resolve(MicroBuildRoot, 'template/.micro-build/x'));
 	
 	let exists = true;
@@ -159,13 +162,11 @@ const dockerIgnores = [
 	'*.md',
 	'Dockerfile',
 	'*.Dockerfile',
-	`!${tempDirName}/json-env-data.json`,
+	`!${getGeneratePath(true)}/json-env-data.json`,
 	'!.jsonenv/_current_result.json.d.ts',
-	`!${tempDirName}/npm-install`,
-	`!${tempDirName}/bin`,
-	`!${tempDirName}/package-json`,
-	`!${tempDirName}/jspm-install`,
-	`!${tempDirName}/plugins`,
+	`!${getGeneratePath(true)}/build-install`,
+	`!${getTempPath(true)}/bin`,
+	`!${getTempPath(true)}/plugins`,
 ];
 
 function slashEnd(str) {

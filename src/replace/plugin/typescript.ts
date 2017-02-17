@@ -25,9 +25,9 @@ export default function typescript(config: MicroBuildConfig) {
 	}
 	
 	content += 'RUN ' + ['set -x'].concat(
-			['/npm-install/global-installer typescript'],
+			['/install/npm/global-installer typescript'],
 			build,
-			['/npm-install/global-installer uninstall typescript']
+			['/install/npm/global-installer uninstall typescript']
 		).join(' && \\\n\t');
 	
 	return content;

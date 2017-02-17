@@ -1,2 +1,2 @@
-import createGuid from "../../library/guid";
+import createGuid from "../../library/common/guid";
 export const _guid = createGuid();

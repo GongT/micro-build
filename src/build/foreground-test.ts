@@ -1,7 +1,7 @@
 import {MicroBuildConfig} from "../library/microbuild-config";
-import {saveFile} from "./all";
-import {renderTemplate as renderTemplateScript} from "../replace/replace-scripts";
-import {renderTemplate as renderTemplateDocker} from "../replace/replace-dockerfile";
+import {saveFile} from "../library/config-file/fast-save";
+import {renderTemplateScripts as renderTemplateScript} from "../replace/replace-scripts";
+import {renderTemplateDockerFile as renderTemplateDocker} from "../replace/replace-dockerfile";
 import {ScriptVariablesPlugins} from "../replace/instructions-scripts-plugins";
 import {CustomInstructions} from "../replace/instructions-dockerfile";
 

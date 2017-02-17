@@ -1,9 +1,9 @@
 import {mkconfig} from "./mkconfig";
 import {CommandDefine} from "../command-library";
-import {readBuildConfig} from "../../build/all";
-import {spawnRun} from "../../library/spawn-child";
 import {createForegroundTestScript} from "../../build/foreground-test";
-import {update} from "./update";
+import {switchEnvironment} from "../../library/common/runenv";
+import {readBuildConfig} from "../../library/read-config";
+import {spawnRun} from "../../library/system/spawn/spawn-child";
 
 export const commandDefine: CommandDefine = {
 	command: 'foreground',
@@ -28,8 +28,7 @@ export const commandDefine: CommandDefine = {
 };
 
 export function foreground(this: any, entrypoint: string = undefined, image: string = '', shell: boolean = false, map_root: boolean = false, ...commands: string[]) {
-	process.env.MICRO_BUILD_RUN = 'build';
-	
+	switchEnvironment('docker');
 	const builder = readBuildConfig();
 	builder.dockerRunArgument('--rm');
 	if (entrypoint !== undefined) {

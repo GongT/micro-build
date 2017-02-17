@@ -7,14 +7,25 @@ PartOf=docker.service @{DEPEND_SERVICES_SYSTEMD}
 [Service]
 Type=@{SERVICE_TYPE_SYSTEMD}
 Restart=always
+RestartPreventExitStatus=101
 RestartSec=5
 RestartPreventExitStatus=130
-StartLimitInterval=30
-StartLimitBurst=2
+TimeoutStartSec=10s
+TimeoutStopSec=5s
+StartLimitInterval=60s
+StartLimitBurst=3
 Environment='DOCKER_START_ARGS=--rm --restart=no'
+PrivateTmp=false
+EnvironmentFile=@{PWD}/EnvironmentFile.sh
 WorkingDirectory=@{PWD}
-ExecStart=/bin/bash @{PWD}/start.sh
-ExecStop=/bin/bash @{PWD}/stop.sh
+ExecStartPre=-docker rm -f "@{SERVICE_NAME}"
+ExecStart=-echo @{START_DOCKER_COMMAND_STRING}
+ExecStart=@{PWD}/check-external-dependencies.sh
+ExecStart=@{START_DOCKER_COMMAND}
+ExecReload=@{RELOAD_DOCKER_COMMAND}
+# ExecStartPost=-start-deps?
+ExecStop=@{STOP_DOCKER_COMMAND}
+ExecStopPost=-docker rm -f "@{SERVICE_NAME}"
 # OnFailure=report-xxxx.service "%N"
 
 #{CONFIG_SYSTEMD}

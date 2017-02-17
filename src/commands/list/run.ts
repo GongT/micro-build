@@ -1,6 +1,7 @@
 import {mkconfig} from "./mkconfig";
 import {CommandDefine} from "../command-library";
-import {spawnRun} from "../../library/spawn-child";
+import {spawnRun} from "../../library/system/spawn/spawn-child";
+import {defaultEnvironment} from "../../library/common/runenv";
 
 export const commandDefine: CommandDefine = {
 	command: 'run',
@@ -12,6 +13,7 @@ export const commandDefine: CommandDefine = {
 };
 
 export function run(...args: string[]) {
+	defaultEnvironment('docker');
 	mkconfig();
 	
 	return spawnRun('-d --restart=always', args);

@@ -1,7 +1,7 @@
-import {getTempPath, getProjectPath} from "./file-paths";
 import {resolve, basename} from "path";
 import extend = require("extend");
 import {spawnSync} from "child_process";
+import {getProjectPath, getTempPath} from "../../common/file-paths";
 
 export function spawnExternalCommand(command, args: string[] = []) {
 	const ret = spawnSyncWrap(command, args, {

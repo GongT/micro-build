@@ -1,7 +1,8 @@
 import {mkconfig} from "./mkconfig";
 import {CommandDefine} from "../command-library";
-import {readBuildConfig} from "../../build/all";
-import {spawnMainCommand} from "../../library/spawn-child";
+import {defaultEnvironment} from "../../library/common/runenv";
+import {readBuildConfig} from "../../library/read-config";
+import {spawnMainCommand} from "../../library/system/spawn/spawn-child";
 
 export const commandDefine: CommandDefine = {
 	command: 'reload',
@@ -9,7 +10,8 @@ export const commandDefine: CommandDefine = {
 };
 
 export function reload(this: any) {
-	mkconfig.apply({}, arguments);
+	defaultEnvironment('docker');
+	mkconfig();
 	
 	const builder = readBuildConfig();
 	const reload = builder.toJSON().reloadCommand;

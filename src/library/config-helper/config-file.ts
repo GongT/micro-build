@@ -1,8 +1,9 @@
 import {writeFileSync, readFileSync, existsSync} from "fs";
 import {resolve} from "path";
-import {getProjectPath} from "../file-paths";
 import {MicroBuildConfig, EPlugins} from "../microbuild-config";
-import {injectJsonEnv} from "../json-env-cli";
+import {injectJsonEnv} from "../cli/json-env-cli";
+import {getProjectPath} from "../common/file-paths";
+import {isDockerMode} from "../common/runenv";
 
 export class ConfigFileHelper {
 	private fileContent;
@@ -47,7 +48,7 @@ export function setDebugMode(debugMode = true){
 // 是否支持使用https只跟服务端状态有关
 //    - 部署到了docker的
 //    - 并且不是测试模式
-export const PACKAGE_SUPPORT_HTTPS: boolean = JSON.parse('${build.isBuilding()}') && IS_PACKAGE_DEBUG_MODE === false;
+export const PACKAGE_SUPPORT_HTTPS: boolean = JSON.parse('${isDockerMode()}') && IS_PACKAGE_DEBUG_MODE === false;
 let https = PACKAGE_SUPPORT_HTTPS? 'https' : 'http';
 
 // 是否实际使用https - 不在浏览器的时候不管支持不支持都不能用

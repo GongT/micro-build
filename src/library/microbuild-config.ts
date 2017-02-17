@@ -1,7 +1,8 @@
 import {existsSync, lstatSync, mkdirSync} from "fs";
-import {getProjectPath} from "./file-paths";
 import {resolve} from "path";
-import {determineDockerInterfaceIpAddress} from "./determine-docker-interface-ip-address";
+import {RUN_MODE_DOCKER, isDockerMode} from "./common/runenv";
+import {getProjectPath} from "./common/file-paths";
+import {determineDockerInterfaceIpAddress} from "./docker/determine-docker-interface-ip-address";
 
 export interface NpmRegistry {
 	url: string;
@@ -121,7 +122,7 @@ export class MicroBuildConfig {
 		port: 80,
 		volume: {},
 		forwardPort: [],
-		stopCommand: ['echo', 'no stop command.'],
+		stopCommand: [],
 		reloadCommand: [],
 		debugStartCommand: [],
 		domain: '',
@@ -569,8 +570,9 @@ export class MicroBuildConfig {
 		this.registedIgnore.push(path);
 	}
 	
+	/**@deprecated*/
 	isBuilding() {
-		return process.env.MICRO_BUILD_RUN === 'build';
+		return isDockerMode();
 	}
 	
 	private isCallbackTriggerd: boolean;
@@ -578,7 +580,7 @@ export class MicroBuildConfig {
 	runOnConfig() {
 		if (!this.isCallbackTriggerd && this.storage.onConfig) {
 			this.isCallbackTriggerd = true;
-			this.storage.onConfig(this.isBuilding());
+			this.storage.onConfig(isDockerMode());
 		}
 	}
 }

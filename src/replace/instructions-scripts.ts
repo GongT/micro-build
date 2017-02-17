@@ -1,15 +1,10 @@
 import {TemplateVariables} from "./base";
-import {getTempPath, getProjectPath} from "../library/file-paths";
 import {resolve} from "path";
-import {renderTemplate} from "./replace-scripts";
+import {renderTemplateScripts} from "./replace-scripts";
 import {updateResolve, removeCache} from "../build/scripts";
+import {getTempPath, getProjectPath} from "../library/common/file-paths";
 
 export class ScriptVariables extends TemplateVariables {
-	
-	UPDATE_RESOLVE() {
-		return updateResolve(this.config).join('\n');
-	}
-	
 	REMOVE_CACHES() {
 		return removeCache();
 	}
@@ -55,7 +50,7 @@ export class ScriptVariables extends TemplateVariables {
 	}
 	
 	DETECT_CURRENT() {
-		return renderTemplate('admin', 'detect-current.sh', this);
+		return renderTemplateScripts('admin', 'detect-current.sh', this);
 	}
 	
 	ENVIRONMENT_VARS() {
@@ -65,9 +60,9 @@ export class ScriptVariables extends TemplateVariables {
 					if (append === true) {
 						append = '';
 					}
-					return `export ${name}="\${${name}}${append}${this.wrapEnvStrip(value)}"`;
+					return `${name}="\${${name}}${append}${this.wrapEnvStrip(value)}"`;
 				} else {
-					return `export ${name}=${this.wrapEnv(value)}`;
+					return `${name}=${this.wrapEnv(value)}`;
 				}
 			}
 		});
@@ -81,7 +76,7 @@ export class ScriptVariables extends TemplateVariables {
 		if (!this.jsonEnvEnabled) {
 			return '# no json env';
 		}
-		return renderTemplate('plugin', 'json-env.sh', new ScriptVariables(this, {
+		return renderTemplateScripts('plugin', 'json-env.sh', new ScriptVariables(this, {
 			JENV_FILE_NAME() {
 				return resolve(getTempPath(), 'json-env-data.json');
 			}
@@ -119,7 +114,7 @@ export class ScriptVariables extends TemplateVariables {
 	NETWORKING_ENVIRONMENTS_VARS() {
 		return this.walk(this.config.getNetworkConfig(), (v, k) => {
 			if (v) {
-				return 'export ' + k + '=' + JSON.stringify(v);
+				return k + '=' + JSON.stringify(v);
 			}
 		});
 	}
@@ -152,7 +147,7 @@ export class ScriptVariables extends TemplateVariables {
 	
 	BUILD_DEPEND_SERVICE() {
 		return this.walk(this.config.toJSON().serviceDependencies, (gitUrl, containerName) => {
-			return renderTemplate('depend', 'pull-build.sh', new ScriptVariables(this.config, {
+			return renderTemplateScripts('depend', 'pull-build.sh', new ScriptVariables(this.config, {
 				CONTAINER_NAME() {
 					return containerName;
 				},
@@ -169,7 +164,7 @@ export class ScriptVariables extends TemplateVariables {
 	PULL_DEPEND_IMAGES() {
 		return this.walk(this.config.toJSON().containerDependencies, ({imageName, runCommandline}, containerName) => {
 			if (imageName) {
-				return renderTemplate('depend', 'fetch-service.sh', new ScriptVariables(this.config, {
+				return renderTemplateScripts('depend', 'fetch-service.sh', new ScriptVariables(this.config, {
 					CONTAINER_NAME() {
 						return containerName;
 					},
@@ -181,19 +176,9 @@ export class ScriptVariables extends TemplateVariables {
 		});
 	}
 	
-	DEPENDENCY_CHECK_EXTERNAL() {
-		return this.walk(this.config.toJSON().serviceDependencies, (_, containerName) => {
-			return renderTemplate('depend', 'check.sh', new ScriptVariables(this.config, {
-				CONTAINER_NAME() {
-					return containerName;
-				},
-			}));
-		});
-	}
-	
 	START_DEPENDENCY() {
 		return this.walk(this.config.toJSON().containerDependencies, ({imageName, runCommandline}, containerName) => {
-			return renderTemplate('depend', 'start-service.sh', new ScriptVariables(this.config, {
+			return renderTemplateScripts('depend', 'start-service.sh', new ScriptVariables(this.config, {
 				CONTAINER_NAME() {
 					return containerName;
 				},
@@ -211,39 +196,5 @@ export class ScriptVariables extends TemplateVariables {
 				},
 			}));
 		});
-	}
-	
-	DEPEND_SERVICES_UPSTART() {
-		return this.walk(this.config.toJSON().serviceDependencies, (_, serviceName) => {
-			return ' and started ' + serviceName;
-		}, ' ');
-	}
-	
-	DEPEND_SERVICES_SYSTEMD() {
-		return this.walk(this.config.toJSON().serviceDependencies, (_, serviceName) => {
-			return serviceName + '.service';
-		}, ' ');
-	}
-	
-	CONFIG_SYSTEMD() {
-		const ret: string[] = [];
-		
-		const sdWatch = this.config.toJSON().service.watchdog;
-		if (sdWatch) {
-			ret.push(`WatchdogSec=${sdWatch}`);
-		}
-		
-		const sdType = (this.config.toJSON().service.type || 'simple').toLowerCase();
-		ret.push(`Environment=SYSTEMD_TYPE=${sdType}`);
-		if (sdType === 'notify') {
-			ret.push(`NotifyAccess=all`);
-			ret.push(`PrivateNetwork=no`);
-		}
-		
-		return ret.join('\n');
-	}
-	
-	SERVICE_TYPE_SYSTEMD() {
-		return this.config.toJSON().service.type;
 	}
 }

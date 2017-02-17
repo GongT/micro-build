@@ -5,10 +5,10 @@ import {sync as mkdirpSync} from "mkdirp";
 import {initialize} from "./initialize";
 import {CommandDefine} from "../command-library";
 import {MicroBuildConfig} from "../../library/microbuild-config";
-import {getConfigPath, updateCurrentDir, projectPackageJson} from "../../library/file-paths";
-import {readBuildConfig} from "../../build/all";
+import {updateCurrentDir, projectPackageJson, getConfigPath} from "../../library/common/file-paths";
+import {readBuildConfig} from "../../library/read-config";
 import {createDeployScript} from "../../build/deploy-script";
-import {spawnMainCommand} from "../../library/spawn-child";
+import {spawnMainCommand} from "../../library/system/spawn/spawn-child";
 
 export const commandDefine: CommandDefine = {
 	command: 'deploy',

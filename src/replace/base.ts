@@ -1,6 +1,6 @@
 import {readFileSync} from "fs";
-import {injectJsonEnv} from "../library/json-env-cli";
 import {MicroBuildConfig, EPlugins} from "../library/microbuild-config";
+import {injectJsonEnv} from "../library/cli/json-env-cli";
 
 export class TemplateRender {
 	private tpl;
@@ -61,7 +61,7 @@ export abstract class TemplateVariables {
 		return this.config.toJSON().projectName;
 	}
 	
-	protected walk(vars: any, cb: Function, split = '\n') {
+	walk(vars: any, cb: Function, split = '\n') {
 		let list;
 		if (Array.isArray(vars)) {
 			list = vars.map((val, index) => {
@@ -86,11 +86,11 @@ export abstract class TemplateVariables {
 		}
 	}
 	
-	protected wrapEnvStrip(v: any) {
+	wrapEnvStrip(v: any) {
 		return this.wrapEnv(v).replace(/^"|"$/g, '');
 	}
 	
-	protected wrapEnv(v: any) {
+	wrapEnv(v: any) {
 		if (v === false || v === undefined || v === null) {
 			return '';
 		} else if (v === true) {

@@ -23,9 +23,9 @@ export default function scss(config: MicroBuildConfig) {
 		}).join('\nCOPY ');
 	
 	content += '\nRUN ' + ['set -x'].concat(
-			['/npm-install/global-installer node-sass'],
+			['/install/npm/global-installer node-sass'],
 			build,
-			['/npm-install/global-installer uninstall node-sass']
+			['/install/npm/global-installer uninstall node-sass']
 		).join(' && \\\n\t');
 	
 	return content;

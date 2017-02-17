@@ -1,3 +1,5 @@
+#!/bin/sh
+
 if [ -z "${HOST_LOOP_IP}" ]; then
 	if [ -n "${RUN_IN_DOCKER}" ]; then
 		echo "something worng... no HOST_LOOP_IP set." >&2

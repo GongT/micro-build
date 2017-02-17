@@ -1,26 +1,7 @@
 #!/usr/bin/env bash
 
-cleanup() {
-    rv=$?
-    echo "start.sh EXIT WITH ${rv}"
-    trap - INT TERM EXIT
-    exit ${rv}
-}
-
-trap "cleanup" INT TERM EXIT
-
-cd "@{PWD}/.."
-
 source "@{PWD}/functions.sh"
 
-if is_container_running "@{SERVICE_NAME}" ; then
-	echo "service is already started.
-
-stop it with:
-	docker rm -f @{SERVICE_NAME}
-"
-	exit 2
-fi
 if is_container_exists "@{SERVICE_NAME}" ; then
 	source "@{PWD}/stop.sh"
 fi
@@ -28,16 +9,10 @@ fi
 FOREGROUND_DOCKER_PARAMS=()
 BACKGROUND_DOCKER_PARAMS=()
 
-if [ -n "${NOTIFY_SOCKET}" ]; then
-	BACKGROUND_DOCKER_PARAMS+=("-e")
-	BACKGROUND_DOCKER_PARAMS+=("NOTIFY_SOCKET='${NOTIFY_SOCKET}'")
-	BACKGROUND_DOCKER_PARAMS+=("-v")
-	BACKGROUND_DOCKER_PARAMS+=("${NOTIFY_SOCKET}:${NOTIFY_SOCKET}")
-fi
 
 #{DETECT_CURRENT}
-#{START_DEPENDENCY}
-#{DEPENDENCY_CHECK_EXTERNAL}
+
+
 
 #{NETWORKING_ENVIRONMENTS_VARS}
 
@@ -71,20 +46,3 @@ docker run \\
 	${BACKGROUND_RUN_ARGUMENT[@]} \\
 	"$@"
 DOCKER_RUN_COMMAND
-
-docker run \
-	@{DOCKER_ARGS} \
-	${DOCKER_START_ARGS} \
-	@{NETWORKING_ENVIRONMENTS_ARGS} \
-	-i ${t_arg} \
-	-e HAS_RUN=yes \
-	@{EXTERNAL_PORTS} \
-	@{RUN_MOUNT_VOLUMES} \
-	@{DEPEND_LINKS} \
-	--name "@{SERVICE_NAME}" \
-	${FOREGROUND_DOCKER_PARAMS[@]} \
-	${BACKGROUND_DOCKER_PARAMS[@]} \
-	"${START_DOCKER_IMAGE_NAME}" \
-	${FOREGROUND_RUN_ARGUMENT[@]} \
-	${BACKGROUND_RUN_ARGUMENT[@]} \
-	"$@"

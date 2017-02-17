@@ -5,7 +5,7 @@ die () {
 	exit 127
 }
 
-#{UPDATE_RESOLVE}
+update-resolve
 
 export NPM_RC_PATH=$HOME
 mkdir -p "${NPM_RC_PATH}"
@@ -24,7 +24,7 @@ fi
 
 NPM_ARGUMENTS=`echo "${NPM_ARGUMENTS}
 	--registry=${NPM_REGISTRY}
-	--cache=/npm-install/npm-cache
+	--cache=/install/npm/npm-cache
 	--userconfig=${NPM_RC_FILE}
 	--progress true --loglevel error
 	"`

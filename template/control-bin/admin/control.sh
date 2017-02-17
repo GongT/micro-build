@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-#{DETECT_CURRENT}
-
 source "@{PWD}/functions.sh"
+
+source "@{PWD}/control-script.sh"
 
 case "${1}" in
 start)

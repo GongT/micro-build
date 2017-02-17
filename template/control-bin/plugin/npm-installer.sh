@@ -4,11 +4,11 @@
 #{PREPEND_NPM_SCRIPT}
 
 NAME="$1"
-SOURCE_JSON="/npm-install/package-json/${2}"
+SOURCE_JSON="/install/package-json/${2}"
 TARGET="/data/${3}"
 LOG_FILE="${NAME}.log"
 
-cd /npm-install
+cd /install/npm
 
 mkdir -p ${TARGET}node_modules
 
@@ -45,7 +45,7 @@ echo -e "\e[38;5;10m install success... \e[0m" >&2
 unlink package.json
 unlink node_modules
 
-cd /npm-install
+cd /install/npm
 rm -rf .inst
 
 #{REMOVE_CACHES}

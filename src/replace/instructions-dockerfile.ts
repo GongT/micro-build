@@ -1,9 +1,6 @@
-import {PackageJsonFile} from "../library/package-json-file";
 import {npm_install_command, createTempPackageFile} from "./plugin/npm";
-import createGuid from "../library/guid";
 import {TemplateVariables} from "./base";
-import {renderTemplate, renderFile} from "./replace-dockerfile";
-import {tempDirName} from "../library/file-paths";
+import {renderTemplateDockerFile, renderFile} from "./replace-dockerfile";
 import scss from "./plugin/scss";
 import typescript from "./plugin/typescript";
 import {EPlugins} from "../library/microbuild-config";
@@ -13,6 +10,9 @@ import {createJspmInstallScript, jspm_install_command} from "./plugin/jspm";
 import {jspm_bundle, jspm_bundle_after} from "./plugin/jspm-bundle";
 import {updateResolve, removeCache} from "../build/scripts";
 import {npm_publish_after, npm_publish_command} from "./plugin/npm-publish";
+import createGuid from "../library/common/guid";
+import {PackageJsonFile} from "../library/config-file/package-json-file";
+import {getTempPath} from "../library/common/file-paths";
 
 const nextGuid = createGuid();
 
@@ -89,9 +89,9 @@ export class CustomInstructions extends TemplateVariables {
 		if (!this.jsonEnvEnabled) {
 			return '# no json env';
 		}
-		return renderTemplate('json_env.Dockerfile', new CustomInstructions(this, {
+		return renderTemplateDockerFile('json_env.Dockerfile', new CustomInstructions(this, {
 			JENV_FILE_NAME_REL() {
-				return `./${tempDirName}/json-env-data.json`;
+				return `./${getTempPath(true)}/json-env-data.json`;
 			}
 		}));
 	}
@@ -108,8 +108,7 @@ export class CustomInstructions extends TemplateVariables {
 		if (this.config.toJSON().disableCopyFolder) {
 			return '# disabled: COPY . /data';
 		} else {
-			return `RUN mkdir -p /data
-COPY . /data`;
+			return `COPY . /data`;
 		}
 	}
 	
@@ -260,18 +259,15 @@ ${content}`;
 		}
 	}
 	
-	UPDATE_RESOLVE() {
-		return updateResolve(this.config).join('\n');
-	}
-	
 	private npmActived = false;
 	
 	NPM_INSTALL_INSTRUCTIONS() {
 		const npmInstallInstruction = this.config.toJSON().npmInstall.map(({path, systemDepend}) => {
 			const pkg = new PackageJsonFile(path);
-			if (pkg.content.dependencies.hasOwnProperty('typescript-common-library')) {
-				systemDepend = systemDepend.concat(['python', 'make', 'g++']);
-			}
+			/*const dependencies = pkg.content.dependencies || {};
+			 if (dependencies.hasOwnProperty('typescript-common-library')) {
+			 systemDepend = systemDepend.concat(['python', 'make', 'g++']);
+			 }*/
 			
 			const INSTALL_SYSTEM_DEPEND = systemInstall(this.config, systemDepend);
 			const REMOVE_SYSTEM_DEPEND = systemUninstall(this.config, systemDepend);
@@ -285,11 +281,11 @@ ${content}`;
 			const tempFile = createTempPackageFile(pkg.content);
 			
 			const inst = ['set -x'].concat(INSTALL_SYSTEM_DEPEND, [
-				`/npm-install/installer "${name}" "${tempFile}" "${targetPath}"`,
+				`/install/npm/installer "${name}" "${tempFile}" "${targetPath}"`,
 				removeCache(),
 			], REMOVE_SYSTEM_DEPEND);
 			
-			return `COPY .micro-build/package-json/${tempFile} /npm-install/package-json/${tempFile}
+			return `COPY ${getTempPath(true)}/package-json/${tempFile} /install/package-json/${tempFile}
 RUN ${inst.join(' && \\\n\t')}`;
 		});
 		if (npmInstallInstruction.length) {

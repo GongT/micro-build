@@ -1,16 +1,19 @@
 import {mkconfig} from "./mkconfig";
 import {CommandDefine} from "../command-library";
-import {spawnMainCommand} from "../../library/spawn-child";
+import {spawnMainCommand} from "../../library/system/spawn/spawn-child";
+import {switchEnvironment} from "../../library/common/runenv";
 
-export function control(action: string, ...args: string[]) {
-	mkconfig();
+function control(action: string, ...args: string[]) {
+	switchEnvironment('docker');
+	mkconfig(true, false);
 	
 	return spawnMainCommand('control.sh', [action, ...args]);
 }
 
-export function createControlCommand(method: string, desc: string): {handler: Function, config: CommandDefine} {
+function createControlCommand(method: string, desc: string): {handler: Function, config: CommandDefine} {
 	const obj = createServiceCommand(method, desc);
 	obj.config.builder = (parser) => {
+		// TODO local args
 		parser.addParam('...args')
 		      .description(`program ${method} arguments`);
 	};

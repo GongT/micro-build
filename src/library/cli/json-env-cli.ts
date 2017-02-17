@@ -1,7 +1,7 @@
-import {getProjectPath} from "./file-paths";
 import {spawnSync} from "child_process";
 import {resolve} from "path";
 import {selection, input} from "./ask-user";
+import {getProjectPath} from "../common/file-paths";
 
 export function injectJsonEnv() {
 	if (global['JsonEnv']) {

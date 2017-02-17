@@ -21,9 +21,9 @@ BASE_DIR=$4
 
 IS_CONTINUE=$5
 
-INSTALL_ROOT="/npm-install/package-json/${PACKAGE_FOLDER}"
+INSTALL_ROOT="/install/npm/package-json/${PACKAGE_FOLDER}"
 
-#{UPDATE_RESOLVE}
+update-resolve
 
 cd "${TARGET}"
 

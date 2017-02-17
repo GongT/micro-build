@@ -1,7 +1,7 @@
 import {writeFileSync, readFileSync, existsSync} from "fs";
 import {resolve} from "path";
-import {getProjectPath} from "../file-paths";
 import {MicroBuildConfig} from "../microbuild-config";
+import {getProjectPath} from "../common/file-paths";
 
 export class TextFileHelper {
 	private fileContent;

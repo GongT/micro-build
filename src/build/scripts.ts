@@ -1,24 +1,24 @@
 import {MicroBuildConfig} from "../library/microbuild-config";
-import {saveFile} from "./all";
+import {saveFilePublic} from "../library/config-file/fast-save";
 import {ScriptVariables} from "../replace/instructions-scripts";
-import {renderTemplate} from "../replace/replace-scripts";
+import {renderTemplateScripts} from "../replace/replace-scripts";
 
-export function createScripts(config: MicroBuildConfig) {
+export function createContainerScripts(config: MicroBuildConfig) {
 	const extraScript = updateResolve(config).join('\n');
-	saveFile('bin/update-resolve', '#!/bin/sh\n\n' + extraScript, '755');
+	saveFilePublic('bin/update-resolve', extraScript, '755');
 	
 	const replacer = new ScriptVariables(config);
 	
-	let script = renderTemplate('scripts', 'update-alpine.sh', replacer);
-	saveFile('bin/update-alpine', script, '755');
+	let script = renderTemplateScripts('scripts', 'update-alpine.sh', replacer);
+	saveFilePublic('bin/update-alpine', script, '755');
 }
 
 export function updateResolve(config: MicroBuildConfig) {
 	const replacer = new ScriptVariables(config);
 	
-	return renderTemplate('scripts', 'update-resolve.sh', replacer).split(/\n/g);
+	return renderTemplateScripts('scripts', 'update-resolve.sh', replacer).split(/\n/g);
 }
 
 export function removeCache() {
-	return 'rm -rf /tmp/npm-* ~/.npm ~/.node-gyp /npm-install/npm-cache';
+	return 'rm -rf /tmp/npm-* ~/.npm ~/.node-gyp /install/npm/npm-cache';
 }
