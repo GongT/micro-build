@@ -7,7 +7,15 @@ else
 	
 	if is_image_exists "@{IMAGE_NAME}" ; then
 		echo " >>> dependence @{IMAGE_NAME} exists"
+		echo ""
 	else
-		docker pull "@{IMAGE_NAME}"
+		echo " >>> run docker pull @{IMAGE_NAME}"
+		nohup docker pull "@{IMAGE_NAME}" >/dev/null &
+		if [ "${MICRO_BUILD_RUN_MODE}" == 'docker' ]; then
+			exit 101
+		fi
+		echo " >>> docker pull complete: @{IMAGE_NAME}"
+		echo ""
+		sleep 1
 	fi
 fi

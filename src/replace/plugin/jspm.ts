@@ -24,7 +24,7 @@ cat ~/.jspm/config`;
 	});
 	
 	const helperScript = renderTemplateScripts('plugin', 'jspm-install.sh', replacer);
-	saveFile('jspm-install/jspm-install', helperScript, '755');
+	saveFile('jspm-install/install', helperScript, '755');
 	
 	create_helper_script(config);
 	
@@ -81,5 +81,5 @@ function create_helper_script(config: MicroBuildConfig) {
 	const replacer = new ScriptVariables(config);
 	
 	const script = renderTemplateScripts('plugin', 'jspm-bundle.sh', replacer);
-	saveFile('jspm-install/jspm-bundle-helper', script, '755');
+	saveFile('jspm-install/bundle-helper', script, '755');
 }

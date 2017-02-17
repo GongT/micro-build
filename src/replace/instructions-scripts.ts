@@ -1,12 +1,27 @@
 import {TemplateVariables} from "./base";
 import {resolve} from "path";
 import {renderTemplateScripts} from "./replace-scripts";
-import {updateResolve, removeCache} from "../build/scripts";
-import {getTempPath, getProjectPath} from "../library/common/file-paths";
+import {removeCache} from "../build/scripts";
+import {getProjectPath, getGeneratePath} from "../library/common/file-paths";
+import {NetworkConfig, DnsNetworkConfig} from "./parts/env-network";
+import {getEnvironmentName} from "../library/common/runenv";
+import {safeScriptValue, safeEnvStringInValue} from "./parts/wrapper";
 
 export class ScriptVariables extends TemplateVariables {
 	REMOVE_CACHES() {
 		return removeCache();
+	}
+	
+	PROJECT_PATH() {
+		return getProjectPath();
+	}
+	
+	CURRENT_ENV() {
+		return getEnvironmentName();
+	}
+	
+	PWD() {
+		return getGeneratePath();
 	}
 	
 	SHELL_COMMAND() {
@@ -15,6 +30,10 @@ export class ScriptVariables extends TemplateVariables {
 	
 	COMMAND() {
 		return this.scriptArgsWrap(this.config.toJSON().command);
+	}
+	
+	PID_FILE() {
+		return safeScriptValue(resolve(getGeneratePath(), 'service.pid'));
 	}
 	
 	private scriptArgsWrap(arr: string[]) {
@@ -49,8 +68,9 @@ export class ScriptVariables extends TemplateVariables {
 		return this.config.toJSON().domain;
 	}
 	
-	DETECT_CURRENT() {
-		return renderTemplateScripts('admin', 'detect-current.sh', this);
+	DOCKER_IMAGE_TAG_NAME() {
+		const {projectName} = this.config.toJSON();
+		return `${this.config.getDomainBase()}/${projectName}`;
 	}
 	
 	ENVIRONMENT_VARS() {
@@ -78,7 +98,7 @@ export class ScriptVariables extends TemplateVariables {
 		}
 		return renderTemplateScripts('plugin', 'json-env.sh', new ScriptVariables(this, {
 			JENV_FILE_NAME() {
-				return resolve(getTempPath(), 'json-env-data.json');
+				return resolve(getGeneratePath(), 'json-env-data.json');
 			}
 		}));
 	}
@@ -87,28 +107,17 @@ export class ScriptVariables extends TemplateVariables {
 		return this.config.getDomainBase();
 	}
 	
-	PWD() {
-		return getTempPath();
-	}
-	
 	EXTERNAL_PORTS() {
 		return this.walk(this.config.toJSON().forwardPort, ({host, client, method}) => {
 			if (host !== null) {
-				return `--publish ${host}:${client}` + (method? '/' + method : '');
+				const map = `${host}:${client}${(method? '/' + method : '')}`;
+				return `"--publish" ${safeScriptValue(map)}`;
 			}
 		}, ' ');
 	}
 	
 	STOP_COMMAND() {
 		return this.config.toJSON().stopCommand.length? 'yes' : 'no';
-	}
-	
-	DOCKER_ARGS() {
-		let arr = this.config.toJSON().dockerRunArguments;
-		arr = arr.concat(this.config.getNetworkTypeArg());
-		return this.walk(arr, (arg) => {
-			return JSON.stringify(arg);
-		}, ' ');
 	}
 	
 	NETWORKING_ENVIRONMENTS_VARS() {
@@ -120,28 +129,28 @@ export class ScriptVariables extends TemplateVariables {
 	}
 	
 	NETWORKING_ENVIRONMENTS_ARGS() {
-		return this.walk(this.config.getNetworkConfig(), (v, k) => {
-			if (v) {
-				return '-e ' + k + '=' + JSON.stringify(v);
-			}
-		}, ' ');
+		return NetworkConfig(this.config);
+	}
+	
+	DEFINED_IP_ADDRESS() {
+		return this.config.toJSON().networking.hostIp || '';
+	}
+	
+	DEFINED_INTERFACE() {
+		return this.config.toJSON().networking.ifName || 'docker0';
+	}
+	
+	USE_LOCAL_DNS() {
+		return DnsNetworkConfig(this.config);
 	}
 	
 	RUN_MOUNT_VOLUMES() {
 		return this.walk(this.config.toJSON().volume, (hostFolder, mountPoint: string) => {
 			if (hostFolder.path) {
-				return `--volume ${this.wrapEnv(hostFolder.path)}:${this.wrapEnv(mountPoint)}`
+				return `"--volume" "${safeEnvStringInValue(hostFolder.path)}:${safeEnvStringInValue(mountPoint)}"`
 			} else {
-				return `--volume ${this.wrapEnv(mountPoint)}`
+				return `"--volume" "${safeEnvStringInValue(mountPoint)}"`
 			}
-		}, ' ');
-	}
-	
-	DEPEND_LINKS() {
-		const d = this.config.toJSON();
-		const allServiceContainers = [].concat(Object.keys(d.serviceDependencies), Object.keys(d.containerDependencies));
-		return this.walk(allServiceContainers, (containerName) => {
-			return `--link ${containerName}`;
 		}, ' ');
 	}
 	

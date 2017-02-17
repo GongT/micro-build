@@ -1,10 +1,11 @@
 import {CommandDefine} from "../command-library";
 import {update} from "./update";
 import {createDockerBuildFiles} from "../../build/build-scripts";
-import {switchEnvironment} from "../../library/common/runenv";
+import {switchEnvironment, defaultEnvironment} from "../../library/common/runenv";
 import {createDebugScript} from "../../build/debug-script";
-import {createServiceFile} from "../../build/service-supports";
 import {createPlugins} from "../../build/create-plugins";
+import {createPublicFiles} from "../../build/public-gen";
+import {readBuildConfig} from "../../library/read-config";
 
 export const commandDefine: CommandDefine = {
 	command: 'mkconfig',
@@ -13,29 +14,40 @@ export const commandDefine: CommandDefine = {
 		parser.addOption('build')
 		      .notAcceptValue()
 		      .defaultValue(true)
-		      .description('build mode (default).');
+		      .description('make build mode config files.');
 		parser.addOption('debug')
 		      .aliases('d')
 		      .notAcceptValue()
-		      .defaultValue(false)
-		      .description('debug mode.');
+		      .defaultValue(true)
+		      .description('make debug mode config files.');
 	},
 };
 
-export function mkconfig(build: boolean = false, debug: boolean = false) {
-	if (debug) {
-		switchEnvironment('host');
-		update();
+let buildMake = false;
+let debugMake = false;
+export function mkconfig(build: boolean = true, debug: boolean = false) {
+	if (buildMake && debugMake) {
+		return;
+	}
+	console.error('\x1B[38;5;14m+ test config files: \x1B[0m');
+	defaultEnvironment('docker');
+	readBuildConfig();
+	
+	console.error('\x1B[38;5;14m+ update micro-build config files: \x1B[0m');
+	update();
+	
+	console.error('\x1B[38;5;14m+ create files for all: \x1B[0m');
+	createPlugins();
+	createPublicFiles();
+	
+	if (debug && !debugMake) {
+		debugMake = true;
+		console.error('\x1B[38;5;14m+ create files for debug: \x1B[0m');
 		createDebugScript();
 	}
-	if (build) {
-		switchEnvironment('docker');
-		update();
+	if (build && !buildMake) {
+		buildMake = true;
+		console.error('\x1B[38;5;14m+ create files for build: \x1B[0m');
 		createDockerBuildFiles();
-		createServiceFile();
-		/*if(isInstalled()){
-		 reinstall();
-		 }*/
 	}
-	createPlugins();
 }

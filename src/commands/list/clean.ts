@@ -1,6 +1,5 @@
-import {readdirSync, lstatSync, unlinkSync} from "fs";
+import {readdirSync, lstatSync, unlinkSync, rmdirSync} from "fs";
 import {resolve} from "path";
-import {rmdirsSync} from "nodejs-fs-utils";
 import {CommandDefine} from "../command-library";
 import {getGeneratePath} from "../../library/common/file-paths";
 
@@ -10,27 +9,46 @@ export const commandDefine: CommandDefine = {
 };
 
 const protectedFiles = [
-	'.',
-	'..',
-	'check-external-dependencies.sh',
-	'EnvironmentFile.sh',
+	'start-docker.sh',
+	'kill-docker.sh',
+	'functions.sh',
+	'control-script.sh',
+	'run-config-env',
+	'service.pid',
 ];
 
 export function clean() {
-	const t = getGeneratePath();
-	readdirSync(t).forEach((f) => {
-		if (protectedFiles.indexOf(f) !== -1) {
+	clearDirDeep(getGeneratePath());
+	console.error('cleanup complete.');
+}
+
+function clearDirDeep(p) {
+	if (p.indexOf(getGeneratePath()) !== 0) {
+		throw new Error('remove files: walk escape from temp dir.');
+	}
+	
+	let allRemoved = true;
+	readdirSync(p).forEach((f) => {
+		const s = resolve(p, f);
+		if (protectedFiles.find(item => s.indexOf(item) !== -1)) {
+			// console.error('do not remove item: %s', s);
+			allRemoved = false;
 			return;
 		}
-		const p = resolve(t, f);
 		
-		if (lstatSync(p).isDirectory()) {
-			console.log('remove dir: %s', p);
-			rmdirsSync(p);
+		if (lstatSync(s).isDirectory()) {
+			const sub = clearDirDeep(s);
+			allRemoved = allRemoved && sub;
 		} else {
-			console.log('remove file: %s', p);
-			unlinkSync(p);
+			console.error('- %s', s);
+			unlinkSync(s);
 		}
 	});
-	console.log('cleanup complete.');
+	
+	if (allRemoved) {
+		console.error('- %s', p);
+		rmdirSync(p);
+	}
+	
+	return allRemoved;
 }

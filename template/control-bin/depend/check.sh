@@ -1,7 +1,8 @@
 echo "checking service @{CONTAINER_NAME}...."
 
 if is_container_running "@{CONTAINER_NAME}" ; then
-	echo " >>> dependence service @{CONTAINER_NAME} running"
+	echo " >>> depending service @{CONTAINER_NAME} running"
+	echo ""
 else
 	if ! sys_exists "@{CONTAINER_NAME}" ; then
 		echo "Fatal: dependence service @{CONTAINER_NAME} not exists"
@@ -32,5 +33,6 @@ else
 			exit 200
 		fi
 	fi
-	echo "started."
+	echo " >>> depending service @{CONTAINER_NAME} start complete."
+	echo ""
 fi

@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
-set -e
-
+export CURRENT_ENV="@{CURRENT_ENV}"
 source "@{PWD}/functions.sh"
+
+set -e
 
 if ! is_container_running "@{SERVICE_NAME}" ; then
 	echo "container not running."

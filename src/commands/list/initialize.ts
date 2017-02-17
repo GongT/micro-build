@@ -37,7 +37,7 @@ export const commandDefine: CommandDefine = {
 
 export function initialize(this: NormalizedArguments | any, target: string = '.') {
 	const opt = this && this.namedOptions || {};
-	console.log('initialize new project in ', target);
+	console.error('initialize new project in ', target);
 	updateCurrentDir(target, true);
 	
 	let exists = true;
@@ -70,7 +70,7 @@ export function initialize(this: NormalizedArguments | any, target: string = '.'
 		mkdirpSync(getTempPath());
 		
 		const source = resolve(MicroBuildTemplateRoot, 'default-build-config.ts');
-		console.log('copy template build file %s to %s', source, getConfigPath());
+		console.error('copy template build file %s to %s', source, getConfigPath());
 		const content = readFileSync(source, 'utf-8').replace(/your-project-name/g, pkg.name);
 		writeFileSync(getConfigPath(), content, 'utf-8');
 		
@@ -79,7 +79,7 @@ export function initialize(this: NormalizedArguments | any, target: string = '.'
 	
 	const BUILD_MD = projectFile('BUILD.md');
 	if (!existsSync(BUILD_MD)) {
-		console.log('create BUILD.md file');
+		console.error('create BUILD.md file');
 		const readMe = projectFileObject('BUILD.md');
 		
 		const pkgJson = new PackageJsonFile(projectFile('package.json'), true);

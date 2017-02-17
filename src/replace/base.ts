@@ -1,6 +1,7 @@
 import {readFileSync} from "fs";
 import {MicroBuildConfig, EPlugins} from "../library/microbuild-config";
 import {injectJsonEnv} from "../library/cli/json-env-cli";
+import {walkValueKey, safeEnvStringInValue, safeScriptValue} from "./parts/wrapper";
 
 export class TemplateRender {
 	private tpl;
@@ -12,6 +13,9 @@ export class TemplateRender {
 	}
 	
 	render(ins: TemplateVariables) {
+		if (!ins) {
+			throw new Error('no variables instance passed into template.')
+		}
 		return this.tpl.replace(/(^#|@)\{([A-Z_0-9]+)}/gm, (m0, type, name) => {
 			if (!ins.saved[name]) {
 				if (!ins[name]) {
@@ -36,13 +40,13 @@ export class TemplateRender {
 export abstract class TemplateVariables {
 	public readonly config: MicroBuildConfig;
 	protected jsonEnvEnabled = false;
-	public saved: any = {};
+	public readonly saved: any = {};
 	
 	constructor(config: MicroBuildConfig|TemplateVariables, extra: KVP<Function> = {}) {
 		if (config instanceof MicroBuildConfig) {
 			this.config = config;
 		} else if (config instanceof TemplateVariables) {
-			this.saved = config.saved;
+			this.saved = config.saved || {};
 			this.config = config.config;
 		}
 		
@@ -62,43 +66,14 @@ export abstract class TemplateVariables {
 	}
 	
 	walk(vars: any, cb: Function, split = '\n') {
-		let list;
-		if (Array.isArray(vars)) {
-			list = vars.map((val, index) => {
-				return cb(val, index);
-			});
-		} else {
-			list = Object.keys(vars).map((name) => {
-				return cb(vars[name], name);
-			});
-		}
-		list = list.filter((s) => {
-			return s !== undefined && s !== null;
-		});
-		if (list.length) {
-			let ret = list.join(split).trim();
-			if (split === '\n') {
-				ret += split;
-			}
-			return ret;
-		} else {
-			return '';
-		}
+		return walkValueKey(vars, cb, split);
 	}
 	
 	wrapEnvStrip(v: any) {
-		return this.wrapEnv(v).replace(/^"|"$/g, '');
+		return safeEnvStringInValue(v);
 	}
 	
 	wrapEnv(v: any) {
-		if (v === false || v === undefined || v === null) {
-			return '';
-		} else if (v === true) {
-			return 'yes';
-		} else if (typeof v === 'object') {
-			return JSON.stringify(JSON.stringify(v));
-		} else {
-			return JSON.stringify(v);
-		}
+		return safeScriptValue(v);
 	}
 }

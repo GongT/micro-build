@@ -42,14 +42,14 @@ export function spawnRun(docker_env: string, args: string[] = [], otherEnv: {[id
 }
 
 function prevent_parent_process_exit() {
-	console.log('\x1B[38;5;14m[micro-build]\x1B[0m[main] passing SIGINT to child process.');
-	console.log('        press twice to force quit. (may cause unclean shell status)');
+	console.error('\x1B[38;5;14m[micro-build]\x1B[0m[main] passing SIGINT to child process.');
+	console.error('        press twice to force quit. (may cause unclean shell status)');
 	process.removeListener('SIGINT', prevent_parent_process_exit);
 }
 
 function spawnSyncWrap(path: string, args: any[], options: any) {
-	console.log('\x1B[38;5;14m[micro-build]\x1B[0m[spawn] %s "%s"', path, args.join('" "'));
-	console.log('');
+	console.error('\x1B[38;5;14m[micro-build]\x1B[0m[spawn] %s "%s"', path, args.join('" "'));
+	console.error('');
 	
 	process.on('SIGINT', prevent_parent_process_exit);
 	
@@ -61,7 +61,7 @@ function spawnSyncWrap(path: string, args: any[], options: any) {
 		console.error('options: %s', JSON.stringify(options, null, 4));
 	}
 	
-	console.log('\x1B[38;5;14m[micro-build]\x1B[0m[return] %s return: %s', basename(path), ret.status);
+	console.error('\x1B[38;5;14m[micro-build]\x1B[0m[return] %s return: %s', basename(path), ret.status);
 	process.removeListener('SIGINT', prevent_parent_process_exit);
 	
 	return ret;

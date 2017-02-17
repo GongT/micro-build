@@ -6,8 +6,8 @@ import {ScriptVariables} from "../instructions-scripts";
 import {renderTemplateScripts} from "../replace-scripts";
 import {_guid} from "./_guid";
 import {removeCache} from "../../build/scripts";
-import {saveFilePublic} from "../../library/config-file/fast-save";
-import {getGeneratePath} from "../../library/common/file-paths";
+import {saveFile} from "../../library/config-file/fast-save";
+import {getGeneratePath, getTempPath} from "../../library/common/file-paths";
 
 export function getNpmScriptReplacer(config: MicroBuildConfig) {
 	const r = new ScriptVariables(config, {});
@@ -37,7 +37,7 @@ export function npm_install_command(config: MicroBuildConfig) {
 	let npmPrependIns = `# set cache layer env
 ENV NPM_LAYER_ENABLED=${npm.enabled? 'yes' : 'no'} \\
     NPM_REGISTRY=${wrapVal(npm.url)}
-COPY .micro-build/npm-install /install/npm
+COPY ${getTempPath(true)}/npm-install /install/npm
 `;
 	if (npm.enabled) {
 		npmPrependIns += `# private npm
@@ -56,22 +56,22 @@ RUN npm config set registry "${npm.url}"
 	const replacer = getNpmScriptReplacer(config);
 	
 	helperScript = renderTemplateScripts('plugin', 'npm-vars-source.sh', replacer);
-	saveFilePublic('npm-install/npm-vars', helperScript, '644');
+	saveFile('npm-install/npm-vars', helperScript, '644');
 	
 	helperScript = renderTemplateScripts('plugin', 'npm-vars-arg.sh', replacer);
-	saveFilePublic('npm-install/npm', helperScript, '755');
+	saveFile('npm-install/npm', helperScript, '755');
 	
 	helperScript = renderTemplateScripts('plugin', 'npm-installer-prepare-user.sh', replacer);
-	saveFilePublic('npm-install/prepare-user', helperScript, '644');
+	saveFile('npm-install/prepare-user', helperScript, '644');
 	
 	helperScript = renderTemplateScripts('plugin', 'npm-installer.sh', replacer);
-	saveFilePublic('npm-install/installer', helperScript, '755');
+	saveFile('npm-install/installer', helperScript, '755');
 	
 	helperScript = renderTemplateScripts('plugin', 'npm-local-installer.sh', replacer);
-	saveFilePublic('npm-install/npm-install', helperScript, '755');
+	saveFile('npm-install/npm-install', helperScript, '755');
 	
 	helperScript = renderTemplateScripts('plugin', 'npm-global-installer.sh', replacer);
-	saveFilePublic('npm-install/global-installer', helperScript, '755');
+	saveFile('npm-install/global-installer', helperScript, '755');
 	
 	return npmPrependIns;
 }
@@ -96,7 +96,7 @@ export function createTempPackageFile(json: IPackageJson) {
 		repository: 'xxx',
 	};
 	
-	const dir = resolve(getGeneratePath(), 'package-json');
+	const dir = resolve(getTempPath(), 'package-json');
 	if (!existsSync(dir)) {
 		mkdirpSync(dir);
 	}

@@ -15,7 +15,7 @@ export class TextFile extends BaseFile<string[]> {
 	}
 	
 	protected stringify_file(): string {
-		return this._content.join('\n');
+		return this._content.join('\n').trim();
 	}
 	
 	public append(line: string|string[]) {

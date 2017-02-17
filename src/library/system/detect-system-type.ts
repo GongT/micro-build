@@ -1,13 +1,29 @@
-import {lstatSync, readlinkSync, existsSync} from "fs";
+import {spawnSync} from "child_process";
 
+let isSystemd;
 export function isSystemdRunning() {
-	let file = '/proc/1/exec';
-	while (lstatSync(file).isSymbolicLink()) {
-		file = readlinkSync(file);
+	if (isSystemd !== undefined) {
+		return isSystemd;
 	}
-	return /systemd/.test(file);
+	const ret = spawnSync('systemctl', ['status', '--', '-.mount'], {
+		encoding: 'utf8'
+	});
+	
+	isSystemd = !ret.error && ret.stdout.toString().indexOf('active') !== -1;
+	console.error('running systemd: %s', isSystemd);
+	return isSystemd
 }
 
-export function isUpstartExists() {
-	return existsSync('/usr/share/upstart');
+let isUpstart;
+export function isUpstartRunning() {
+	if (isUpstart !== undefined) {
+		return isUpstart;
+	}
+	const ret = spawnSync('/sbin/init', ['--version'], {
+		encoding: 'utf8'
+	});
+	
+	isUpstart = !ret.error && ret.stdout.toString().indexOf('upstart') !== -1;
+	console.error('running upstart: %s', isUpstart);
+	return isUpstart;
 }

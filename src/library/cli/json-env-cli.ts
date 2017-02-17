@@ -8,15 +8,15 @@ export function injectJsonEnv() {
 		return global['JsonEnv'];
 	}
 	if (process.env.JENV_FILE_NAME) {
-		console.log('read json-env from file %s', process.env.JENV_FILE_NAME);
+		console.error('read json-env from file %s', process.env.JENV_FILE_NAME);
 		require('@gongt/jenv-data/global');
 		return global['JsonEnv'];
 	}
 	
 	// console.trace();
-	// console.log();
+	// console.error();
 	
-	console.log('require json env, not configure.');
+	console.error('require json env, not configure.');
 	
 	const ret = spawnSync('jenv', ['--status', '--json'], {
 		cwd: getProjectPath(),
@@ -45,7 +45,7 @@ export function injectJsonEnv() {
 	
 	global['JsonEnv'] = update_cache();
 	
-	console.log('injectJsonEnv() successed...');
+	console.error('injectJsonEnv() successed...');
 	return global['JsonEnv'];
 }
 
@@ -97,7 +97,7 @@ export function update_cache() {
 	if (cache) {
 		return cache;
 	}
-	console.log('update json-env cache.');
+	console.error('update json-env cache.');
 	const ret = spawnSync('jenv', ['--show'], {
 		cwd: getProjectPath(),
 		stdio: ['ignore', 'pipe', 'ignore'],

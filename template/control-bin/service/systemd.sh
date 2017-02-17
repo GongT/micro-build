@@ -39,9 +39,12 @@ function s_restart {
 	systemctl restart "@{SERVICE_NAME}"
 }
 function s_install {
+	set -e
 	echo "installing service @{SERVICE_NAME} to systemd"
 	echo "    file: /usr/lib/systemd/system/@{SERVICE_NAME}.service"
-	cat "@{PWD}/systemd.service" | tee "/usr/lib/systemd/system/@{SERVICE_NAME}.service" >/dev/null
+	echo "   ================"
+	cat "@{PWD}/system-service.service" | tee "/usr/lib/systemd/system/@{SERVICE_NAME}.service"
+	echo "   ================"
 	systemctl daemon-reload
 	s_enable
 }

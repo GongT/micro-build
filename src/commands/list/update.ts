@@ -89,25 +89,25 @@ export function update() {
 	if (exists) {
 		if (isSymbolicLink) {
 			if (readlinkSync(targetDts) !== dtsFilePath) {
-				console.log('link target "%s" invalid, unlinkSync(%s)', readlinkSync(targetDts), targetDts);
+				console.error('link target "%s" invalid, unlinkSync(%s)', readlinkSync(targetDts), targetDts);
 				unlinkSync(targetDts);
-				console.log('link %s -> %s', targetDts, dtsFilePath);
+				console.error('link %s -> %s', targetDts, dtsFilePath);
 				symlinkSync(dtsFilePath, targetDts);
 			}
 		} else {
-			console.log('rmdirsSync(%s)', targetDts);
+			console.error('rmdirsSync(%s)', targetDts);
 			rmdirsSync(targetDts);
-			console.log('link %s -> %s', targetDts, dtsFilePath);
+			console.error('link %s -> %s', targetDts, dtsFilePath);
 			symlinkSync(dtsFilePath, targetDts);
 		}
 	} else {
-		console.log('link %s -> %s', targetDts, dtsFilePath);
+		console.error('link %s -> %s', targetDts, dtsFilePath);
 		symlinkSync(dtsFilePath, targetDts);
 	}
 	
 	const pkgJsonFile = new PackageJsonFile(projectFile('package.json'), true);
 	if (!pkgJsonFile.exists()) {
-		console.log('create package.json file');
+		console.error('create package.json file');
 		const pkgJson = pkgJsonFile.content;
 		if (!pkgJson.name) {
 			pkgJson.name = basename(getProjectPath());
@@ -164,8 +164,10 @@ const dockerIgnores = [
 	'*.Dockerfile',
 	`!${getGeneratePath(true)}/json-env-data.json`,
 	'!.jsonenv/_current_result.json.d.ts',
-	`!${getGeneratePath(true)}/build-install`,
 	`!${getTempPath(true)}/bin`,
+	`!${getTempPath(true)}/jspm-install`,
+	`!${getTempPath(true)}/npm-install`,
+	`!${getTempPath(true)}/package-json`,
 	`!${getTempPath(true)}/plugins`,
 ];
 

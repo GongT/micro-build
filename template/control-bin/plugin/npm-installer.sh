@@ -37,10 +37,10 @@ if [ ${RET} -ne 0 ]; then
 	tail -n 100 npm-debug.log >&2
 	echo "==================== LOG LAST 100 LINES =======================" >&2
 	
-	echo -e "\e[38;5;9m install failed... \e[0m" >&2
+	echo -e "\e[38;5;9minstall failed... \e[0m" >&2
 	exit ${RET}
 fi
-echo -e "\e[38;5;10m install success... \e[0m" >&2
+echo -e "\e[38;5;10minstall success... \e[0m" >&2
 
 unlink package.json
 unlink node_modules

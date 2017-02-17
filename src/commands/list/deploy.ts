@@ -33,7 +33,7 @@ export function deploy(this: any, gitUrl: string, target: string = '/data/servic
 	testAndCreateFolder(target);
 	
 	const TEMP_ROOT = '/tmp/d3c421664a752384c71fe2ad46c67451';
-	console.log('using %s', TEMP_ROOT);
+	console.error('using %s', TEMP_ROOT);
 	updateCurrentDir(TEMP_ROOT, true);
 	if (!existsSync(projectPackageJson())) {
 		mkdirpSync(TEMP_ROOT);

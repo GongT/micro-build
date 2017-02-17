@@ -1,12 +1,13 @@
 import {createContainerScripts} from "./scripts";
-import {MicroBuildConfig, EPlugins} from "../library/microbuild-config";
-import {saveFile, saveJsonFile, saveJsonFilePublic} from "../library/config-file/fast-save";
+import {MicroBuildConfig} from "../library/microbuild-config";
+import {saveFile} from "../library/config-file/fast-save";
 import {renderTemplateScripts} from "../replace/replace-scripts";
 import {renderTemplateDockerFile} from "../replace/replace-dockerfile";
 import {ScriptVariables} from "../replace/instructions-scripts";
 import {CustomInstructions} from "../replace/instructions-dockerfile";
-import {injectJsonEnv} from "../library/cli/json-env-cli";
 import {readBuildConfig} from "../library/read-config";
+import {createEnvironment} from "./public-gen";
+import {switchEnvironment} from "../library/common/runenv";
 
 function createDockerfile(config: MicroBuildConfig) {
 	const dockerfileContent = renderTemplateDockerFile('Dockerfile', new CustomInstructions(config));
@@ -20,7 +21,9 @@ function createBuildScript(builder: MicroBuildConfig) {
 }
 
 export function createDockerBuildFiles(builder: MicroBuildConfig = readBuildConfig()) {
+	switchEnvironment('docker');
 	createDockerfile(builder);
 	createBuildScript(builder);
 	createContainerScripts(builder);
+	createEnvironment(builder);
 }

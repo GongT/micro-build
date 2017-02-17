@@ -50,9 +50,12 @@ function s_restart {
 	service "@{SERVICE_NAME}" restart
 }
 function s_install {
+	set -e
 	echo "installing service @{SERVICE_NAME} to /etc/init"
 	echo "    file: /etc/init/@{SERVICE_NAME}.conf"
-	cat "@{PWD}/upstart.conf" | tee "/etc/init/@{SERVICE_NAME}.conf" >/dev/null
+	echo "   ================"
+	cat "@{PWD}/system-service.conf" | tee "/etc/init/@{SERVICE_NAME}.conf"
+	echo "   ================"
 }
 function s_uninstall {
 	s_enable 2>/dev/null

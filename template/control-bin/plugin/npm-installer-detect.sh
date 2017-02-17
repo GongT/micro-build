@@ -26,7 +26,7 @@ NPM_ARGUMENTS=`echo "${NPM_ARGUMENTS}
 	--registry=${NPM_REGISTRY}
 	--cache=/install/npm/npm-cache
 	--userconfig=${NPM_RC_FILE}
-	--progress true --loglevel error
+	--progress true --loglevel info
 	"`
 
 TYPE=install
@@ -35,6 +35,28 @@ if [ "$1" = "uninstall" ] ; then
 	shift
 fi
 
-NPM_INSTALL=`echo "npm ${TYPE}
+if command -v git 2>&1 >/dev/null ; then
+	wrap_npm () {
+		if [[ -n "${HTTP_PROXY}" ]] ; then
+			git config --system --replace-all http.proxy "${HTTP_PROXY}"
+			git config --system --replace-all https.proxy "${HTTP_PROXY}"
+			cat /etc/gitconfig
+		fi
+		
+		npm "$@"
+		
+		if [[ -n "${HTTP_PROXY}" ]] ; then
+			git config --system --unset-all http.proxy
+			git config --system --unset-all https.proxy
+		fi
+	}
+	
+	NPM_EXEC="wrap_npm"
+else
+	NPM_EXEC="npm"
+fi
+
+
+NPM_INSTALL=`echo "${NPM_EXEC} ${TYPE}
 	${NPM_ARGUMENTS}
 	"`

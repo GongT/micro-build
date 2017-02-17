@@ -6,7 +6,8 @@ let runMode: string = process.env.MICRO_BUILD_RUN_MODE || '';
 defaultEnvironment(RUN_MODE_DOCKER);
 
 export function switchEnvironment(mode: RUN_MODE) {
-	runMode = process.env.MICRO_BUILD_RUN = mode;
+	console.error('set environment = %s', mode);
+	runMode = process.env.MICRO_BUILD_RUN_MODE = mode;
 }
 
 export function defaultEnvironment(mode: RUN_MODE) {
@@ -20,7 +21,7 @@ export function isDockerMode() {
 }
 export function getEnvironmentName() {
 	if (!runMode) {
-		throw new Error('MICRO_BUILD_RUN has not been set.');
+		throw new Error('MICRO_BUILD_RUN_MODE has not been set.');
 	}
 	return runMode;
 }

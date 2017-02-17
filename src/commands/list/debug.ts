@@ -14,11 +14,11 @@ export const commandDefine: CommandDefine = {
 };
 
 export function debug(...args: any[]) {
-	switchEnvironment('host');
-	
 	mkconfig(false, true);
 	
+	switchEnvironment('host');
+	
 	const ret = spawnMainCommand('debug.sh', args);
-	console.log('bye~');
+	console.error('bye~');
 	return ret;
 }

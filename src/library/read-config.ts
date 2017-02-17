@@ -32,16 +32,16 @@ export function readBuildConfig(): MicroBuildConfig {
 	let helper = new MicroBuildHelper(builder);
 	
 	try {
-		console.log('include config file...');
+		console.error('include config file...');
 		run_script(code, filename, {
 			build: builder,
 			helper: helper,
 		});
 	} catch (e) {
 		if (e.message.indexOf('JsonEnv is not defined') !== -1) {
-			console.log('used json env, retry...');
+			console.error('used json env, retry...');
 			const JsonEnv = injectJsonEnv();
-			console.log('create builder...');
+			console.error('create builder...');
 			builder = new MicroBuildConfig();
 			builder.addPlugin(EPlugins.jenv);
 			let helper = new MicroBuildHelper(builder);
@@ -55,7 +55,7 @@ export function readBuildConfig(): MicroBuildConfig {
 		}
 	}
 	
-	console.log('config success!');
+	console.error('config success!');
 	
 	builder.runOnConfig();
 	

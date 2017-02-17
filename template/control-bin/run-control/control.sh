@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 
+export CURRENT_ENV="@{CURRENT_ENV}"
 source "@{PWD}/functions.sh"
-
-source "@{PWD}/control-script.sh"
 
 case "${1}" in
 start)

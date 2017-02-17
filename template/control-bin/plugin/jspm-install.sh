@@ -21,7 +21,7 @@ BASE_DIR=$4
 
 IS_CONTINUE=$5
 
-INSTALL_ROOT="/install/npm/package-json/${PACKAGE_FOLDER}"
+INSTALL_ROOT="/install/package-json/${PACKAGE_FOLDER}"
 
 update-resolve
 
@@ -43,7 +43,6 @@ if [ -n "${NPM_REGISTRY}" ]; then
 	jspm config registries.npm.registry ${NPM_REGISTRY}
 fi
 if [ -n "${HTTP_PROXY}" ]; then
-	git config --system --replace-all global.proxy "${HTTP_PROXY}"
 	git config --system --replace-all http.proxy "${HTTP_PROXY}"
 	git config --system --replace-all https.proxy "${HTTP_PROXY}"
 	cat /etc/gitconfig
@@ -65,7 +64,6 @@ if [ -z "${IS_CONTINUE}" ]; then
 fi
 
 if [ -n "${HTTP_PROXY}" ]; then
-	git config --system --unset-all global.proxy
 	git config --system --unset-all http.proxy
 	git config --system --unset-all https.proxy
 fi

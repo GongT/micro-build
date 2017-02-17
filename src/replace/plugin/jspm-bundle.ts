@@ -5,7 +5,7 @@ import {resolve, dirname} from "path";
 import {existsSync, writeFileSync, readFileSync} from "fs";
 import {_guid} from "./_guid";
 import {sync} from "mkdirp";
-import {getProjectPath, getGeneratePath} from "../../library/common/file-paths";
+import {getProjectPath, getGeneratePath, getTempPath} from "../../library/common/file-paths";
 
 export function jspm_bundle_after(replacer: CustomInstructions) {
 	const config = replacer.config;
@@ -190,7 +190,7 @@ function createJspmBundlePackage(config: MicroBuildConfig, jspm: JspmPackageConf
 		},
 	};
 	
-	const tempDir = resolve(getGeneratePath(), 'package-json', id);
+	const tempDir = resolve(getTempPath(), 'package-json', id);
 	const configFileTempPath = resolve(tempDir, target);
 	if (!existsSync(dirname(configFileTempPath))) {
 		sync(dirname(configFileTempPath));
@@ -198,7 +198,7 @@ function createJspmBundlePackage(config: MicroBuildConfig, jspm: JspmPackageConf
 	writeFileSync(configFileTempPath, readFileSync(source, 'utf-8'));
 	writeFileSync(resolve(tempDir, 'package.json'), JSON.stringify(packageFileContent, null, 8), 'utf-8');
 	
-	copy.push([`${getGeneratePath(true)}/package-json/${id}`, `/install/package-json/${id}`]);
+	copy.push([`${getTempPath(true)}/package-json/${id}`, `/install/package-json/${id}`]);
 	
 	return [`${id}/package.json`, target];
 }

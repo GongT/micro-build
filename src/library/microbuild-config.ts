@@ -1,8 +1,7 @@
 import {existsSync, lstatSync, mkdirSync} from "fs";
 import {resolve} from "path";
-import {RUN_MODE_DOCKER, isDockerMode} from "./common/runenv";
+import {isDockerMode} from "./common/runenv";
 import {getProjectPath} from "./common/file-paths";
-import {determineDockerInterfaceIpAddress} from "./docker/determine-docker-interface-ip-address";
 
 export interface NpmRegistry {
 	url: string;
@@ -528,38 +527,18 @@ export class MicroBuildConfig {
 		return ret;
 	}
 	
-	private normalizeNetworking() {
-		const nw = this.storage.networking;
-		if (!nw.hostIp) {
-			const ip = determineDockerInterfaceIpAddress();
-			nw.hostIp = ip[0];
-			nw.hostIp6 = ip[1];
-			console.log('get host ip-addr= %s ; %s', nw.hostIp, nw.hostIp6);
-		}
-	}
-	
 	getNetworkTypeArg() {
-		this.normalizeNetworking();
-		
 		const nw = this.storage.networking;
 		const ret = [];
 		ret.push(`--net=${nw.bridge? 'bridge' : 'host'}`);
-		ret.push(`--add-host=host-lo:${nw.hostIp}`);
 		return ret;
 	}
 	
 	getNetworkConfig() {
-		this.normalizeNetworking();
-		
 		const nw = this.storage.networking;
 		const ret = {
-			HOST_LOOP_IP: nw.hostIp,
-			HOST_LOOP_IP6: undefined,
 			USE_LOCAL_DNS: this.storage.dnsConfig.onlyLocalCache? 'yes' : '',
 		};
-		if (nw.hostIp6) {
-			// ret.HOST_LOOP_IP6 = nw.hostIp;
-		}
 		return ret;
 	}
 	

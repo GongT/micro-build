@@ -1,26 +1,18 @@
 #!/usr/bin/env bash
 
-set -o allexport
-source "@{PWD}/EnvironmentFile.host.sh"
-set +o allexport
-echo -en "\e]0;${PROJECT_NAME} - MICRO-BUILD: loading ...\007"
-
-cd "@{PWD}/.."
-
+export CURRENT_ENV="@{CURRENT_ENV}"
 source "@{PWD}/functions.sh"
 
-#{DETECT_CURRENT}
 #{START_DEPENDENCY}
 #{BUILD_DEPEND_SERVICE}
 
-
 export CONFIG_FILE="@{PWD}/json-env-data.json"
 
-SHELL=@{SHELL_COMMAND}
-COMMAND=@{DEBUG_COMMAND}
+SHELL='@{SHELL_COMMAND}'
+COMMAND='@{DEBUG_COMMAND}'
 
 echo -e "\e[38;5;14m[micro-build]\e[0m debug: SHELL=${SHELL}"
-echo -e "\e[38;5;14m[micro-build]\e[0m debug: SHELL=${COMMAND}"
+echo -e "\e[38;5;14m[micro-build]\e[0m debug: COMMAND=${COMMAND}"
 
 declare -a BACKGROUND_WORKERS
 BACKGROUND_WORKERS_NAMES=
@@ -88,7 +80,8 @@ if [ -n "${BACKGROUND_PID}" ]; then
 	WAIT_COMPILE='-C'
 fi
 
-echo "[microbuild] run script:"
+echo -e "\e[38;5;14m[micro-build]\e[0m run script:"
+echo "PWD=$(pwd)"
 if [ "${WATCH}" == "no" ]; then
 	echo "${SHELL} ${COMMAND} ${@}"
 	echo " ::: start :::"
@@ -96,10 +89,10 @@ if [ "${WATCH}" == "no" ]; then
 	RET=$?
 else
 	echo "@{NODEMON_BIN} \\
-		${WAIT_COMPILE} -d 2 --config \"@{PWD}/nodemon.json\" -x \"${SHELL}\" -- \\
+		${WAIT_COMPILE} -d 2 --config \"${TEMP_ENV}/nodemon.json\" -x \"${SHELL}\" -- \\
 		${COMMAND}"
-#{NODEMON_BIN} \
-		${WAIT_COMPILE} -d 2 --config "@{PWD}/nodemon.json" -x "${SHELL}" -- \
+"@{NODEMON_BIN}" \
+		${WAIT_COMPILE} -d 2 --config "${TEMP_ENV}/nodemon.json" -x "${SHELL}" -- \
 		${COMMAND} "${DEBUG_RUN_ARGUMENTS[@]}" "${@}"
 	RET=$?
 fi

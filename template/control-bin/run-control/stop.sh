@@ -1,10 +1,7 @@
 #!/usr/bin/env bash
 
-cd "@{PWD}/.."
-
+export CURRENT_ENV=docker
 source "@{PWD}/functions.sh"
-
-STOP_COMMAND="@{STOP_COMMAND}"
 
 if is_container_running "@{SERVICE_NAME}" ; then
 	echo "stop: try to stop running service"

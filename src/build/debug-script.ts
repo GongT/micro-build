@@ -8,8 +8,13 @@ import {saveFile, saveJsonFile, saveJsonFilePublic} from "../library/config-file
 import {getProjectPath, MicroBuildRoot} from "../library/common/file-paths";
 import {injectJsonEnv} from "../library/cli/json-env-cli";
 import extend = require("extend");
+import {switchEnvironment} from "../library/common/runenv";
+import {createEnvironment} from "./public-gen";
 
 export function createDebugScript(config: MicroBuildConfig = readBuildConfig()) {
+	switchEnvironment('host');
+	createEnvironment(config);
+	
 	let adminScript;
 	adminScript = renderTemplateScripts('run-control', 'debug.sh', new ScriptVariablesPlugins(config));
 	saveFile('debug.sh', adminScript, '755');

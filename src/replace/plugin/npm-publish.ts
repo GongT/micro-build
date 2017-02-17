@@ -5,14 +5,14 @@ import {getNpmScriptReplacer} from "./npm";
 import {existsSync} from "fs";
 import {resolve} from "path";
 import {saveFile} from "../../library/config-file/fast-save";
-import {getProjectPath} from "../../library/common/file-paths";
+import {getProjectPath, getTempPath} from "../../library/common/file-paths";
 
 export function npm_publish_command(config: MicroBuildConfig) {
 	const replacer = getNpmScriptReplacer(config);
 	const helperScript = renderTemplateScripts('plugin', 'npm-publish-private-package.sh', replacer);
 	saveFile('plugins/npm-publish-private', helperScript, '755');
 	
-	return `COPY .micro-build/plugins/npm-publish-private /install/npm/npm-publish-private
+	return `COPY ${getTempPath(true)}/plugins/npm-publish-private /install/npm/npm-publish-private
 `;
 }
 

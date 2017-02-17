@@ -8,11 +8,11 @@ import {systemInstall, systemUninstall} from "./plugin/system-install";
 import {parse} from "url";
 import {createJspmInstallScript, jspm_install_command} from "./plugin/jspm";
 import {jspm_bundle, jspm_bundle_after} from "./plugin/jspm-bundle";
-import {updateResolve, removeCache} from "../build/scripts";
+import {removeCache} from "../build/scripts";
 import {npm_publish_after, npm_publish_command} from "./plugin/npm-publish";
 import createGuid from "../library/common/guid";
 import {PackageJsonFile} from "../library/config-file/package-json-file";
-import {getTempPath} from "../library/common/file-paths";
+import {getTempPath, getGeneratePath} from "../library/common/file-paths";
 
 const nextGuid = createGuid();
 
@@ -48,10 +48,8 @@ export class CustomInstructions extends TemplateVariables {
 		}, ' ');
 		
 		ret = ret.trim();
-		const sdType = (this.config.toJSON().service.type || 'simple').toLowerCase();
-		ret += ` SYSTEMD_TYPE=${this.safeEnv(sdType)}`;
 		
-		return `ENV ${ret} `;
+		return ret? `ENV ${ret} ` : '# no env';
 	}
 	
 	CHINA_ENVIRONMENTS() {
@@ -91,16 +89,16 @@ export class CustomInstructions extends TemplateVariables {
 		}
 		return renderTemplateDockerFile('json_env.Dockerfile', new CustomInstructions(this, {
 			JENV_FILE_NAME_REL() {
-				return `./${getTempPath(true)}/json-env-data.json`;
+				return `./${getGeneratePath(true)}/json-env-data.json`;
 			}
 		}));
 	}
 	
 	COPY_BIN_FILES() {
 		if (this.config.toJSON().disableBinfiles) {
-			return '# disabled: COPY .micro-build/bin/* /usr/local/bin/';
+			return '# disabled: COPY ${getTempPath(true)}/bin/* /usr/local/bin/';
 		} else {
-			return `COPY .micro-build/bin/* /usr/local/bin/`
+			return `COPY ${getTempPath(true)}/bin/* /usr/local/bin/`
 		}
 	}
 	
