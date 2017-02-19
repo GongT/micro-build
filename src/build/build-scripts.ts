@@ -6,7 +6,6 @@ import {renderTemplateDockerFile} from "../replace/replace-dockerfile";
 import {ScriptVariables} from "../replace/instructions-scripts";
 import {CustomInstructions} from "../replace/instructions-dockerfile";
 import {readBuildConfig} from "../library/read-config";
-import {createEnvironment} from "./public-gen";
 import {switchEnvironment} from "../library/common/runenv";
 
 function createDockerfile(config: MicroBuildConfig) {
@@ -25,5 +24,4 @@ export function createDockerBuildFiles(builder: MicroBuildConfig = readBuildConf
 	createDockerfile(builder);
 	createBuildScript(builder);
 	createContainerScripts(builder);
-	createEnvironment(builder);
 }

@@ -34,7 +34,13 @@ export class CustomInstructions extends TemplateVariables {
 	}
 	
 	ENVIRONMENT_VARS() {
-		let ret = this.walk(this.config.toJSON().environments, ({name, value, insideOnly, append}) => {
+		const envs = this.config.toJSON().environments.concat({
+			insideOnly: false,
+			name: 'PROJECT_NAME',
+			value: this.config.toJSON().projectName,
+			append: false,
+		});
+		let ret = this.walk(envs, ({name, value, insideOnly, append}) => {
 			if (insideOnly !== false) {
 				if (append) {
 					if (append === true) {

@@ -2,6 +2,7 @@ import {mkconfig} from "./mkconfig";
 import {CommandDefine} from "../command-library";
 import {spawnMainCommand} from "../../library/system/spawn/spawn-child";
 import {switchEnvironment} from "../../library/common/runenv";
+import {createServiceConfig} from "../../build/service-files";
 
 export const commandDefine: CommandDefine = {
 	command: 'debug',
@@ -17,6 +18,7 @@ export function debug(...args: any[]) {
 	mkconfig(false, true);
 	
 	switchEnvironment('host');
+	createServiceConfig();
 	
 	const ret = spawnMainCommand('debug.sh', args);
 	console.error('bye~');

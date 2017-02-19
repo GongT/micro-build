@@ -3,9 +3,8 @@ import {resolve} from "path";
 import {renderTemplateScripts} from "./replace-scripts";
 import {removeCache} from "../build/scripts";
 import {getProjectPath, getGeneratePath} from "../library/common/file-paths";
-import {NetworkConfig, DnsNetworkConfig} from "./parts/env-network";
 import {getEnvironmentName} from "../library/common/runenv";
-import {safeScriptValue, safeEnvStringInValue} from "./parts/wrapper";
+import {createDockerRunArgument, createDockerClientArgument} from "../library/docker/create-arguments";
 
 export class ScriptVariables extends TemplateVariables {
 	REMOVE_CACHES() {
@@ -30,10 +29,6 @@ export class ScriptVariables extends TemplateVariables {
 	
 	COMMAND() {
 		return this.scriptArgsWrap(this.config.toJSON().command);
-	}
-	
-	PID_FILE() {
-		return safeScriptValue(resolve(getGeneratePath(), 'service.pid'));
 	}
 	
 	private scriptArgsWrap(arr: string[]) {
@@ -74,15 +69,21 @@ export class ScriptVariables extends TemplateVariables {
 	}
 	
 	ENVIRONMENT_VARS() {
-		return this.walk(this.config.toJSON().environments, ({name, value, insideOnly, append}) => {
+		const envs = this.config.toJSON().environments.concat({
+			insideOnly: false,
+			name: 'PROJECT_NAME',
+			value: this.config.toJSON().projectName,
+			append: false,
+		});
+		return this.walk(envs, ({name, value, insideOnly, append}) => {
 			if (insideOnly !== true) {
 				if (append) {
 					if (append === true) {
 						append = '';
 					}
-					return `${name}="\${${name}}${append}${this.wrapEnvStrip(value)}"`;
+					return `export ${name}="\${${name}}${append}${this.wrapEnvStrip(value)}"`;
 				} else {
-					return `${name}=${this.wrapEnv(value)}`;
+					return `export ${name}=${this.wrapEnv(value)}`;
 				}
 			}
 		});
@@ -107,51 +108,8 @@ export class ScriptVariables extends TemplateVariables {
 		return this.config.getDomainBase();
 	}
 	
-	EXTERNAL_PORTS() {
-		return this.walk(this.config.toJSON().forwardPort, ({host, client, method}) => {
-			if (host !== null) {
-				const map = `${host}:${client}${(method? '/' + method : '')}`;
-				return `"--publish" ${safeScriptValue(map)}`;
-			}
-		}, ' ');
-	}
-	
 	STOP_COMMAND() {
 		return this.config.toJSON().stopCommand.length? 'yes' : 'no';
-	}
-	
-	NETWORKING_ENVIRONMENTS_VARS() {
-		return this.walk(this.config.getNetworkConfig(), (v, k) => {
-			if (v) {
-				return k + '=' + JSON.stringify(v);
-			}
-		});
-	}
-	
-	NETWORKING_ENVIRONMENTS_ARGS() {
-		return NetworkConfig(this.config);
-	}
-	
-	DEFINED_IP_ADDRESS() {
-		return this.config.toJSON().networking.hostIp || '';
-	}
-	
-	DEFINED_INTERFACE() {
-		return this.config.toJSON().networking.ifName || 'docker0';
-	}
-	
-	USE_LOCAL_DNS() {
-		return DnsNetworkConfig(this.config);
-	}
-	
-	RUN_MOUNT_VOLUMES() {
-		return this.walk(this.config.toJSON().volume, (hostFolder, mountPoint: string) => {
-			if (hostFolder.path) {
-				return `"--volume" "${safeEnvStringInValue(hostFolder.path)}:${safeEnvStringInValue(mountPoint)}"`
-			} else {
-				return `"--volume" "${safeEnvStringInValue(mountPoint)}"`
-			}
-		}, ' ');
 	}
 	
 	BUILD_DEPEND_SERVICE() {
@@ -205,5 +163,21 @@ export class ScriptVariables extends TemplateVariables {
 				},
 			}));
 		});
+	}
+	
+	DOCKER_RUN_ARGUMENTS() {
+		return createDockerRunArgument(this.config).join('\\\n\t');
+	}
+	
+	DOCKER_CLIENT() {
+		return createDockerClientArgument(this.config);
+	}
+	
+	DEFINED_IP_ADDRESS() {
+		return this.config.toJSON().networking.hostIp || '';
+	}
+	
+	DEFINED_INTERFACE() {
+		return this.config.toJSON().networking.ifName || 'docker0';
 	}
 }

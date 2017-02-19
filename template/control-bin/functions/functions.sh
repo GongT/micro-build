@@ -45,9 +45,13 @@ function remove_container {
 }
 
 function require_loop_ip() {
+	IP="@{DEFINED_IP_ADDRESS}"
+	if [ -n "${IP}" ]; then
+		echo $IP
+		return 0
+	fi
 	echo "detecting server ip." > /dev/stderr
 	IP=$(ifconfig "@{DEFINED_INTERFACE}" | grep 'inet ' | head -1 | awk '{ print $2 }')
-	IP=${IP-"@{DEFINED_IP_ADDRESS}"}
 	echo "    IP=${IP}" > /dev/stderr
 	if [ -z "${IP}" ]; then
 		echo "Fatal Error: can't detect host ip address." > /dev/stderr
@@ -57,13 +61,5 @@ function require_loop_ip() {
 }
 
 export HOST_LOOP_IP=$(require_loop_ip)
-
-set -o allexport
-if [ "${TEMP_DIR_NAME}" == "docker" ]; then
-	source "${TEMP_ROOT}/run-config-env" || die "no environment file."
-else
-	source "${TEMP_ENV}/EnvironmentFile.sh" || die "no environment file."
-fi
-set +o allexport
 
 source "${TEMP_ROOT}/control-script.sh"

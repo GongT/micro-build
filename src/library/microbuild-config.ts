@@ -527,13 +527,6 @@ export class MicroBuildConfig {
 		return ret;
 	}
 	
-	getNetworkTypeArg() {
-		const nw = this.storage.networking;
-		const ret = [];
-		ret.push(`--net=${nw.bridge? 'bridge' : 'host'}`);
-		return ret;
-	}
-	
 	getNetworkConfig() {
 		const nw = this.storage.networking;
 		const ret = {

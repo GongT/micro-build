@@ -1,11 +1,12 @@
 import {CommandDefine} from "../command-library";
 import {update} from "./update";
 import {createDockerBuildFiles} from "../../build/build-scripts";
-import {switchEnvironment, defaultEnvironment} from "../../library/common/runenv";
+import {defaultEnvironment} from "../../library/common/runenv";
 import {createDebugScript} from "../../build/debug-script";
 import {createPlugins} from "../../build/create-plugins";
 import {createPublicFiles} from "../../build/public-gen";
 import {readBuildConfig} from "../../library/read-config";
+import {createServiceControl} from "../../build/service-files";
 
 export const commandDefine: CommandDefine = {
 	command: 'mkconfig',
@@ -37,8 +38,8 @@ export function mkconfig(build: boolean = true, debug: boolean = false) {
 	update();
 	
 	console.error('\x1B[38;5;14m+ create files for all: \x1B[0m');
-	createPlugins();
 	createPublicFiles();
+	createServiceControl();
 	
 	if (debug && !debugMake) {
 		debugMake = true;
@@ -48,6 +49,7 @@ export function mkconfig(build: boolean = true, debug: boolean = false) {
 	if (build && !buildMake) {
 		buildMake = true;
 		console.error('\x1B[38;5;14m+ create files for build: \x1B[0m');
+		createPlugins();
 		createDockerBuildFiles();
 	}
 }

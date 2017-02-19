@@ -73,6 +73,7 @@ jenv --hint &> /dev/null
 DEBUG_RUN_ARGUMENTS=
 
 #{DEBUG_LISTEN_PORT}
+#{ENVIRONMENT_VARS}
 
 # [ -n "${BACKGROUND_PID}" ] && sleep $(( ${#BACKGROUND_WORKERS[@]} * 2 ))
 

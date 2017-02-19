@@ -50,17 +50,4 @@ export class UnitFileVariables extends ScriptVariables {
 		const reload = this.config.toJSON().reloadCommand;
 		return reload? reload : '';
 	}
-	
-	EXTRA_DOCKER_ARGUMENTS() {
-		return this.walk(this.config.toJSON().dockerRunArguments, (arg) => {
-			return JSON.stringify(arg);
-		}, ' ');
-	}
-	
-	SYSTEMD_DOCKER_RUNNER() {
-		const sdType = (this.config.toJSON().service.type || 'simple').toLowerCase();
-		const NOTIFY_ARG = sdType === 'notify'? '--notify' : '';
-		
-		return `systemd-docker '${NOTIFY_ARG}' '--cgroups' 'name=systemd' --pid-file=${this.PID_FILE()}`
-	}
 }

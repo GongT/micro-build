@@ -7,6 +7,8 @@ import {isSystemdRunning, isUpstartRunning} from "../library/system/detect-syste
 import {readBuildConfig} from "../library/read-config";
 
 export function createServiceConfig(config: MicroBuildConfig = readBuildConfig()) {
+	let adminScript;
+	
 	if (isSystemdRunning()) {
 		const systemdFile = renderTemplateScripts('service', 'systemd.service', new UnitFileVariables(config));
 		saveFilePublic('system-service.service', systemdFile);
@@ -14,16 +16,16 @@ export function createServiceConfig(config: MicroBuildConfig = readBuildConfig()
 		const upstartFile = renderTemplateScripts('service', 'upstart.conf', new UnitFileVariables(config));
 		saveFilePublic('system-service.conf', upstartFile);
 	}
+}
+
+export function createServiceControl(config: MicroBuildConfig = readBuildConfig()) {
+	let adminScript;
 	
 	const replacer = new ScriptVariables(config, {});
-	let adminScript = renderTemplateScripts('run-control', 'start.sh', replacer);
+	adminScript = renderTemplateScripts('run-control', 'start.sh', replacer);
 	saveFilePublic('start-docker.sh', adminScript, '0755');
 	adminScript = renderTemplateScripts('run-control', 'stop.sh', replacer);
 	saveFilePublic('kill-docker.sh', adminScript, '0755');
-}
-export function createServiceControl(config: MicroBuildConfig) {
-	let adminScript;
-	const replacer = new ScriptVariables(config);
 	
 	adminScript = renderTemplateScripts('run-control', 'run-script.sh', replacer);
 	saveFile('run-script.sh', adminScript, '0755');
