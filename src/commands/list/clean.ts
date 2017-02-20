@@ -1,4 +1,4 @@
-import {readdirSync, lstatSync, unlinkSync, rmdirSync} from "fs";
+import {readdirSync, existsSync, lstatSync, unlinkSync, rmdirSync} from "fs";
 import {resolve} from "path";
 import {CommandDefine} from "../command-library";
 import {getGeneratePath} from "../../library/common/file-paths";
@@ -18,7 +18,10 @@ const protectedFiles = [
 ];
 
 export function clean() {
-	clearDirDeep(getGeneratePath());
+	const root = getGeneratePath();
+	if (existsSync(root)) {
+		clearDirDeep(root);
+	}
 	console.error('cleanup complete.');
 }
 

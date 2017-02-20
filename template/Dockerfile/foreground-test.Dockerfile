@@ -3,8 +3,7 @@
 ENV BUILDING=yes \
 	PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/data/scripts:/sbin:/bin:/data/node_modules/.bin:./node_modules/.bin \
 	RUN_IN_DOCKER=yes \
-	@{CHINA_ENVIRONMENTS} \
-	@{NETWORKING_ENVIRONMENTS}
+	@{CHINA_ENVIRONMENTS}
 
 ENTRYPOINT [@{SHELL}]
 CMD [@{COMMAND}]

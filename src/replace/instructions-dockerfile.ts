@@ -83,10 +83,8 @@ export class CustomInstructions extends TemplateVariables {
 		}
 	}
 	
-	NETWORKING_ENVIRONMENTS() {
-		return this.walk(this.config.getNetworkConfig(), (v, k) => {
-			return `${k}=${this.safeEnv(this.wrapEnvStrip(v))}`;
-		}, ' \\ \n');
+	USE_LOCAL_DNS() {
+		const st = this.config.toJSON().dnsConfig.onlyLocalCache? 'yes' : '';
 	}
 	
 	JSON_ENV_PASS() {

@@ -56,7 +56,7 @@ export class ScriptVariables extends TemplateVariables {
 	}
 	
 	SERVICE_NAME() {
-		return this.config.toJSON().projectName;
+		return this.config.getContainerName();
 	}
 	
 	DOMAIN_NAME() {
@@ -64,8 +64,7 @@ export class ScriptVariables extends TemplateVariables {
 	}
 	
 	DOCKER_IMAGE_TAG_NAME() {
-		const {projectName} = this.config.toJSON();
-		return `${this.config.getDomainBase()}/${projectName}`;
+		return this.config.getImageTagName();
 	}
 	
 	ENVIRONMENT_VARS() {
@@ -166,11 +165,19 @@ export class ScriptVariables extends TemplateVariables {
 	}
 	
 	DOCKER_RUN_ARGUMENTS() {
-		return createDockerRunArgument(this.config).join('\\\n\t');
+		return createDockerRunArgument(this.config).join(' \\\n\t');
+	}
+	
+	DOCKER_RUN_ARGUMENTS_HINT_STRING() {
+		return createDockerRunArgument(this.config).join(' \\\\\n\t');
 	}
 	
 	DOCKER_CLIENT() {
-		return createDockerClientArgument(this.config);
+		return createDockerClientArgument(this.config).join(' \\\n\t');
+	}
+	
+	DOCKER_CLIENT_HINT() {
+		return createDockerClientArgument(this.config).join(' \\\\\n\t');
 	}
 	
 	DEFINED_IP_ADDRESS() {

@@ -13,7 +13,7 @@ start)
 			s_stop
 		fi
 	fi
-	if [ -t 0 ] ; then
+	if [ -t 0 -a -t 1 ] ; then
 		trap '[ -n "$(jobs -p)" ] && kill $(jobs -p) ; echo ""' EXIT
 		
 		journalctl  -o cat -fu "@{SERVICE_NAME}" &
@@ -54,8 +54,10 @@ service started, but we can't know if there is any async fail.
   \x1B[38;5;14mcheck service status with\x1B[0m:
         systemctl status '@{SERVICE_NAME}'
 "
+		exit 0
 	else
 		s_start
+		exit $?
 	fi
 	;;
 stop)
@@ -86,3 +88,9 @@ uninstall)
    $0 <start|stop|restart|status>"
 	exit 1
 esac
+
+RET=$?
+if [ -t 0 -a -t 1 ] ; then
+	s_status
+fi
+exit ${RET}

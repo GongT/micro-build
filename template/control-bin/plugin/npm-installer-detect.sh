@@ -26,7 +26,7 @@ NPM_ARGUMENTS=`echo "${NPM_ARGUMENTS}
 	--registry=${NPM_REGISTRY}
 	--cache=/install/npm/npm-cache
 	--userconfig=${NPM_RC_FILE}
-	--progress true --loglevel info
+	--progress true --loglevel warn
 	"`
 
 TYPE=install
@@ -44,11 +44,14 @@ if command -v git 2>&1 >/dev/null ; then
 		fi
 		
 		npm "$@"
+		RET=$?
 		
 		if [[ -n "${HTTP_PROXY}" ]] ; then
 			git config --system --unset-all http.proxy
 			git config --system --unset-all https.proxy
 		fi
+		
+		exit ${RET}
 	}
 	
 	NPM_EXEC="wrap_npm"

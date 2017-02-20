@@ -1,6 +1,8 @@
 #!/bin/sh
 # name jsonPath target
 
+set -x
+
 #{PREPEND_NPM_SCRIPT}
 
 echo "PWD=`pwd` ${NPM_INSTALL} --color=true --progress=true -g $@"

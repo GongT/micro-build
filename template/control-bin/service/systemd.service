@@ -1,6 +1,6 @@
 [Unit]
 Description=@{DOMAIN_NAME} server instance
-Requires=docker.service microbuild-get-loop-ip-address @{DEPEND_SERVICES_SYSTEMD}
+Requires=docker.service @{DEPEND_SERVICES_SYSTEMD}
 After=docker.service @{DEPEND_SERVICES_SYSTEMD}
 PartOf=docker.service @{DEPEND_SERVICES_SYSTEMD}
 
@@ -17,11 +17,11 @@ RestartPreventExitStatus=130
 TimeoutStartSec=10s
 TimeoutStopSec=5s
 StartLimitInterval=60s
-StartLimitBurst=3
+StartLimitBurst=2
 
 WorkingDirectory=@{PWD}
 
-ExecStartPre=-/usr/bin/env docker rm -f "@{SERVICE_NAME}"
+ExecStartPre=-/usr/bin/env sh -c 'docker rm -f "@{SERVICE_NAME}" ; true'
 # ExecStart=@{PWD}/check-external-dependencies.sh
 ExecStart=@{PWD}/start-docker.sh
 
@@ -29,7 +29,7 @@ ExecStart=@{PWD}/start-docker.sh
 # ExecStartPost=-start-deps?
 
 ExecStop=@{PWD}/kill-docker.sh
-ExecStopPost=-/usr/bin/env docker rm -f "@{SERVICE_NAME}"
+ExecStopPost=-/usr/bin/env sh -c 'docker rm -f "@{SERVICE_NAME}" ; true'
 
 # OnFailure=report-xxxx.service "%N"
 

@@ -14,16 +14,17 @@ export class UnitFileVariables extends ScriptVariables {
 	}
 	
 	CONFIG_SYSTEMD() {
+		const service = this.config.toJSON().service;
 		const ret: string[] = [];
-		const type = this.config.toJSON().service.type;
+		const type = service.type;
 		ret.push(`Type=${type}`);
 		
-		const sdWatch = this.config.toJSON().service.watchdog;
+		const sdWatch = service.watchdog;
 		if (sdWatch) {
-			ret.push(`WatchdogSec=${sdWatch}s`);
+			ret.push(`WatchdogSec=${sdWatch}`);
 		}
 		
-		const sdType = (this.config.toJSON().service.type || 'simple').toLowerCase();
+		const sdType = (service.type || 'simple').toLowerCase();
 		ret.push(`Environment=SYSTEMD_TYPE=${sdType}`);
 		if (sdType === 'notify') {
 			ret.push(`NotifyAccess=all`);

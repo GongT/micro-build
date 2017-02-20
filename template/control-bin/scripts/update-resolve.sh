@@ -9,7 +9,7 @@ if [ -z "${HOST_LOOP_IP}" ]; then
 else
 	echo "npm layer enabled, rewrite /etc/resolv.conf"
 	
-	if [ -n "${USE_LOCAL_DNS}" ]; then
+	if [ "yes" == "${USE_LOCAL_DNS}" ]; then
 		echo "nameserver ${HOST_LOOP_IP}" >/etc/resolv.conf
 	else
 		cp /etc/resolv.conf /tmp/xxxxxresolve.conf

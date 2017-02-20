@@ -1,6 +1,6 @@
 import {MicroBuildConfig} from "../microbuild-config";
 import {isSystemdRunning} from "../system/detect-system-type";
-import {safeScriptValue, safeEnvStringInValue, walkValueKey} from "../../replace/parts/wrapper";
+import {walkValueKey, safeScriptValue} from "../../replace/parts/wrapper";
 import {getGeneratePath} from "../common/file-paths";
 import {resolve} from "path";
 
@@ -10,21 +10,18 @@ export function createDockerRunArgument(config: MicroBuildConfig) {
 	
 	walkValueKey(storage.volume, (hostFolder, mountPoint: string) => {
 		if (hostFolder.path) {
-			ret.push(`"--volume" "${safeEnvStringInValue(hostFolder.path)}:${safeEnvStringInValue(mountPoint)}"`);
+			ret.push(`--volume=${hostFolder.path}:${mountPoint}`);
 		} else {
-			ret.push(`"--volume" "${safeEnvStringInValue(mountPoint)}"`);
+			ret.push(`--volume=${mountPoint}`);
 		}
 	});
 	
 	if (storage.dnsConfig.onlyLocalCache) {
 		ret.push('--dns=${HOST_LOOP_IP}');
+	} else {
+		ret.push('--dns=${HOST_LOOP_IP}');
+		
 	}
-	
-	walkValueKey(config.getNetworkConfig(), (v, k) => {
-		if (v) {
-			ret.push(`-env=${k}=${v}`);
-		}
-	});
 	
 	ret.push(`--net=${storage.networking.bridge? 'bridge' : 'host'}`);
 	
@@ -35,23 +32,37 @@ export function createDockerRunArgument(config: MicroBuildConfig) {
 	walkValueKey(storage.forwardPort, ({host, client, method}) => {
 		if (host !== null) {
 			const map = `${host}:${client}${(method? '/' + method : '')}`;
-			ret.push(`"--publish" ${safeScriptValue(map)}`);
+			ret.push(`--publish=${map}`);
 		}
-	}, ' ');
+	});
 	
-	return ret;
+	if(storage.service.type === 'notify'){
+		ret.push('--env=WATCHDOG_USEC=${WATCHDOG_USEC}');
+		ret.push('--env=WATCHDOG_PID=${WATCHDOG_PID}');
+	}
+	
+	ret.push(`--name=${config.getContainerName()}`);
+	ret.push(config.getImageTagName());
+	
+	return ret.map(safeScriptValue);
 }
 
 export function createDockerClientArgument(config: MicroBuildConfig) {
 	const storage = config.toJSON();
 	
 	if (isSystemdRunning()) {
-		const pid = safeScriptValue(resolve(getGeneratePath(), 'service.pid'));
+		const pid = resolve(getGeneratePath(), 'service.pid');
 		const sdType = (storage.service.type || 'simple').toLowerCase();
 		const NOTIFY_ARG = sdType === 'notify'? '--notify' : '';
 		
-		return `systemd-docker ${NOTIFY_ARG} '--cgroups' 'name=systemd' --pid-file=${pid} run`;
+		return ['systemd-docker',
+			NOTIFY_ARG,
+			'--cgroups',
+			'name=systemd',
+			`--pid-file=${pid}`,
+			'run',
+		].map(safeScriptValue);
 	} else {
-		return `docker run`
+		return ['docker', 'run'].map(safeScriptValue);
 	}
 }

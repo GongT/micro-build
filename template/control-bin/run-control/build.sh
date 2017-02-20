@@ -5,6 +5,7 @@ source "@{PWD}/functions.sh"
 
 set -e
 
+export PROJECT_NAME="@{PROJECT_NAME}"
 echo -en "\e]0;${PREPEND_TITLE_STRING}${PROJECT_NAME} - MICRO-BUILD: building ...\007"
 export PREPEND_TITLE_STRING+="${PROJECT_NAME} -> "
 
@@ -23,6 +24,7 @@ WD=$(pwd)
 docker build \\
 	${BUILD_DOCKER_ARGUMENTS} \\
 	$@ \\
+	--build-arg HOST_LOOP_IP=${HOST_LOOP_IP} \\
 	-f=\"@{PWD}/Dockerfile\" \\
 	-t=\"@{DOCKER_IMAGE_TAG_NAME}\" \\
 	."
@@ -30,9 +32,12 @@ docker build \\
 docker build \
 	${BUILD_DOCKER_ARGUMENTS} \
 	"$@" \
+	--build-arg "HOST_LOOP_IP=${HOST_LOOP_IP}" \
 	-f="${TEMP_ENV}/Dockerfile" \
 	-t="@{DOCKER_IMAGE_TAG_NAME}" \
 	.
+	
+# wait docker update: --squash
 
 echo -e "\e[38;5;14m@{SERVICE_NAME}\e[0m build complete..."
 

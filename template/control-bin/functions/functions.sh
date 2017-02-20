@@ -10,7 +10,7 @@ cleanup() {
 trap "cleanup" INT TERM EXIT
 
 die () {
-	echo -e "\e[38;5;9m""$@""\e[0m" >/dev/stderr
+	echo -e "\e[38;5;9m""$@""\e[0m" >&2
 	exit 100
 }
 
@@ -50,11 +50,11 @@ function require_loop_ip() {
 		echo $IP
 		return 0
 	fi
-	echo "detecting server ip." > /dev/stderr
+	echo "detecting server ip." >&2
 	IP=$(ifconfig "@{DEFINED_INTERFACE}" | grep 'inet ' | head -1 | awk '{ print $2 }')
-	echo "    IP=${IP}" > /dev/stderr
+	echo "    IP=${IP}" >&2
 	if [ -z "${IP}" ]; then
-		echo "Fatal Error: can't detect host ip address." > /dev/stderr
+		echo "Fatal Error: can't detect host ip address." >&2
 		exit 101
 	fi
 	echo ${IP}

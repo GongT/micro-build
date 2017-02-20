@@ -23,8 +23,9 @@ export interface GithubInterface {
 	token: string;
 }
 
+export type IServiceType = 'simple' | 'notify' | '';
 export interface ISystemdConfig {
-	type: string;
+	type: IServiceType;
 	watchdog?: number;
 }
 
@@ -504,6 +505,14 @@ export class MicroBuildConfig {
 		return this.storage.domain.replace(this.storage.projectName, '').replace(/^\./, '');
 	}
 	
+	getImageTagName() {
+		return `${this.getDomainBase()}/${this.getContainerName()}`;
+	}
+	
+	getContainerName() {
+		return this.storage.projectName;
+	}
+	
 	getPlugin(name: EPlugins): any {
 		return this.getPluginList(name).pop();
 	}
@@ -524,14 +533,6 @@ export class MicroBuildConfig {
 			ret[ELabelNames[n]] = this.storage.specialLabels[n];
 		});
 		
-		return ret;
-	}
-	
-	getNetworkConfig() {
-		const nw = this.storage.networking;
-		const ret = {
-			USE_LOCAL_DNS: this.storage.dnsConfig.onlyLocalCache? 'yes' : '',
-		};
 		return ret;
 	}
 	

@@ -2,12 +2,14 @@ import {mkconfig} from "./mkconfig";
 import {CommandDefine} from "../command-library";
 import {spawnMainCommand} from "../../library/system/spawn/spawn-child";
 import {switchEnvironment} from "../../library/common/runenv";
-import {createServiceConfig} from "../../build/service-files";
+import {createServiceConfig, createServiceControl} from "../../build/service-files";
+import {createPublicFiles} from "../../build/public-gen";
 
 function control(action: string, ...args: string[]) {
 	switchEnvironment('docker');
-	mkconfig(true, false);
 	
+	createPublicFiles();
+	createServiceControl();
 	createServiceConfig();
 	
 	return spawnMainCommand('control.sh', [action, ...args]);

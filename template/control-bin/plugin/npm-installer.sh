@@ -1,6 +1,8 @@
 #!/bin/sh
 # name jsonPath target
 
+set -x
+
 #{PREPEND_NPM_SCRIPT}
 
 NAME="$1"
@@ -24,10 +26,13 @@ if [ -e "package.json" ]; then
 fi
 ln -s ${SOURCE_JSON} ./package.json
 
-echo "PWD=`pwd` ${NPM_INSTALL} --color=true --progress=true"
+echo "PWD=`pwd` ${NPM_INSTALL}"
 ls -l
 cat ./package.json
-${NPM_INSTALL} --color=true --progress=true
+echo ""
+echo " => npm install logs:"
+echo "npm install is running..."
+${NPM_INSTALL}
 RET=$?
 
 if [ ${RET} -ne 0 ]; then

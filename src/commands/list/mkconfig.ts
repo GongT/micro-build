@@ -52,4 +52,5 @@ export function mkconfig(build: boolean = true, debug: boolean = false) {
 		createPlugins();
 		createDockerBuildFiles();
 	}
+	console.error('config files created!');
 }
