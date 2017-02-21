@@ -36,7 +36,7 @@ export function createDockerRunArgument(config: MicroBuildConfig) {
 		}
 	});
 	
-	if(storage.service.type === 'notify'){
+	if (storage.service.type === 'notify') {
 		ret.push('--env=WATCHDOG_USEC=${WATCHDOG_USEC}');
 		ret.push('--env=WATCHDOG_PID=${WATCHDOG_PID}');
 	}
@@ -53,15 +53,16 @@ export function createDockerClientArgument(config: MicroBuildConfig) {
 	if (isSystemdRunning()) {
 		const pid = resolve(getGeneratePath(), 'service.pid');
 		const sdType = (storage.service.type || 'simple').toLowerCase();
-		const NOTIFY_ARG = sdType === 'notify'? '--notify' : '';
-		
-		return ['systemd-docker',
-			NOTIFY_ARG,
+		const ret = ['systemd-docker'];
+		if (sdType === 'notify') {
+			ret.push('--notify');
+		}
+		return ret.concat([
 			'--cgroups',
 			'name=systemd',
 			`--pid-file=${pid}`,
 			'run',
-		].map(safeScriptValue);
+		]).map(safeScriptValue);
 	} else {
 		return ['docker', 'run'].map(safeScriptValue);
 	}

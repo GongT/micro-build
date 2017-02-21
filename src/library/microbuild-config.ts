@@ -473,7 +473,7 @@ export class MicroBuildConfig {
 		this.storage.specialLabels[name] = value;
 	}
 	
-	systemdType(type: string) {
+	systemdType(type: IServiceType) {
 		this.storage.service.type = type;
 	}
 	
