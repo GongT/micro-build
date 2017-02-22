@@ -1,7 +1,8 @@
-export const RUN_MODE_DOCKER = 'docker';
-export const RUN_MODE_HOST = 'host';
-
 export type RUN_MODE = 'docker'|'host';
+
+export const RUN_MODE_DOCKER: RUN_MODE = 'docker';
+export const RUN_MODE_HOST: RUN_MODE = 'host';
+
 let runMode: string = process.env.MICRO_BUILD_RUN_MODE || '';
 defaultEnvironment(RUN_MODE_DOCKER);
 
