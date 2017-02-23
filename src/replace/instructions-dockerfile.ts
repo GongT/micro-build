@@ -58,7 +58,7 @@ export class CustomInstructions extends TemplateVariables {
 		return ret? `ENV ${ret} ` : '# no env';
 	}
 	
-	CHINA_ENVIRONMENTS() {
+	CHINA_ARGUMENTS() {
 		const gfw = this.config.getGfwConfig();
 		let ENV_LIST: string[] = [];
 		if (gfw.active) {
@@ -86,8 +86,12 @@ export class CustomInstructions extends TemplateVariables {
 		return 'ARG ' + ENV_LIST.join('\nARG ');
 	}
 	
-	USE_LOCAL_DNS() {
-		const st = this.config.toJSON().dnsConfig.onlyLocalCache? 'yes' : '';
+	NETWORK_ARGUMENTS() {
+		if (this.config.toJSON().dnsConfig.onlyLocalCache) {
+			return 'ARG USE_LOCAL_DNS=yes';
+		} else {
+			return '# no network arguments';
+		}
 	}
 	
 	JSON_ENV_PASS() {

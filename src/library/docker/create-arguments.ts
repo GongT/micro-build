@@ -18,6 +18,8 @@ export function createDockerRunArgument(config: MicroBuildConfig) {
 	
 	if (storage.dnsConfig.onlyLocalCache) {
 		ret.push('--dns=${HOST_LOOP_IP}');
+		ret.push('--env=HOST_LOOP_IP=${HOST_LOOP_IP}');
+		ret.push('--env=USE_LOCAL_DNS=yes');
 	}
 	
 	ret.push(`--net=${storage.networking.bridge? 'bridge' : 'host'}`);
