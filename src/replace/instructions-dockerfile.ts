@@ -60,8 +60,9 @@ export class CustomInstructions extends TemplateVariables {
 	
 	CHINA_ENVIRONMENTS() {
 		const gfw = this.config.getGfwConfig();
+		let ENV_LIST: string[] = [];
 		if (gfw.active) {
-			const ENV_LIST = ['IS_IN_CHINA=yes'];
+			ENV_LIST = ['IS_IN_CHINA=yes'];
 			if (gfw.proxy) {
 				const npm = this.config.getNpmConfig();
 				ENV_LIST.push(`HTTP_PROXY=${gfw.proxy}`);
@@ -77,10 +78,12 @@ export class CustomInstructions extends TemplateVariables {
 				}
 				ENV_LIST.push(`NO_PROXY=${excludeHosts.join(',')}`);
 			}
-			return 'ARG '+ENV_LIST.join('\nARG ');
 		} else {
-			return 'ARG IS_IN_CHINA=no';
+			ENV_LIST = ['IS_IN_CHINA=no'];
+			ENV_LIST.push(`HTTP_PROXY=`);
+			ENV_LIST.push(`HTTPS_PROXY=`);
 		}
+		return 'ARG ' + ENV_LIST.join('\nARG ');
 	}
 	
 	USE_LOCAL_DNS() {
