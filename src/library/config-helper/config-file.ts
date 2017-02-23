@@ -51,10 +51,7 @@ export function setDebugMode(debugMode = true){
 export const PACKAGE_SUPPORT_HTTPS: boolean = JSON.parse('${isDockerMode()}') && IS_PACKAGE_DEBUG_MODE === false;
 let https = PACKAGE_SUPPORT_HTTPS? 'https' : 'http';
 
-// 是否实际使用https - 不在浏览器的时候不管支持不支持都不能用
-if(typeof window !== 'object'){
-	https = 'http';
-}
+// 是否实际使用https
 export const PACKAGE_USING_HTTPS: boolean = https === 'https';
 
 // 运行端口（默认端口省略）（在docker运行时永远省略）
