@@ -20,6 +20,8 @@ else
 	fi
 fi
 
+echo "${HOST_LOOP_IP} localhost-loop HOST_LOOP_IP" >> /etc/hosts
+
 echo '--------------'
 cat /etc/resolv.conf
 echo '--------------'
