@@ -14,7 +14,6 @@ export NPM_RC_FILE=${NPM_RC_PATH}/.npmrc
 if [ "${IS_IN_CHINA}" = "yes" ]; then
 	export SASS_BINARY_SITE=http://npm.taobao.org/mirrors/node-sass
 	NPM_ARGUMENTS=`echo "
-	--unsafe-perm
 	--phantomjs_cdnurl=http://npm.taobao.org/mirrors/phantomjs
 	--chromedriver_cdnurl=http://npm.taobao.org/mirrors/chromedriver
 	"`
@@ -23,6 +22,7 @@ else
 fi
 
 NPM_ARGUMENTS=`echo "${NPM_ARGUMENTS}
+	--unsafe-perm
 	--registry=${NPM_REGISTRY}
 	--cache=/install/npm/npm-cache
 	--userconfig=${NPM_RC_FILE}
