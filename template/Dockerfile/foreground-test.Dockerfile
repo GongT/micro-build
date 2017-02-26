@@ -1,7 +1,7 @@
 #{FROM}
 
 ENV BUILDING=yes \
-	PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/data/scripts:/sbin:/bin:/data/node_modules/.bin:./node_modules/.bin \
+	PATH=/data/scripts:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/data/node_modules/.bin:./node_modules/.bin \
 	RUN_IN_DOCKER=yes \
 	@{CHINA_ENVIRONMENTS}
 
