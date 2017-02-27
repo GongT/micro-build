@@ -7,6 +7,10 @@ function die {
 	exit 1
 }
 
+if uname -s | grep -i -q "darwin" ; then
+	exit 0
+fi
+
 oIFS="$IFS"
 IFS=: PATH_ARR=( $GOPATH )
 IFS="$oIFS"
