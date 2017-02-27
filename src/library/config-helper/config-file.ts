@@ -3,14 +3,12 @@ import {resolve} from "path";
 import {MicroBuildConfig, EPlugins} from "../microbuild-config";
 import {injectJsonEnv} from "../cli/json-env-cli";
 import {getProjectPath} from "../common/file-paths";
-import {isDockerMode} from "../common/runenv";
 
 export class ConfigFileHelper {
 	private fileContent;
 	
 	constructor(private build: MicroBuildConfig, content: string = '') {
 		const port = build.toJSON().port;
-		const resultPort: string = port && !build.isBuilding() ? port.toFixed(0) : '';
 		const baseDomain = build.toJSON().domain;
 		
 		let isDebug = false;
@@ -24,17 +22,21 @@ export class ConfigFileHelper {
 ${content}
 
 // 发布这个包的服务当前的状态
-export const IS_PACKAGE_DEBUG_MODE = JSON.parse('${isDebug ? "true" : "false"}');
+export const IS_PACKAGE_DEBUG_MODE = ${isDebug? "true" : "false"};
+export const PACKAGE_SUPPORT_HTTPS: boolean = IS_PACKAGE_DEBUG_MODE === false;
 
 // 试图探测客户端的状态
 let clientDebugging = IS_PACKAGE_DEBUG_MODE;
+let currentIsHttps = PACKAGE_SUPPORT_HTTPS;
 if(typeof window === 'object'){
 	if(window.hasOwnProperty('IS_DEBUG')){
 		clientDebugging = window['IS_DEBUG'];
 	} else if(global && global.process && global.process.env.NODE_ENV) {
 		clientDebugging = global.process.env.NODE_ENV !== 'production';
 	}
+	// currentIsHttps = /^https:/.test(location.href);
 } else {
+	currentIsHttps = false;
 	if(global.hasOwnProperty('JsonEnv')){
 		clientDebugging = global['JsonEnv'].isDebug;
 	} else {
@@ -45,22 +47,19 @@ export function setDebugMode(debugMode = true){
 	clientDebugging = debugMode;
 }
 
-// 是否支持使用https只跟服务端状态有关
-//    - 部署到了docker的
-//    - 并且不是测试模式
-export const PACKAGE_SUPPORT_HTTPS: boolean = JSON.parse('${isDockerMode()}') && IS_PACKAGE_DEBUG_MODE === false;
-let https = PACKAGE_SUPPORT_HTTPS? 'https' : 'http';
+export const PACKAGE_USING_HTTPS: boolean = currentIsHttps;
+let https = currentIsHttps? 'https' : 'http';
+let supportHttps = PACKAGE_SUPPORT_HTTPS? 'https' : 'http';
 
-// 是否实际使用https
-export const PACKAGE_USING_HTTPS: boolean = https === 'https';
-w
 // 运行端口（默认端口省略）（在docker运行时永远省略）
-export const CONFIG_PORT: string = '${resultPort}';
+const DEBUG_PORT = '${port}';
+export const CONFIG_PORT: string = IS_PACKAGE_DEBUG_MODE ? DEBUG_PORT : '';
 const portPart = CONFIG_PORT? ':' + CONFIG_PORT : '';
 
 // 服务器客户端通用的请求url
-// const debug_prefix = CONFIG_PORT? 'debug-' : '';
-export const CONFIG_BASE_DOMAIN: string = https + '://' /*+ debug_prefix*/ + '${baseDomain}' + portPart;
+export const CONFIG_BASE_DOMAIN: string = https + '://${baseDomain}' + portPart;
+export const CONFIG_BASE_DOMAIN_CLIENT: string = supportHttps + '://${baseDomain}' + portPart;
+export const CONFIG_BASE_DOMAIN_SERVER: string = 'http://${baseDomain}' + portPart;
 `;
 	}
 	
