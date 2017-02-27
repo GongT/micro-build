@@ -39,7 +39,11 @@ export function mkconfig(build: boolean = true, debug: boolean = false) {
 	
 	console.error('\x1B[38;5;14m+ create files for all: \x1B[0m');
 	createPublicFiles();
-	createServiceControl();
+	try {
+		createServiceControl();
+	} catch (e) {
+		console.error('Warn: ', e.message);
+	}
 	
 	if (debug && !debugMake) {
 		debugMake = true;
