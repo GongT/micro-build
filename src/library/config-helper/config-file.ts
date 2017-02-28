@@ -18,16 +18,13 @@ export class ConfigFileHelper {
 		
 		this.fileContent = '/// <reference types="node"/>';
 		this.fileContent += `
-
-${content}
-
 // 发布这个包的服务当前的状态
-export const IS_PACKAGE_DEBUG_MODE = ${isDebug? "true" : "false"};
-export const PACKAGE_SUPPORT_HTTPS: boolean = IS_PACKAGE_DEBUG_MODE === false;
+export const IS_PACKAGE_DEBUG_MODE: boolean = ${isDebug? "true" : "false"};
+export const PACKAGE_SUPPORT_HTTPS: boolean = IS_PACKAGE_DEBUG_MODE;
 
 // 试图探测客户端的状态
-let clientDebugging = IS_PACKAGE_DEBUG_MODE;
-let currentIsHttps = PACKAGE_SUPPORT_HTTPS;
+let clientDebugging: boolean = IS_PACKAGE_DEBUG_MODE;
+let currentIsHttps: boolean = PACKAGE_SUPPORT_HTTPS;
 if(typeof window === 'object'){
 	if(window.hasOwnProperty('IS_DEBUG')){
 		clientDebugging = window['IS_DEBUG'];
@@ -60,6 +57,8 @@ const portPart = CONFIG_PORT? ':' + CONFIG_PORT : '';
 export const CONFIG_BASE_DOMAIN: string = https + '://${baseDomain}' + portPart;
 export const CONFIG_BASE_DOMAIN_CLIENT: string = supportHttps + '://${baseDomain}' + portPart;
 export const CONFIG_BASE_DOMAIN_SERVER: string = 'http://${baseDomain}' + portPart;
+
+${content}
 `;
 	}
 	

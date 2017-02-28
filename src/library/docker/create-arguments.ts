@@ -51,9 +51,9 @@ export function createDockerClientArgument(config: MicroBuildConfig) {
 	
 	if (isSystemdRunning()) {
 		const pid = resolve(getGeneratePath(), 'service.pid');
-		const sdType = (storage.service.type || 'simple').toLowerCase();
+		const type = (storage.service.type || 'simple').toLowerCase();
 		const ret = ['systemd-docker'];
-		if (sdType === 'notify') {
+		if (type === 'notify') {
 			ret.push('--notify');
 		}
 		return ret.concat([

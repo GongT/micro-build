@@ -16,7 +16,8 @@ export class UnitFileVariables extends ScriptVariables {
 	CONFIG_SYSTEMD() {
 		const service = this.config.toJSON().service;
 		const ret: string[] = [];
-		const type = service.type;
+		const sdType = (service.type || 'simple').toLowerCase();
+		const type = sdType === 'simple'? 'notify' : sdType;
 		ret.push(`Type=${type}`);
 		
 		const sdWatch = service.watchdog;
@@ -24,12 +25,9 @@ export class UnitFileVariables extends ScriptVariables {
 			ret.push(`WatchdogSec=${sdWatch}`);
 		}
 		
-		const sdType = (service.type || 'simple').toLowerCase();
 		ret.push(`Environment=SYSTEMD_TYPE=${sdType}`);
-		if (sdType === 'notify') {
-			ret.push(`NotifyAccess=all`);
-			ret.push(`PrivateNetwork=no`);
-		}
+		ret.push(`NotifyAccess=all`);
+		ret.push(`PrivateNetwork=no`);
 		
 		return ret.join('\n');
 	}
