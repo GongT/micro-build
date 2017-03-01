@@ -96,7 +96,15 @@ function bundleSinglePackage(options: JspmBundleOptions, config: MicroBuildConfi
 	if (!pkg.jspm) {
 		throw new Error(`No jspm config found in ${targetPath.replace(/^\/data/, '.')}/package.json.`);
 	}
-	const jspm: JspmPackageConfig = typeof pkg.jspm === 'object'? pkg.jspm : {};
+	const jspm: JspmPackageConfig = ((jspm) => {
+		if (typeof jspm === 'object') {
+			return jspm;
+		} else if (jspm) {
+			return pkg;
+		} else {
+			throw new Error('no valid jspm config in package');
+		}
+	})(pkg.jspm);
 	
 	const savePath = resolve(targetPath, options.target || './public/bundles');
 	
