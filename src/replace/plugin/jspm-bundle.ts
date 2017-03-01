@@ -23,9 +23,16 @@ export function jspm_bundle_after(replacer: CustomInstructions) {
 	const jspm_plugin = config.getPluginList(EPlugins.jspm_bundle);
 	
 	const content: string[] = [];
+	const unique: any = {};
 	jspm_plugin.forEach(({options}) => {
 		const PACKAGE = options.packageJson;
 		const targetPath = resolve('/data', PACKAGE, '..');
+		
+		if (unique[targetPath]) {
+			return;
+		}
+		unique[targetPath] = true;
+		
 		const targetPackagePath = resolve(getProjectPath(), PACKAGE);
 		
 		const pkg: IPackageJson = getJspmPackage(targetPackagePath);
@@ -53,8 +60,16 @@ export function jspm_bundle(replacer: CustomInstructions) {
 	const build: string[] = [];
 	const copy: string[][] = [];
 	
+	const unique: any = {};
 	jspm_plugin.forEach(({options}) => {
-		bundleSinglePackage(options, config, install, build, copy);
+		const PACKAGE = options.packageJson;
+		const targetPath = resolve('/data', PACKAGE, '..');
+		if (unique[targetPath]) {
+			bundleSinglePackage(options, config, [], build, [[]]);
+		} else {
+			bundleSinglePackage(options, config, install, build, copy);
+		}
+		unique[targetPath] = true;
 	});
 	
 	let content = '# jspm bundle plugin \n';
@@ -68,7 +83,7 @@ export function jspm_bundle(replacer: CustomInstructions) {
 	
 	content += '\n';
 	content += 'RUN ' + ['set -x'].concat(
-			['/install/npm/global-installer jspm@beta',],
+			['/install/npm/global-installer jspm@latest',],
 			['# sys install'],
 			systemInstall(config, ['git']).map(e => `\t${e}`),
 			install,
