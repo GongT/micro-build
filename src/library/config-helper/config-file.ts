@@ -20,7 +20,7 @@ export class ConfigFileHelper {
 		this.fileContent += `
 // 发布这个包的服务当前的状态
 export const IS_PACKAGE_DEBUG_MODE: boolean = ${isDebug? "true" : "false"};
-export const PACKAGE_SUPPORT_HTTPS: boolean = IS_PACKAGE_DEBUG_MODE;
+export const PACKAGE_SUPPORT_HTTPS: boolean = !IS_PACKAGE_DEBUG_MODE;
 
 // 试图探测客户端的状态
 let clientDebugging: boolean = IS_PACKAGE_DEBUG_MODE;
