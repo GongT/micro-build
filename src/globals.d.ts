@@ -7,20 +7,20 @@ declare interface KVP<V> {
 }
 
 declare interface JspmPackageConfig {
-	directories: {
+	directories?: {
 		[id: string]: string;
-		baseURL: string;
-		packages: string;
+		baseURL?: string;
+		packages?: string;
 	},
 	configFiles?: {
 		[id: string]: string;
 		jspm: string;
 	},
 	configFile?: string;
-	dependencies: {
+	dependencies?: {
 		[id: string]: string;
 	};
-	overrides: {
+	overrides?: {
 		[id: string]: any;
 	};
 }

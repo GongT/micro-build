@@ -5,7 +5,7 @@ import {resolve, dirname} from "path";
 import {existsSync, writeFileSync, readFileSync} from "fs";
 import {_guid} from "./_guid";
 import {sync} from "mkdirp";
-import {getProjectPath, getGeneratePath, getTempPath} from "../../library/common/file-paths";
+import {getProjectPath, getTempPath} from "../../library/common/file-paths";
 
 export function jspm_bundle_after(replacer: CustomInstructions) {
 	const config = replacer.config;
@@ -96,11 +96,11 @@ function bundleSinglePackage(options: JspmBundleOptions, config: MicroBuildConfi
 	if (!pkg.jspm) {
 		throw new Error(`No jspm config found in ${targetPath.replace(/^\/data/, '.')}/package.json.`);
 	}
-	const jspm = pkg.jspm;
+	const jspm: JspmPackageConfig = typeof pkg.jspm === 'object'? pkg.jspm : {};
 	
 	const savePath = resolve(targetPath, options.target || './public/bundles');
 	
-	const names = Object.keys(jspm.dependencies).filter((n) => {
+	const names = Object.keys(jspm.dependencies || {}).filter((n) => {
 		return n !== 'babel-runtime';
 	});
 	
