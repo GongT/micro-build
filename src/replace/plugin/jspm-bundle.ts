@@ -7,6 +7,17 @@ import {_guid} from "./_guid";
 import {sync} from "mkdirp";
 import {getProjectPath, getTempPath} from "../../library/common/file-paths";
 
+function getJspmPackage(file: string) {
+	const pkg = require(file);
+	if (typeof pkg.jspm === 'object') {
+		return pkg;
+	} else if (pkg.jspm) {
+		pkg.jspm = Object.assign({}, pkg);
+		return pkg;
+	} else {
+		throw new Error('no valid jspm config in package: ' + file);
+	}
+}
 export function jspm_bundle_after(replacer: CustomInstructions) {
 	const config = replacer.config;
 	const jspm_plugin = config.getPluginList(EPlugins.jspm_bundle);
@@ -17,7 +28,7 @@ export function jspm_bundle_after(replacer: CustomInstructions) {
 		const targetPath = resolve('/data', PACKAGE, '..');
 		const targetPackagePath = resolve(getProjectPath(), PACKAGE);
 		
-		const pkg: IPackageJson = require(targetPackagePath);
+		const pkg: IPackageJson = getJspmPackage(targetPackagePath);
 		
 		const target = getConfigFilePath(pkg.jspm, targetPath);
 		
@@ -92,29 +103,20 @@ function bundleSinglePackage(options: JspmBundleOptions, config: MicroBuildConfi
 	}
 	const targetPath = resolve('/data', PACKAGE, '..');
 	
-	const pkg: IPackageJson = require(targetPackagePath);
+	const pkg: IPackageJson = getJspmPackage(targetPackagePath);
 	if (!pkg.jspm) {
 		throw new Error(`No jspm config found in ${targetPath.replace(/^\/data/, '.')}/package.json.`);
 	}
-	const jspm: JspmPackageConfig = ((jspm) => {
-		if (typeof jspm === 'object') {
-			return jspm;
-		} else if (jspm) {
-			return pkg;
-		} else {
-			throw new Error('no valid jspm config in package');
-		}
-	})(pkg.jspm);
 	
 	const savePath = resolve(targetPath, options.target || './public/bundles');
 	
-	const names = Object.keys(jspm.dependencies || {}).filter((n) => {
+	const names = Object.keys(pkg.jspm.dependencies || {}).filter((n) => {
 		return n !== 'babel-runtime';
 	});
 	
 	install.push(createJspmInstall(
 		config,
-		jspm,
+		pkg.jspm,
 		targetPath,
 		copy
 	));
