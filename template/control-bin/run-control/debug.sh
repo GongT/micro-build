@@ -83,7 +83,7 @@ fi
 
 echo -e "\e[38;5;14m[micro-build]\e[0m run script:"
 echo "PWD=$(pwd)"
-if [ "${WATCH}" == "no" ]; then
+if [ "${WATCH}" = "no" ]; then
 	echo "${SHELL} ${COMMAND} ${@}"
 	echo " ::: start :::"
 	eval ${SHELL} "${COMMAND}" "${@}"

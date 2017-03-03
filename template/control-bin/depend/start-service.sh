@@ -16,7 +16,7 @@ else
 	if ! is_image_exists "@{IMAGE_NAME}" ; then
 		echo " >>> run docker pull @{IMAGE_NAME}"
 		docker pull "@{IMAGE_NAME}"
-		if [ "${MICRO_BUILD_RUN_MODE}" == 'docker' ]; then
+		if [ "${MICRO_BUILD_RUN_MODE}" = 'docker' ]; then
 			exit 1
 		fi
 		sleep 1

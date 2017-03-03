@@ -11,7 +11,7 @@ if sys_exists "@{CONTAINER_NAME}" ; then
 		echo " >>> service @{CONTAINER_NAME} started"
 		echo ""
 	fi
-elif [ "x@{GIT_URL}" == "x" ]; then
+elif [ "x@{GIT_URL}" = "x" ]; then
 	echo " >>> required dependence service @{CONTAINER_NAME}, but not installed"
 	echo ""
 	exit 1

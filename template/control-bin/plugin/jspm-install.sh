@@ -5,7 +5,7 @@ set -x
 
 PACKAGE_FILE=$1
 
-if [ "finish" == "${PACKAGE_FILE}" ]; then
+if [ "finish" = "${PACKAGE_FILE}" ]; then
 	jspm cache-clear
 #{REMOVE_CACHES}
 	rm -rfv /tmp/*
