@@ -12,12 +12,16 @@ export class ConfigFileHelper {
 		const baseDomain = build.toJSON().domain;
 		
 		let isDebug = false;
+		let isChina = false;
 		if (build.getPlugin(EPlugins.jenv)) {
-			isDebug = injectJsonEnv().isDebug;
+			const JsonEnv = injectJsonEnv();
+			isDebug = JsonEnv.isDebug;
+			isChina = JsonEnv.gfw && JsonEnv.gfw.isInChina;
 		}
 		
 		this.fileContent = '/// <reference types="node"/>';
 		this.fileContent += `
+export const IS_IN_CHINA: boolean = ${isChina? "true" : "false"};
 // 发布这个包的服务当前的状态
 export const IS_PACKAGE_DEBUG_MODE: boolean = ${isDebug? "true" : "false"};
 export const PACKAGE_SUPPORT_HTTPS: boolean = !IS_PACKAGE_DEBUG_MODE;
