@@ -56,6 +56,7 @@ echo "HTTP_PROXY=${HTTP_PROXY}"
 echo "HTTPS_PROXY=${HTTPS_PROXY}"
 
 jspm install -y
+jspm update
 
 if [ -z "${IS_CONTINUE}" ]; then
 	jspm cache-clear
