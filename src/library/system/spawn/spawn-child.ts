@@ -1,7 +1,7 @@
 import {resolve, basename} from "path";
-import extend = require("extend");
 import {spawnSync} from "child_process";
 import {getProjectPath, getTempPath} from "../../common/file-paths";
+import extend = require("extend");
 
 export function spawnExternalCommand(command, args: string[] = []) {
 	const ret = spawnSyncWrap(command, args, {
@@ -53,7 +53,11 @@ function spawnSyncWrap(path: string, args: any[], options: any) {
 	
 	process.on('SIGINT', prevent_parent_process_exit);
 	
+	process.stdin.pause();
+	process.stdin['setRawMode'](false);
 	const ret = spawnSync(path, args, options);
+	process.stdin['setRawMode'](true);
+	process.stdin.resume();
 	
 	if (ret.error) {
 		console.error('\x1B[38;5;9m[micro-build]\x1B[0m[spawn failed] %s', ret.error.message);
