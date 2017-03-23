@@ -7,12 +7,11 @@ import {_guid} from "./_guid";
 import {sync} from "mkdirp";
 import {getProjectPath, getTempPath} from "../../library/common/file-paths";
 
-function getJspmPackage(file: string) {
+function getJspmPackage(file: string): JspmPackageConfig {
 	const pkg = require(file);
 	if (typeof pkg.jspm === 'object') {
-		return pkg;
+		return pkg.jspm;
 	} else if (pkg.jspm) {
-		pkg.jspm = Object.assign({}, pkg);
 		return pkg;
 	} else {
 		throw new Error('no valid jspm config in package: ' + file);
@@ -35,9 +34,9 @@ export function jspm_bundle_after(replacer: CustomInstructions) {
 		
 		const targetPackagePath = resolve(getProjectPath(), PACKAGE);
 		
-		const pkg: IPackageJson = getJspmPackage(targetPackagePath);
+		const jspm: JspmPackageConfig = getJspmPackage(targetPackagePath);
 		
-		const target = getConfigFilePath(pkg.jspm, targetPath);
+		const target = getConfigFilePath(jspm, targetPath);
 		
 		content.push(`mv ${JSON.stringify(target)} ${JSON.stringify(`${target}.backup`)}`);
 		content.push(`mv ${JSON.stringify(`${target}.overwrite`)} ${JSON.stringify(target)}`);
@@ -118,20 +117,20 @@ function bundleSinglePackage(options: JspmBundleOptions, config: MicroBuildConfi
 	}
 	const targetPath = resolve('/data', PACKAGE, '..');
 	
-	const pkg: IPackageJson = getJspmPackage(targetPackagePath);
-	if (!pkg.jspm) {
+	const jspm: JspmPackageConfig = getJspmPackage(targetPackagePath);
+	if (!jspm) {
 		throw new Error(`No jspm config found in ${targetPath.replace(/^\/data/, '.')}/package.json.`);
 	}
 	
 	const savePath = resolve(targetPath, options.target || './public/bundles');
 	
-	const names = Object.keys(pkg.jspm.dependencies || {}).filter((n) => {
+	const names = Object.keys(jspm.dependencies || {}).filter((n) => {
 		return n !== 'babel-runtime';
 	});
 	
 	install.push(createJspmInstall(
 		config,
-		pkg.jspm,
+		jspm,
 		targetPath,
 		copy
 	));
@@ -202,18 +201,14 @@ function createJspmBundlePackage(config: MicroBuildConfig, jspm: JspmPackageConf
 	
 	const target = getConfigFileRelative(jspm) + '.overwrite';
 	
-	const packageFileContent = {
-		name: 'installing-package',
-		jspm: {
-			directories: jspm.directories,
-			configFiles: Object.assign({}, jspm.configFiles, {
-				jspm: target,
-			}),
-			overrides: jspm.overrides,
-			configFile: target,
-			dependencies: jspm.dependencies,
-		},
-	};
+	const packageFileContent = Object.assign({}, jspm, {
+		name: 'installing-jspm-package',
+		jspm: true,
+		configFile: target,
+	});
+	packageFileContent.configFiles = Object.assign({}, packageFileContent.configFiles, {
+		jspm: target,
+	});
 	
 	const tempDir = resolve(getTempPath(), 'package-json', id);
 	const configFileTempPath = resolve(tempDir, target);
