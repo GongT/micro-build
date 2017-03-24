@@ -26,7 +26,7 @@ NPM_ARGUMENTS=`echo "${NPM_ARGUMENTS}
 	--registry=${NPM_REGISTRY}
 	--cache=/install/npm/npm-cache
 	--userconfig=${NPM_RC_FILE}
-	--progress true --loglevel warn
+	--progress true --loglevel info
 	"`
 
 TYPE=install
