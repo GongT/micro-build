@@ -553,6 +553,7 @@ export class MicroBuildConfig {
 	runOnConfig() {
 		if (!this.isCallbackTriggerd && this.storage.onConfig) {
 			this.isCallbackTriggerd = true;
+			console.log('\x1B[38;5;14m+ run on config callback (%s mode)\x1B[0m', isDockerMode()? 'build' : 'debug');
 			this.storage.onConfig(isDockerMode());
 		}
 	}

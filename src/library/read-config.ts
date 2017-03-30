@@ -55,9 +55,9 @@ export function readBuildConfig(): MicroBuildConfig {
 		}
 	}
 	
-	console.error('config success!');
-	
 	builder.runOnConfig();
+	
+	console.error('\x1B[38;5;10mconfig success!\x1B[0m');
 	
 	lastBuilder = builder;
 	
