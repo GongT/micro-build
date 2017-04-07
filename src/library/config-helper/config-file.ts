@@ -30,12 +30,12 @@ export const PACKAGE_SUPPORT_HTTPS: boolean = !IS_PACKAGE_DEBUG_MODE;
 let supportHttps = PACKAGE_SUPPORT_HTTPS? 'https' : 'http';
 
 // 运行端口（默认端口省略）（在docker运行时永远省略）
-const DEBUG_PORT = '${port}';
+const DEBUG_PORT = '${parseInt('' + port) || ''}';
 export const CONFIG_PORT: string = IS_PACKAGE_DEBUG_MODE ? DEBUG_PORT : '';
-const portPart = CONFIG_PORT? ':' + CONFIG_PORT : '';
+const portPart = (CONFIG_PORT && (CONFIG_PORT !== '80'))? ':' + CONFIG_PORT : '';
 
 // 服务器客户端通用的请求url
-export const CONFIG_BASE_DOMAIN: string = supportHttps + '://${baseDomain}' + portPart;
+export const CONFIG_BASE_DOMAIN: string = supportHttps + '://${baseDomain}';
 export const CONFIG_BASE_DOMAIN_CLIENT: string = '//${baseDomain}' + portPart;
 export const CONFIG_BASE_DOMAIN_SERVER: string = 'http://${baseDomain}' + portPart;
 
