@@ -1,0 +1,10 @@
+{
+	"id": "https://github.com/gongt/micro-build#configfile",
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"title": "Person",
+	"type": "object",
+	"properties": {
+		
+	},
+	"required": [""]
+}

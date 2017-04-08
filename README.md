@@ -1,49 +1,43 @@
 # microbuild
 
-## 安裝
-```bash
-npm i -g typescript@latest  # 安裝tsc，如果已有就不用再裝
+docker微服务架构下的部署、调试工具集
 
-git clone https://github.com/GongT/micro-build.git
-cd micro-build
-npm i
-tsc -p src
-npm link
-cd ..
+** v4分支开发 **
 
-git clone https://github.com/GongT/jenv.git
-cd jenv
-npm i
-tsc -p src
-npm link
-cd ..
+## TODOS：
+* [ ] 基本命令行参数解析、函数调用等
+* [ ] 外部工具（docker等）的调用
+* [ ] 确定配置文件格式
+    * [ ] idea代码提示
+    * [ ] JSON Schema
+* [ ] 插件的实现方式
+    * [ ] systemd 插件
+    * [ ] nodejs 插件
+    * [ ] typescript 插件
+    * [ ] sass 插件
+    * [ ] nodemon 插件
+    * [ ] concurrently 插件
+    * [ ] GFW 插件
+        * [ ] shadowsocks、privoxy、kcptun的服务器和客户端
+    * [ ] nfs 插件
+        * [ ] nfs服务器
+    * [ ] docker-config 插件
+    * [ ] cron 插件
+* [ ] dnsmasq和nginx的实现（如何找到主机ip）
+    * [ ] docker swarm mode
+* [ ] microbuild mkconfig
+    * [ ] 生成dockerfile
+    * [ ] 生成systemd脚本
+        * [ ] 基本启动运行功能
+        * [ ] 服务状态监视
+        * [ ] 健康状态报告
+* [ ] microbuild debug
+    * [ ] 主机调试
+    * [ ] docker内调试
+* [ ] microbuild build
+    * [ ] 执行build
+    * [ ] 推送到远程（hub）
+        * [ ] 自动登陆
+* [ ] Makefile
 
-jenv --pull --global xxxxxxxxxxxxxxx  # <- 配置文件clone-url
-```
 
-## 使用
-配置文件相关文档参考 [JENV](https://github.com/gongt/jenv)
-
-#### 运行已有项目
-**不支持windows，mac可能有问题**
-
-首次运行
-```bash
-cd /path/to/project
-npm install
-jenv --set xxxxxxxxxx    # 配置文件集合名称
-jenv --env yyyyyyyyyy    # 配置文件名称
-```
-
-开始调试服务器
-```bash
-cd /path/to/project
-microbuild debug
-```
-
-#### 部署
-**仅支持生产环境，centos、fedora**
-```bash
-cd /path/to/project
-microbuild debug
-```

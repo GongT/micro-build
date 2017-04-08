@@ -6,11 +6,7 @@
 		"microbuild": "./dist/microbuild.js"
 	},
 	"scripts": {
-		"start": "echo -e '\\ec' ; tsc -w -p src | sed 's/^.*File change detected/\\x1Bc\\0/g'",
-		"build": "tsc -p src",
-		"test": "mocha --timeout 10s --slow 1000 --bail bin/test.js || true",
-		"prepublish": "tsc -p src && bash -c ./template/create-symlinks.sh",
-		"preinstall": "bash install-golang-module-systemd-docker.sh"
+		"start": "echo -e '\\ec' ; tsc -w -p src | sed 's/^.*File change detected/\\x1Bc\\0/g'"
 	},
 	"preferGlobal": true,
 	"repository": {
