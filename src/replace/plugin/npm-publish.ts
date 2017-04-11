@@ -24,21 +24,22 @@ export function npm_publish_after(replacer: CustomInstructions) {
 		if (!options.path) {
 			throw new Error('npm publish require a path. where package.json placed in');
 		}
-		if (!existsSync(resolve(getProjectPath(), options.path))) {
-			throw new Error(`npm publish: package.json not found in ${options.path}`);
-		}
-		const target = `/data/${options.path}`;
 		
 		const copyInstructions: string[] = [];
 		if (options.copy) {
 			Object.keys(options.copy).forEach((from) => {
 				const sourceFile = resolve('/data', from);
 				const targetPath = resolve('/data', options.copy[from]);
-				copyInstructions.push(`cp -rv ${JSON.stringify(sourceFile)} ${JSON.stringify(targetPath)} && \\\n\t`);
+				copyInstructions.push(`if [ ! -e ${JSON.stringify(sourceFile)} ] then; echo "No ${sourceFile} for copy" >&2; exit 1; fi && \\
+	cp -rv ${JSON.stringify(sourceFile)} ${JSON.stringify(targetPath)} && \\
+	`);
 			});
 		}
 		
-		ret.push(`${copyInstructions.join('')}cd ${JSON.stringify(target)} && /install/npm/npm-publish-private`)
+		const target = `/data/${options.path}`;
+		ret.push(`${copyInstructions.join('')}cd ${JSON.stringify(target)} && \\
+	if [ ! -e "./package.json" ] then; echo "No package.json for publish" >&2; exit 1; fi && \\
+	/install/npm/npm-publish-private`)
 	});
 	
 	if (ret.length) {
