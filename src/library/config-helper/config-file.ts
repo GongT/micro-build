@@ -35,7 +35,8 @@ export const CONFIG_PORT: string = IS_PACKAGE_DEBUG_MODE ? DEBUG_PORT : '';
 const portPart = (CONFIG_PORT && (CONFIG_PORT !== '80'))? ':' + CONFIG_PORT : '';
 
 // 服务器客户端通用的请求url
-export const CONFIG_BASE_DOMAIN: string = supportHttps + '://${baseDomain}';
+export const CONFIG_BASE_DOMAIN: string = supportHttps + '://${baseDomain}' + portPart;
+export const CONFIG_BASE_DOMAIN_NO_PORT: string = supportHttps + '://${baseDomain}';
 export const CONFIG_BASE_DOMAIN_CLIENT: string = '//${baseDomain}' + portPart;
 export const CONFIG_BASE_DOMAIN_SERVER: string = 'http://${baseDomain}' + portPart;
 

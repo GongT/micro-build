@@ -25,7 +25,7 @@ export function npm_publish_after(replacer: CustomInstructions) {
 			throw new Error('npm publish require a path. where package.json placed in');
 		}
 		
-		const copyInstructions: string[] = [];
+		const copyInstructions: string[] = ['set -x && '];
 		if (options.copy) {
 			Object.keys(options.copy).forEach((from) => {
 				const sourceFile = resolve('/data', from);
