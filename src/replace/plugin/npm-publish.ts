@@ -28,7 +28,17 @@ export function npm_publish_after(replacer: CustomInstructions) {
 			throw new Error(`npm publish: package.json not found in ${options.path}`);
 		}
 		const target = `/data/${options.path}`;
-		ret.push(`cd ${JSON.stringify(target)} && /install/npm/npm-publish-private`)
+		
+		const copyInstructions: string[] = [];
+		if (options.copy) {
+			Object.keys(options.copy).forEach((from) => {
+				const sourceFile = resolve('/data', from);
+				const targetPath = resolve('/data', options.copy[from]);
+				copyInstructions.push(`cp -rv ${JSON.stringify(sourceFile)} ${JSON.stringify(targetPath)} && \\\n\t`);
+			});
+		}
+		
+		ret.push(`${copyInstructions.join('')}cd ${JSON.stringify(target)} && /install/npm/npm-publish-private`)
 	});
 	
 	if (ret.length) {
