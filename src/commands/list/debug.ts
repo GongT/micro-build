@@ -15,9 +15,10 @@ export const commandDefine: CommandDefine = {
 };
 
 export function debug(...args: any[]) {
+	switchEnvironment('host');
+	
 	mkconfig(false, true);
 	
-	switchEnvironment('host');
 	createServiceConfig();
 	
 	const ret = spawnMainCommand('debug.sh', args);

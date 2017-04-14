@@ -162,6 +162,7 @@ const dockerIgnores = [
 	'*.md',
 	'Dockerfile',
 	'*.Dockerfile',
+	'build.config.ts',
 	`!${getGeneratePath(true)}/json-env-data.json`,
 	'!.jsonenv/_current_result.json.d.ts',
 	`!${getTempPath(true)}/bin`,
