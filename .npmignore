@@ -1,4 +1,10 @@
 .idea/
 node_modules/
-typings/
 npm-debug.log
+
+src
+debug.js
+haook-publish.js
+.gitignore
+.npmignore
+

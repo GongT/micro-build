@@ -3,10 +3,11 @@
 	"version": "3.0.1",
 	"description": "simple micro service builder system with nodejs & docker",
 	"bin": {
-		"microbuild": "./dist/microbuild.js"
+		"microbuild": "./load.js"
 	},
 	"scripts": {
-		"start": "echo -e '\\ec' ; tsc -w -p src | sed 's/^.*File change detected/\\x1Bc\\0/g'"
+		"prepublishOnly": "tsc -p src && node hook-publish.js pre",
+		"postpublish": "node hook-publish.js post"
 	},
 	"preferGlobal": true,
 	"repository": {
@@ -30,16 +31,18 @@
 		"app-module-path": "^2.2.0",
 		"concurrently": "^3.1.0",
 		"debug": "^2.6.0",
-		"extend": "^3.0.0",
 		"mkdirp": "^0.5.1",
 		"nodejs-fs-utils": "^1.0.26",
 		"nodemon": "^1.11.0",
 		"readline-sync": "^1.4.5",
 		"source-map-support": "^0.4.10",
-		"string-width": "^2.0.0"
+		"string-width": "^2.0.0",
+		"systemjs": "^0.20.12"
 	},
 	"devDependencies": {
 		"chai": "^3.5.0",
-		"mocha": "^3.2.0"
+		"mocha": "^3.2.0",
+		"ts-node": "^3.0.2",
+		"typescript": "^2.2.2"
 	}
 }

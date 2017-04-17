@@ -1,9 +1,9 @@
 {
 	"compileOnSave": true,
 	"compilerOptions": {
-		"module": "commonjs",
+		"module": "system",
 		"target": "es6",
-		"lib": ["es7", "es6", "es5","es2017.object"],
+		"lib": ["es7", "es6", "es5", "es2017.object"],
 		"moduleResolution": "node",
 		"noEmitOnError": true,
 		"noImplicitThis": true,
@@ -23,8 +23,9 @@
 		],
 		"types": [
 		],
-		"outDir": "../dist",
+		"outFile": "../dist/bundle.js",
 		"rootDir": "./"
 	},
-	"exclude": ["node_module", "./dist", "global.d.ts"]
+	"files": ["bin.ts"],
+	"exclude": ["global.d.ts"]
 }
