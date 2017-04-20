@@ -30,7 +30,7 @@ export function npm_publish_after(replacer: CustomInstructions) {
 			Object.keys(options.copy).forEach((from) => {
 				const sourceFile = resolve('/data', from);
 				const targetPath = resolve('/data', options.copy[from]);
-				copyInstructions.push(`if [ ! -e ${JSON.stringify(sourceFile)} ] then; echo "No ${sourceFile} for copy" >&2; exit 1; fi && \\
+				copyInstructions.push(`{ if [ ! -e ${JSON.stringify(sourceFile)} ]; then echo "No ${sourceFile} for copy" >&2; exit 1; fi ; } && \\
 	cp -rv ${JSON.stringify(sourceFile)} ${JSON.stringify(targetPath)} && \\
 	`);
 			});
@@ -38,7 +38,7 @@ export function npm_publish_after(replacer: CustomInstructions) {
 		
 		const target = `/data/${options.path}`;
 		ret.push(`${copyInstructions.join('')}cd ${JSON.stringify(target)} && \\
-	if [ ! -e "./package.json" ] then; echo "No package.json for publish" >&2; exit 1; fi && \\
+	{ if [ ! -e "./package.json" ]; then echo "No package.json for publish" >&2; exit 1; fi ; } && \\
 	/install/npm/npm-publish-private`)
 	});
 	

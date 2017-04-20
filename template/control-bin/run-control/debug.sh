@@ -8,8 +8,8 @@ source "@{PWD}/functions.sh"
 
 export CONFIG_FILE="@{PWD}/json-env-data.json"
 
-SHELL="@{SHELL_COMMAND}"
-COMMAND="@{DEBUG_COMMAND}"
+SHELL=(@{SHELL_COMMAND})
+COMMAND=(@{DEBUG_COMMAND})
 
 echo -e "\e[38;5;14m[micro-build]\e[0m debug: SHELL=${SHELL}"
 echo -e "\e[38;5;14m[micro-build]\e[0m debug: COMMAND=${COMMAND}"
@@ -86,15 +86,15 @@ echo "PWD=$(pwd)"
 if [ "${WATCH}" = "no" ]; then
 	echo "${SHELL} ${COMMAND} ${@}"
 	echo " ::: start :::"
-	eval ${SHELL} "${COMMAND}" "${@}"
+	eval "${SHELL[@]}" "${COMMAND[@]}" "${@}"
 	RET=$?
 else
 	echo "@{NODEMON_BIN} \\
 		${WAIT_COMPILE} -d 2 --config \"${TEMP_ENV}/nodemon.json\" -x \"${SHELL}\" -- \\
 		${COMMAND}"
 "@{NODEMON_BIN}" \
-		${WAIT_COMPILE} -d 2 --config "${TEMP_ENV}/nodemon.json" -x "${SHELL}" -- \
-		"${COMMAND}" "${DEBUG_RUN_ARGUMENTS[@]}" "${@}"
+		${WAIT_COMPILE} -d 2 --config "${TEMP_ENV}/nodemon.json" -x "${SHELL[@]}" -- \
+		"${COMMAND[@]}" "${DEBUG_RUN_ARGUMENTS[@]}" "${@}"
 	RET=$?
 fi
 
