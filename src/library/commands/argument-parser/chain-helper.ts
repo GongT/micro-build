@@ -87,14 +87,14 @@ export abstract class CommandHelper extends HelperBase<IArgumentCommand> {
 		if (parent) {
 			parent.object.subCommands.push(this.object);
 			if (parent.object.$0) {
-				this.object.$0 = parent.object.$0 + ' ' + object.name;
+				this.object.$0 = parent.object.$0 + ' ' + parent.object.name;
 			} else if (parent.object.name) {
-				this.object.$0 = parent.object.name + ' ' + object.name;
+				this.object.$0 = parent.object.name;
 			} else {
-				this.object.$0 = object.name;
+				throw new TypeError('parent object no name: ' + JSON.stringify(parent));
 			}
 		} else {
-			this.object.$0 = object.name;
+			this.object.$0 = '';
 		}
 	}
 }

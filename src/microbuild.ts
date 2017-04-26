@@ -4,6 +4,8 @@ import {UsageHelper} from "./library/commands/argument-parser/help";
 import {__} from "./library/common/i18n";
 import {ArgumentError} from "./library/commands/argument-parser/base";
 import {exit} from "./bin";
+import {createBashCompletion} from "./library/commands/argument-parser/bash-completion";
+import {writeFile} from "./library/file-operation/fs";
 
 try {
 	parser.parse(process.argv.slice(2));
@@ -29,4 +31,5 @@ if (!args.next || args.namedOptions.help) {
 	}
 }
 
-
+const x = createBashCompletion(parser);
+writeFile('/etc/bash_completion.d/microbuild', x);

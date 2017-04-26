@@ -20,7 +20,7 @@ export class UsageHelper {
 	
 	getString() {
 		const obj = this.obj;
-		const parts = [`Usage:\n\t${obj.$0? obj.$0 : '{???}'} `];
+		const parts = [`Usage:\n\t${obj.$0 + ' '}${this.getUsageLine()} `];
 		
 		if (obj.subCommands.length) {
 			parts.push(`Available Commands:\n${this.getCommandLines()}`);
@@ -36,10 +36,14 @@ export class UsageHelper {
 		}
 		
 		if (obj.subCommands.length) {
-			parts.push(`use \`${obj.$0? obj.$0 : '???'} --help [command]' check usage for sub command.`);
+			parts.push(`use \`${this.insertHelp(obj.$0? obj.$0 + ' ' + obj.name : obj.name)} [command]' check usage for sub command.`);
 		}
 		
 		return parts.join('\n\n');
+	}
+	
+	private insertHelp(str: string) {
+		return str.replace(/^(\S+)(\s|$)/, '$1 --help$2');
 	}
 	
 	private getParamsLines() {
@@ -70,11 +74,11 @@ export class UsageHelper {
 		}));
 	}
 	
-	private getUsageLine() {
+	private getUsageLine(name: boolean = true) {
 		const obj = this.obj;
 		const columns = process.stdout['columns'] || Infinity;
 		
-		let usage = `${obj.name}`;
+		let usage = name? `${obj.name}` : '';
 		
 		if (obj.globalOptions && obj.globalOptions.length) {
 			obj.globalOptions.forEach((e) => {
@@ -112,7 +116,7 @@ export class UsageHelper {
 	print(exitCode: number) {
 		if (exitCode === 0) {
 			console.log(this.getString() + '\n');
-		}else{
+		} else {
 			console.error(this.getString() + '\n');
 		}
 		exit(exitCode);
