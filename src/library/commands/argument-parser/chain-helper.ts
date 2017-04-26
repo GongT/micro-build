@@ -1,7 +1,12 @@
 import {IArgument, IArgumentCommand, IArgumentOption, IArgumentParam} from "./base";
 import {ArgumentStore, SubCommandParser} from "./index";
 export abstract class HelperBase<Z extends IArgument> {
-	constructor(protected object: Z, protected parent: ArgumentStore) {
+	protected object: Z;
+	protected parent: ArgumentStore;
+	
+	constructor(object: Z, parent: ArgumentStore) {
+		this.object = object;
+		this.parent = parent;
 	}
 	
 	finish(): SubCommandParser {

@@ -1,6 +1,5 @@
 ///<reference path="base.ts"/>
-import {UsageHelper} from "./help";
-import {ArgumentError, IArgumentCommand, IArgumentOption, IArgumentParam} from "./base";
+import {IArgumentCommand, IArgumentOption, IArgumentParam} from "./base";
 import {NormalizedArguments, realParseArguments} from "./real-parse";
 import {CommandHelper, OptionHelper, ParamHelper} from "./chain-helper";
 import {EventEmitter} from "events";
@@ -43,8 +42,8 @@ export abstract class ArgumentStore extends CommandHelper {
 }
 
 export class SubCommandParser extends ArgumentStore {
-	required(required: boolean = true) {
-		this.object.isRequired = required;
+	abstract(abstract: boolean = true) {
+		this.object.isRequired = abstract;
 		return this;
 	}
 	
@@ -61,30 +60,21 @@ export class SubCommandParser extends ArgumentStore {
 
 export class CommandParser extends ArgumentStore {
 	public readonly events: EventEmitter;
-	private usage: UsageHelper;
+	protected _last_result: NormalizedArguments;
 	
 	constructor(name: string = process.argv[1]) {
 		super(<any>{}, null);
 		this.commandName(name);
 		this.events = new EventEmitter;
-		this.usage = new UsageHelper(this.object);
 		this.object.globalOptions = [];
 	}
 	
-	parse(argv: string[]): NormalizedArguments {
-		try {
-			return realParseArguments(argv, this.object);
-		} catch (e) {
-			if (e instanceof ArgumentError) {
-				this.usage.error(e);
-			} else {
-				throw e;
-			}
-		}
+	get result() {
+		return this._last_result;
 	}
 	
-	usageInstance() {
-		return this.usage;
+	parse(argv: string[]): NormalizedArguments {
+		return this._last_result = realParseArguments(argv, this.object);
 	}
 	
 	help(alias: string, ...aliases: string[]) {

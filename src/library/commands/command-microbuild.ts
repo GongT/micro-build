@@ -37,7 +37,7 @@ const install = parser.addCommand('deploy');
 install.addParam('all');
 
 const create = parser.addCommand('create');
-create.addCommand('dockerfile').aliases('docker').required();
+create.addCommand('dockerfile').aliases('docker');
 create.addCommand('service');
 
 const run = parser.addCommand('run');
@@ -45,6 +45,7 @@ run.addCommand('debug');
 run.addCommand('docker');
 
 const service = parser.addCommand('service');
+service.abstract();
 service.addCommand('status');
 service.addCommand('install');
 service.addCommand('uninstall');
@@ -64,17 +65,3 @@ control.addCommand('kill');
 parser.addCommand('logs').aliases('log')
       .addOption('f').defaultValue(true).notAcceptValue();
 parser.addCommand('build');
-
-export function die(...args: any[]) {
-	console.error.apply(console, args);
-	process.exit(1);
-}
-
-function exit(e: any = 0) {
-	if (typeof e === 'number') {
-		process.exit(e);
-	} else {
-		console.error(e);
-		process.exit(1);
-	}
-}

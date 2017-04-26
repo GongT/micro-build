@@ -1,5 +1,6 @@
 import {
 	ArgumentError,
+	ArgumentParserError,
 	getKnownCommand,
 	getKnownOption,
 	getOptionByName,
@@ -24,12 +25,22 @@ export interface NormalizedArguments {
 }
 
 export function realParseArguments(argv: string[], config: IArgumentCommand) {
-	const argument = tokenizeOptions(argv, config);
+	let argument: NormalizedArguments;
+	try {
+		argument = tokenizeOptions(argv, config);
+	} catch (e) {
+		ArgumentError.handle(e, config);
+	}
 	
 	let argItr = argument;
 	while (argItr.nextConfig) {
 		// console.log('current: ', argItr.name);
-		argItr.next = tokenizeOptions(argItr.remaining, argItr.nextConfig);
+		
+		try {
+			argItr.next = tokenizeOptions(argItr.remaining, argItr.nextConfig);
+		} catch (e) {
+			ArgumentError.handle(e, argItr.nextConfig);
+		}
 		argItr = argItr.next;
 		// console.log('next: ', argItr.name);
 	}
@@ -98,7 +109,7 @@ function tokenizeOptions(_argv: string[], config: IArgumentCommand): NormalizedA
 				}
 				
 				if (!otherOption && !globalOption) {
-					throw new ArgumentError('Unknown option: ' + argPart);
+					throw new ArgumentParserError('Unknown option: ' + argPart);
 				}
 				return otherOption;
 			})();
@@ -109,7 +120,7 @@ function tokenizeOptions(_argv: string[], config: IArgumentCommand): NormalizedA
 				const lookAhead = argv[itrIndex + 1];
 				
 				if (!inlineValue && !lookAhead) {
-					throw new ArgumentError('Expected value for option: ' + argPart + ', but no more arguments.');
+					throw new ArgumentParserError('Expected value for option: ' + argPart + ', but no more arguments.');
 				}
 				
 				if (!inlineValue && ANY_ARG.test(lookAhead)) {
@@ -120,7 +131,7 @@ function tokenizeOptions(_argv: string[], config: IArgumentCommand): NormalizedA
 							config: option,
 						});
 					} else {
-						throw new ArgumentError('Expected value for option: ' + argPart + ', but got ' + lookAhead);
+						throw new ArgumentParserError('Expected value for option: ' + argPart + ', but got ' + lookAhead);
 					}
 				} else {
 					ret.options.push({
@@ -152,10 +163,12 @@ function tokenizeOptions(_argv: string[], config: IArgumentCommand): NormalizedA
 				}
 				// console.log(argv, itrIndex, argv.length, ret.remaining);
 				// ret.name === value
+			} else if (config.isRequired) {
+				throw new ArgumentParserError(`Require a sub command: ${config.name}. "${value}" is not valid.`);
 			} else {
 				const item = config.params[paramsDefineItr];
 				if (!item) {
-					throw new ArgumentError('Unexpected param: ' + argPart + '.');
+					throw new ArgumentParserError('Unexpected param: ' + argPart + '.');
 				}
 				if (item.variable_length) {
 					watchingOptions = false;
@@ -166,6 +179,10 @@ function tokenizeOptions(_argv: string[], config: IArgumentCommand): NormalizedA
 				}
 			}
 		}
+	}
+	
+	if (config.isRequired && !ret.nextConfig) {
+		throw new ArgumentParserError('Require a sub command: ' + config.name);
 	}
 	
 	ret.options.forEach(({name, value, config}) => {
@@ -185,7 +202,7 @@ function tokenizeOptions(_argv: string[], config: IArgumentCommand): NormalizedA
 			}
 		} else {
 			if (ret.namedOptions.hasOwnProperty(name)) {
-				throw new ArgumentError('Duplicate options: ' + name);
+				throw new ArgumentParserError('Duplicate options: ' + name);
 			}
 			ret.namedOptions[name] = value;
 		}
@@ -194,7 +211,7 @@ function tokenizeOptions(_argv: string[], config: IArgumentCommand): NormalizedA
 	[].concat(config.globalOptions || [], config.options || []).forEach((e: IArgumentOption) => {
 		if (!ret.namedOptions.hasOwnProperty(e.name)) {
 			if (e['isRequired']) {
-				throw new ArgumentError('Missing required options: --' + e.name);
+				throw new ArgumentParserError('Missing required options: --' + e.name);
 			}
 			ret.namedOptions[e.name] = e.defaultValue;
 		}
@@ -204,7 +221,7 @@ function tokenizeOptions(_argv: string[], config: IArgumentCommand): NormalizedA
 			if (e.defaultValue) {
 				ret.namedParams[e.name] = e.defaultValue;
 			} else if (e.isRequired) {
-				throw new ArgumentError('Missing required param: ' + e.name);
+				throw new ArgumentParserError('Missing required param: ' + e.name);
 			} else {
 				ret.namedParams[e.name] = undefined;
 			}

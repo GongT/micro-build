@@ -35,12 +35,34 @@ export interface ArgumentValueChecker {
 	(value: string): any|void;
 }
 
+export class ArgumentParserError extends Error {
+}
 export class ArgumentError extends Error {
+	readonly helpObject: IArgumentCommand;
+	
+	constructor(message: string, obj?: IArgumentCommand) {
+		super(message);
+		this.helpObject = obj;
+	}
+	
+	static fromParser(e: ArgumentParserError, obj: IArgumentCommand): ArgumentError {
+		const ne = new ArgumentError(e.message, obj);
+		const st = e.stack.split(/\n/g);
+		st[0] = ne.message;
+		ne.stack = st.join('\n');
+		return ne;
+	}
+	
+	static handle(e: Error, config: IArgumentCommand) {
+		if (e instanceof ArgumentParserError) {
+			throw ArgumentError.fromParser(e, config);
+		} else {
+			throw e;
+		}
+	}
 }
 
-export function getOptionByName(optionList: IArgumentCommand[], name: string): IArgumentCommand;
-export function getOptionByName(optionList: IArgumentOption[], name: string): IArgumentOption;
-export function getOptionByName<T extends IArgumentWithAlias>(optionList: T[], name: string): T {
+export function getOptionByName(optionList: IArgumentOption[], name: string): IArgumentOption {
 	return optionList.find((e) => {
 		if (e.name === name) {
 			return true;
@@ -54,5 +76,22 @@ export function getKnownOption(self: IArgumentCommand, name): IArgumentOption {
 }
 
 export function getKnownCommand(self: IArgumentCommand, name): IArgumentCommand {
-	return getOptionByName(self.subCommands, name);
+	const optionList = self.subCommands;
+	let result = optionList.find((e) => {
+		if (e.name === name) {
+			return true;
+		}
+		return e.alias && e.alias.indexOf(name) !== -1;
+	});
+	
+	if (!result) {
+		const like = optionList.filter((e) => {
+			return e.name.toLowerCase().indexOf(name.toLowerCase()) === 0
+		});
+		if (like.length === 1) {
+			result = like[0];
+		}
+	}
+	
+	return result;
 }

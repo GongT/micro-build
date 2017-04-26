@@ -1,10 +1,21 @@
 import {ArgumentError, IArgumentCommand, IArgumentOption, IArgumentParam} from "./base";
+import {CommandParser} from "./index";
+import {die, exit} from "../../../bin";
 const stringWidth = require('string-width');
 
 const isOption = /^-/;
 
 export class UsageHelper {
-	constructor(private obj: IArgumentCommand) {
+	private obj: IArgumentCommand;
+	
+	constructor(obj: CommandParser);
+	constructor(obj: IArgumentCommand);
+	constructor(obj: IArgumentCommand|CommandParser) {
+		if (obj instanceof CommandParser) {
+			this.obj = obj.getObject();
+		} else {
+			this.obj = obj;
+		}
 	}
 	
 	getString() {
@@ -98,14 +109,21 @@ export class UsageHelper {
 		return usage.trim();
 	}
 	
-	print() {
-		console.log(this.getString() + '\n');
-		process.exit(0);
+	print(exitCode: number) {
+		if (exitCode === 0) {
+			console.log(this.getString() + '\n');
+		}else{
+			console.error(this.getString() + '\n');
+		}
+		exit(exitCode);
 	}
 	
 	error(e: ArgumentError) {
-		console.error('%s\n\n\x1B[38;5;9mError:\n\t%s\x1B[0m\n', this.getString(), e.message);
-		process.exit(1);
+		let self: UsageHelper = this;
+		if (e.helpObject) {
+			self = new UsageHelper(e.helpObject);
+		}
+		die('%s\n\n\x1B[38;5;9mError:\n\t%s\x1B[0m\n', self.getString(), e.message);
 	}
 }
 
