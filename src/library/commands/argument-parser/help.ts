@@ -9,11 +9,12 @@ export class UsageHelper {
 	
 	getString() {
 		const obj = this.obj;
-		const parts = [`Usage:\n\t${obj.$0? obj.$0 + ' ' : ''}${this.getUsageLine()}`];
+		const parts = [`Usage:\n\t${obj.$0? obj.$0 : '{???}'} `];
 		
 		if (obj.subCommands.length) {
 			parts.push(`Available Commands:\n${this.getCommandLines()}`);
 		}
+		parts.push(`Description:\n  ${obj.description || obj.descriptionFull}`);
 		
 		if (obj.options.length || (obj.globalOptions && obj.globalOptions.length)) {
 			parts.push(`Options:\n${this.getOptionsLines()}`);
@@ -21,6 +22,10 @@ export class UsageHelper {
 		
 		if (obj.params.length) {
 			parts.push(`Params:\n${this.getParamsLines()}`);
+		}
+		
+		if (obj.subCommands.length) {
+			parts.push(`use \`${obj.$0? obj.$0 : '???'} --help [command]' check usage for sub command.`);
 		}
 		
 		return parts.join('\n\n');

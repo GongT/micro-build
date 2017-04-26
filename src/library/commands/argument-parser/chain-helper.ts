@@ -1,4 +1,4 @@
-import {IArgumentOption, IArgumentParam, IArgumentCommand, IArgument} from "./base";
+import {IArgument, IArgumentCommand, IArgumentOption, IArgumentParam} from "./base";
 import {ArgumentStore, SubCommandParser} from "./index";
 export abstract class HelperBase<Z extends IArgument> {
 	constructor(protected object: Z, protected parent: ArgumentStore) {
@@ -16,7 +16,7 @@ export abstract class HelperBase<Z extends IArgument> {
 		return this;
 	}
 	
-	defaultValue(defaultValue: string | boolean) {
+	defaultValue(defaultValue: string|boolean) {
 		this.object.defaultValue = <any> defaultValue;
 		return this;
 	}
@@ -84,12 +84,12 @@ export abstract class CommandHelper extends HelperBase<IArgumentCommand> {
 			if (parent.object.$0) {
 				this.object.$0 = parent.object.$0 + ' ' + object.name;
 			} else if (parent.object.name) {
-				this.object.$0 = parent.object.name;
+				this.object.$0 = parent.object.name + ' ' + object.name;
 			} else {
-				this.object.$0 = '';
+				this.object.$0 = object.name;
 			}
 		} else {
-			this.object.$0 = '';
+			this.object.$0 = object.name;
 		}
 	}
 }

@@ -1,0 +1,6 @@
+{
+	"cmd_desc.project": "在这个项目中运行，而不是当前目录里的项目（以前必须运行过microbuild）",
+	"main.description": "是一个通过docker等技术部署和调试微服务的工具集",
+	"command.init": "command.init",
+	"command.init.location": "command.init.location"
+}

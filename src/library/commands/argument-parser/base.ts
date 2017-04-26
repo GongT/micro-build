@@ -17,6 +17,7 @@ export interface IArgumentOption extends IArgumentWithAlias {
 }
 
 export interface IArgumentCommand extends IArgumentWithAlias, IArgumentRequired {
+	descriptionFull: string;
 	$0: string;
 	options: IArgumentOption[];
 	globalOptions?: IArgumentOption[];

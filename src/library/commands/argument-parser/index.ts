@@ -1,11 +1,12 @@
 ///<reference path="base.ts"/>
 import {UsageHelper} from "./help";
-import {IArgumentCommand, IArgumentOption, IArgumentParam, ArgumentValueChecker, ArgumentError} from "./base";
-import {realParseArguments, NormalizedArguments} from "./real-parse";
-import {OptionHelper, ParamHelper, CommandHelper} from "./chain-helper";
+import {ArgumentError, IArgumentCommand, IArgumentOption, IArgumentParam} from "./base";
+import {NormalizedArguments, realParseArguments} from "./real-parse";
+import {CommandHelper, OptionHelper, ParamHelper} from "./chain-helper";
+import {EventEmitter} from "events";
 
 export abstract class ArgumentStore extends CommandHelper {
-	addOption(optionDefine: IArgumentOption | string) {
+	addOption(optionDefine: IArgumentOption|string) {
 		if (typeof optionDefine === 'string') {
 			optionDefine = <any>{
 				acceptValue: true,
@@ -16,7 +17,7 @@ export abstract class ArgumentStore extends CommandHelper {
 		return new OptionHelper(<any>optionDefine, this);
 	}
 	
-	addParam(paramDefine: IArgumentParam | string) {
+	addParam(paramDefine: IArgumentParam|string) {
 		if (typeof paramDefine === 'string') {
 			paramDefine = <any>{
 				name: paramDefine,
@@ -26,7 +27,7 @@ export abstract class ArgumentStore extends CommandHelper {
 		return new ParamHelper(<any>paramDefine, this);
 	}
 	
-	addCommand(commandDefine: IArgumentCommand | string, commandFunction?: Function) {
+	addCommand(commandDefine: IArgumentCommand|string, commandFunction?: Function): SubCommandParser {
 		if (typeof commandDefine === 'string') {
 			commandDefine = <any>{
 				name: commandDefine,
@@ -57,8 +58,6 @@ export class SubCommandParser extends ArgumentStore {
 		return this;
 	}
 }
-
-import {EventEmitter} from 'events';
 
 export class CommandParser extends ArgumentStore {
 	public readonly events: EventEmitter;

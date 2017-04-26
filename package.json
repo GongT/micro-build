@@ -3,7 +3,7 @@
 	"version": "3.0.1",
 	"description": "simple micro service builder system with nodejs & docker",
 	"bin": {
-		"microbuild": "./load.js"
+		"microbuild": "./dist/bin.js"
 	},
 	"scripts": {
 		"prepublishOnly": "tsc -p src && node hook-publish.js pre",
@@ -25,19 +25,19 @@
 		"@gongt/jenv-data": "*",
 		"@types/chai": "^3.4.34",
 		"@types/extend": "^2.0.30",
+		"@types/i18n": "^0.5.20",
 		"@types/mkdirp": "^0.3.29",
 		"@types/mocha": "^2.2.38",
 		"@types/node": "^7.0.0",
 		"app-module-path": "^2.2.0",
 		"concurrently": "^3.1.0",
 		"debug": "^2.6.0",
+		"i18n": "^0.8.3",
 		"mkdirp": "^0.5.1",
-		"nodejs-fs-utils": "^1.0.26",
 		"nodemon": "^1.11.0",
 		"readline-sync": "^1.4.5",
 		"source-map-support": "^0.4.10",
-		"string-width": "^2.0.0",
-		"systemjs": "^0.20.12"
+		"string-width": "^2.0.0"
 	},
 	"devDependencies": {
 		"chai": "^3.5.0",

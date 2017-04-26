@@ -1,0 +1,6 @@
+{
+	"cmd_desc.project": "cmd_desc.project",
+	"main.description": "is a collection of tools, to build micro service with docker and many other technologies",
+	"command.init": "command.init",
+	"command.init.location": "command.init.location"
+}

@@ -1,51 +1,35 @@
-/// <reference path="./globals.d.ts"/>
-import {parser} from "./library/commands/command-library";
-import {UsageHelper} from "./library/commands/argument-parser/help";
+#!/usr/bin/env node
+import "source-map-support/register";
+import "./library/common/i18n";
+import {resolve} from "path";
 
-const argv = process.argv.slice(2);
-const args = parser.parse(argv);
+import {displayError} from "./library/common/display-error";
 
-if (args.namedOptions['help']) {
-	if (args.next) {
-		new UsageHelper(args.nextConfig).print();
-	} else {
-		console.log('\n    [Micro Build] is a collection of tools, to build micro-service with docker.\n');
-		parser.usageInstance().print();
-	}
+process.on('unhandledRejection', function (reason, p) {
+	console.log("unhandledRejection! %s", reason);
+	p.catch((e) => {
+		setImmediate(() => {
+			throw e; // quit running
+		});
+	});
+});
+
+process.on('uncaughtException', (err) => {
+	displayError(err.stack);
+	process.exit(1);
+});
+
+const notifier = require('update-notifier')({
+	pkg: require(resolve(__dirname, '../package.json')),
+	name: 'microbuild',
+	updateCheckInterval: 1000 * 60 * 60 * 12
+});
+notifier.notify({
+	defer: true,
+});
+
+if (notifier.update) {
+	console.log(`Update available: ${notifier.update.latest}`);
 }
 
-parser.addCommand('init').addParam('location').defaultValue('.');
-const create = parser.addCommand('create');
-create.addCommand('dockerfile');
-create.addCommand('service');
-create.addCommand('basic');
-
-parser.addCommand('run');
-parser.addCommand('debug');
-
-const service = parser.addCommand('service');
-service.addCommand('status');
-service.addCommand('install');
-service.addCommand('uninstall');
-
-const control = service.addCommand('start');
-control.addCommand('restart');
-control.addCommand('stop');
-control.addCommand('reset');
-control.addCommand('kill');
-
-parser.addCommand('logs').aliases('log')
-      .addOption('f').defaultValue(true).notAcceptValue();
-parser.addCommand('build');
-
-if (!args.next) {
-	parser.usageInstance().error(new Error('Command is required'));
-}
-
-/*
- if (args.namedParams['project']) {
- updateCurrentDir(args.namedParams['project']);
- }
- 
- callCommandFunction(args.nextConfig, args.next);
- */
+require('./microbuild');

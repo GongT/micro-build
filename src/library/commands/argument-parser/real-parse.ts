@@ -1,10 +1,10 @@
 import {
 	ArgumentError,
-	IArgumentOption,
-	IArgumentCommand,
-	getKnownOption,
 	getKnownCommand,
+	getKnownOption,
 	getOptionByName,
+	IArgumentCommand,
+	IArgumentOption,
 	IArgumentParam
 } from "./base";
 
@@ -28,8 +28,10 @@ export function realParseArguments(argv: string[], config: IArgumentCommand) {
 	
 	let argItr = argument;
 	while (argItr.nextConfig) {
-		// console.log('next: ', argItr.next.name);
-		argItr = argItr.next = tokenizeOptions(argument.remaining, argument.nextConfig);
+		// console.log('current: ', argItr.name);
+		argItr.next = tokenizeOptions(argItr.remaining, argItr.nextConfig);
+		argItr = argItr.next;
+		// console.log('next: ', argItr.name);
 	}
 	
 	return argument;
@@ -42,8 +44,8 @@ const SHORT_ARG = /^-(?!-)/;
 const LONG_ARG = /^--/;
 const LONG_ARG_WITH_VALUE = /^--\S+?=/;
 
-function tokenizeOptions(argv: string[], config: IArgumentCommand): NormalizedArguments {
-	argv = argv.slice();
+function tokenizeOptions(_argv: string[], config: IArgumentCommand): NormalizedArguments {
+	const argv: string[] = _argv.slice();
 	let paramsDefineItr: number = 0;
 	
 	const ret: NormalizedArguments = {
@@ -60,8 +62,11 @@ function tokenizeOptions(argv: string[], config: IArgumentCommand): NormalizedAr
 	let watchingGlobalOptions = (!!globalArgs) && globalArgs.length > 0;
 	let watchingOptions = true;
 	
-	for (let argPart = argv[0], itrIndex = 0; itrIndex < argv.length; itrIndex += 1, argPart = argv[itrIndex]) {
-		// console.log('parse: %s -> %s', itrIndex, argPart);
+	for (let itrIndex = 0; itrIndex < argv.length; itrIndex++) {
+		let argPart = argv[itrIndex];
+		
+		// console.log('itrIndex %s < argv.length %s', itrIndex, argv.length)
+		// console.log('parse: %s/%s [%s] -> %s', itrIndex, argv.length, argv, argPart);
 		let isShort: boolean;
 		
 		if (watchingOptions && (
@@ -100,8 +105,7 @@ function tokenizeOptions(argv: string[], config: IArgumentCommand): NormalizedAr
 			
 			const hasDefault = option.hasOwnProperty('defaultValue');
 			if (option.acceptValue) {
-				const inlineValue = LONG_ARG_WITH_VALUE.test(argPart)?
-					argPart.replace(GET_NAME_FROM_PAIR, '') : undefined;
+				const inlineValue = LONG_ARG_WITH_VALUE.test(argPart)? argPart.replace(GET_NAME_FROM_PAIR, '') : undefined;
 				const lookAhead = argv[itrIndex + 1];
 				
 				if (!inlineValue && !lookAhead) {
@@ -136,11 +140,18 @@ function tokenizeOptions(argv: string[], config: IArgumentCommand): NormalizedAr
 				});
 			}
 		} else {
+			const value = argv.splice(itrIndex, 1)[0];
 			watchingGlobalOptions = false;
 			const isCommand = getKnownCommand(config, argPart);
 			if (isCommand) {
 				ret.nextConfig = isCommand;
-				ret.remaining = argv.splice(itrIndex + 1, argv.length)
+				if (argv.length > 0) {
+					ret.remaining = argv.splice(itrIndex, argv.length);
+				} else {
+					ret.remaining = [];
+				}
+				// console.log(argv, itrIndex, argv.length, ret.remaining);
+				// ret.name === value
 			} else {
 				const item = config.params[paramsDefineItr];
 				if (!item) {
