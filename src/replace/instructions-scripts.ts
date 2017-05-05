@@ -2,9 +2,9 @@ import {TemplateVariables} from "./base";
 import {resolve} from "path";
 import {renderTemplateScripts} from "./replace-scripts";
 import {removeCache} from "../build/scripts";
-import {getProjectPath, getGeneratePath} from "../library/common/file-paths";
+import {getGeneratePath, getProjectPath} from "../library/common/file-paths";
 import {getEnvironmentName} from "../library/common/runenv";
-import {createDockerRunArgument, createDockerClientArgument} from "../library/docker/create-arguments";
+import {createDockerClientArgument, createDockerRunArgument} from "../library/docker/create-arguments";
 
 export class ScriptVariables extends TemplateVariables {
 	REMOVE_CACHES() {
@@ -143,7 +143,7 @@ export class ScriptVariables extends TemplateVariables {
 	}
 	
 	START_DEPENDENCY() {
-		return this.walk(this.config.toJSON().containerDependencies, ({imageName, runCommandline}, containerName) => {
+		return this.walk(this.config.toJSON().containerDependencies, ({imageName, runCommandline, appCommandline}, containerName) => {
 			return renderTemplateScripts('depend', 'start-service.sh', new ScriptVariables(this.config, {
 				CONTAINER_NAME() {
 					return containerName;
@@ -152,12 +152,21 @@ export class ScriptVariables extends TemplateVariables {
 					return imageName;
 				},
 				COMMAND_LINE() {
+					if (Array.isArray(appCommandline)) {
+						return appCommandline.map((str) => {
+							return JSON.stringify(str);
+						}).join(' ');
+					} else {
+						return appCommandline || '';
+					}
+				},
+				DOCKER_CONFIG() {
 					if (Array.isArray(runCommandline)) {
 						return runCommandline.map((str) => {
 							return JSON.stringify(str);
 						}).join(' ');
 					} else {
-						return runCommandline;
+						return runCommandline || '';
 					}
 				},
 			}));

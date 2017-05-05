@@ -25,7 +25,9 @@ else
 	fi
 	
 	echo " >>> running dependence @{CONTAINER_NAME}"
-	docker run -d --name "@{CONTAINER_NAME}" @{COMMAND_LINE} "@{IMAGE_NAME}"
+	set -x
+	docker run -d --name "@{CONTAINER_NAME}" @{DOCKER_CONFIG} "@{IMAGE_NAME}" @{COMMAND_LINE}
+	set +x
 	
 	sleep 2
 	

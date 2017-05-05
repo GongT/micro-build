@@ -51,7 +51,10 @@ fi
 
 echo -e "\e[38;5;14m[micro-build]\e[0m debug: SELF_PID=${SELF_PID}"
 
-trap 'RET=$?
+trap '
+if [ "${RET}" = "" ]; then
+	RET=1
+fi
 echo -e "\n\e[38;5;14m[micro-build]\e[0m exit..."
 trap - SIGTERM EXIT
 JOBS=$(jobs -p)
@@ -63,7 +66,8 @@ if [ -n "${JOBS}" ]; then
 	wait -- ${JOBS} 2>/dev/null
 	echo "  killed."
 fi
-echo -e "\e[38;5;14m[micro-build]\e[0m finished.\n"
+echo -e "\e[38;5;14m[micro-build]\e[0m finished."
+echo -e "\e[38;5;14m[micro-build]\e[0m exit code ${RET}.\n"
 exit ${RET}
 ' SIGINT SIGTERM EXIT
 
@@ -86,7 +90,7 @@ echo "PWD=$(pwd)"
 if [ "${WATCH}" = "no" ]; then
 	echo "${SHELL} ${COMMAND} ${@}"
 	echo " ::: start :::"
-	eval "${SHELL[@]}" "${COMMAND[@]}" "${@}"
+	"${SHELL[@]}" "${COMMAND[@]}" "${@}"
 	RET=$?
 else
 	echo "@{NODEMON_BIN} \\
@@ -101,6 +105,9 @@ fi
 kill -2 -- $$
 sleep .5
 
-echo -e "\e[38;5;14m[micro-build]\e[0m finished.\n"
+echo -e "\e[38;5;14m[micro-build]\e[0m finished."
+echo -e "\e[38;5;14m[micro-build]\e[0m exit code ${RET}.\n"
 
 echo -en "\e]0;\007"
+
+exit ${RET}

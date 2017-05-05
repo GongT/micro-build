@@ -66,7 +66,7 @@ export interface MicroServiceConfig {
 	}>;
 	gfwConfig: GFWInterface;
 	serviceDependencies: KeyValueObject<string>;
-	containerDependencies: KeyValueObject<{imageName: string, runCommandline: string|string[]}>;
+	containerDependencies: KeyValueObject<{imageName: string, runCommandline: string|string[], appCommandline: string|string[],}>;
 	environments: {
 		insideOnly: boolean;
 		name: string;
@@ -269,8 +269,8 @@ export class MicroBuildConfig {
 		this.storage.serviceDependencies[otherService] = otherServiceGitUrl || null;
 	}
 	
-	dependIsolate(containerName: string, imageName: string = '', runCommandline: string|string[] = '') {
-		this.storage.containerDependencies[containerName] = {imageName, runCommandline};
+	dependIsolate(containerName: string, imageName: string = '', runCommandline: string|string[] = '', appCommandline: string|string[] = '') {
+		this.storage.containerDependencies[containerName] = {imageName, runCommandline, appCommandline};
 	}
 	
 	prependDockerFile(filePath: string) {
