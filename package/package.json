@@ -1,0 +1,34 @@
+{
+	"name": "@gongt/micro-build",
+	"version": "3.0.1",
+	"description": "simple micro service builder system with nodejs & docker",
+	"bin": {
+		"microbuild": "./bin/bin.js"
+	},
+	"scripts": {
+		"prepublishOnly": "tsc -p src && node hook-publish.js pre",
+		"postpublish": "node hook-publish.js post"
+	},
+	"preferGlobal": true,
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/GongT/micro-build.git"
+	},
+	"author": "GongT <gongteng524702837@gmail.com>",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/GongT/micro-build/issues"
+	},
+	"homepage": "https://github.com/GongT/micro-build#readme",
+	"dependencies": {
+		"app-module-path": "^2.2.0",
+		"concurrently": "^3.1.0",
+		"debug": "^2.6.0",
+		"i18n": "^0.8.3",
+		"mkdirp": "^0.5.1",
+		"nodemon": "^1.11.0",
+		"readline-sync": "^1.4.5",
+		"source-map-support": "^0.4.10",
+		"string-width": "^2.0.0"
+	}
+}

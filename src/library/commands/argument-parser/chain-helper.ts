@@ -85,6 +85,7 @@ export abstract class CommandHelper extends HelperBase<IArgumentCommand> {
 		this.object.subCommands = [];
 		this.object.params = [];
 		if (parent) {
+			this.object.globalOptions = parent.object.globalOptions;
 			parent.object.subCommands.push(this.object);
 			if (parent.object.$0) {
 				this.object.$0 = parent.object.$0 + ' ' + parent.object.name;

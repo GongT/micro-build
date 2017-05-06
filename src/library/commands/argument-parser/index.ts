@@ -69,11 +69,11 @@ export class CommandParser extends ArgumentStore {
 		this.object.globalOptions = [];
 	}
 	
-	get result() {
+	get result(): NormalizedArguments {
 		return this._last_result;
 	}
 	
-	parse(argv: string[]): NormalizedArguments {
+	parse(argv: string[] = process.argv.slice(2)): NormalizedArguments {
 		return this._last_result = realParseArguments(argv, this.object);
 	}
 	
@@ -103,6 +103,12 @@ export class CommandParser extends ArgumentStore {
 		}
 		
 		return this;
+	}
+	
+	globalOption(optionDefine: IArgumentOption|string) {
+		const opt = this.addOption(optionDefine);
+		this.object.globalOptions.push(this.object.options.pop())
+		return opt;
 	}
 	
 	commandName(name: string) {

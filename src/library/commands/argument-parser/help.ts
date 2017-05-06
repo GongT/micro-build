@@ -1,6 +1,6 @@
 import {ArgumentError, IArgumentCommand, IArgumentOption, IArgumentParam} from "./base";
 import {CommandParser} from "./index";
-import {die, exit} from "../../../bin";
+import {die, exit} from "../../../bin/bin";
 const stringWidth = require('string-width');
 
 const isOption = /^-/;

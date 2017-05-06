@@ -1,40 +1,24 @@
 import {CommandParser, SubCommandParser} from "./argument-parser/index";
 import {IArgumentOption} from "./argument-parser/base";
-import {__} from "../common/i18n";
-import {platform} from "os";
-
-export interface CommandDefine {
-	command: string;
-	description: string;
-	aliases?: string[];
-	builder?: (parser: SubCommandParser) => void;
-}
-
-const isLinux = /linux/i.test(platform());
+import {__} from "../common/my-i18n";
 
 export const parser = new CommandParser;
 parser.commandName('microbuild');
 parser.help('--help', '-h');
 
-const switchProject: IArgumentOption = {
+export const optSwitchProject: IArgumentOption = {
 	multipleTimes: false,
 	acceptValue: true,
 	name: 'project',
-	alias: ['P'],
+	alias: ['p'],
 	description: __('cmd_desc.project'),
 	defaultValue: '.',
 };
 
-parser.addOption(switchProject);
+parser.addOption(optSwitchProject);
 
 parser.addCommand('init')
-      .description(__('command.init'))
-      .addParam('location')
-      .description(__('command.init.location'))
-      .defaultValue('.');
-
-const install = parser.addCommand('deploy');
-install.addParam('all');
+      .description(__('command.init'));
 
 const create = parser.addCommand('create');
 create.addCommand('dockerfile').aliases('docker');
@@ -44,24 +28,4 @@ const run = parser.addCommand('run');
 run.addCommand('debug');
 run.addCommand('docker');
 
-const service = parser.addCommand('service');
-service.abstract();
-service.addCommand('status');
-service.addCommand('install');
-service.addCommand('uninstall');
-service.addCommand('display');
-
-const enable = service.addCommand('autostart');
-enable.addParam('on');
-enable.addParam('off');
-
-const control = service.addCommand('control');
-control.addCommand('start');
-control.addCommand('restart');
-control.addCommand('stop');
-control.addCommand('reset');
-control.addCommand('kill');
-
-parser.addCommand('logs').aliases('log')
-      .addOption('f').defaultValue(true).notAcceptValue();
 parser.addCommand('build');

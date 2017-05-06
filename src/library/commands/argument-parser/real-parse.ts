@@ -58,7 +58,6 @@ const LONG_ARG_WITH_VALUE = /^--\S+?=/;
 function tokenizeOptions(_argv: string[], config: IArgumentCommand): NormalizedArguments {
 	const argv: string[] = _argv.slice();
 	let paramsDefineItr: number = 0;
-	
 	const ret: NormalizedArguments = {
 		name: config.name,
 		paramsList: [],
@@ -70,7 +69,7 @@ function tokenizeOptions(_argv: string[], config: IArgumentCommand): NormalizedA
 	};
 	
 	const globalArgs = config.globalOptions;
-	let watchingGlobalOptions = (!!globalArgs) && globalArgs.length > 0;
+	const watchingGlobalOptions = (!!globalArgs) && globalArgs.length > 0;
 	let watchingOptions = true;
 	
 	for (let itrIndex = 0; itrIndex < argv.length; itrIndex++) {
@@ -104,11 +103,7 @@ function tokenizeOptions(_argv: string[], config: IArgumentCommand): NormalizedA
 				}
 				
 				const otherOption = getKnownOption(config, name);
-				if (otherOption) {
-					watchingGlobalOptions = false;
-				}
-				
-				if (!otherOption && !globalOption) {
+				if (!otherOption) {
 					throw new ArgumentParserError('Unknown option: ' + argPart);
 				}
 				return otherOption;
@@ -152,7 +147,6 @@ function tokenizeOptions(_argv: string[], config: IArgumentCommand): NormalizedA
 			}
 		} else {
 			const value = argv.splice(itrIndex, 1)[0];
-			watchingGlobalOptions = false;
 			const isCommand = getKnownCommand(config, argPart);
 			if (isCommand) {
 				ret.nextConfig = isCommand;

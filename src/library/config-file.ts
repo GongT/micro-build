@@ -1,7 +1,4 @@
 import {fileExists} from "./file-operation/fs";
-export function readConfigFile(baseDir: string) {
-	
-}
 
 export class ConfigFile {
 	private exists: boolean;
@@ -10,4 +7,7 @@ export class ConfigFile {
 		this.exists = fileExists(root);
 	}
 	
+	static read() {
+	
+	}
 }

@@ -5,7 +5,7 @@ const i18n: i18nAPI = <any> {};
 configure(<any>{
 	locales: ['en', 'cn'],
 	register: i18n,
-	directory: resolve(__dirname, '../../../locales'),
+	directory: resolve(__dirname, '../../locales'),
 	syncFiles: true,
 	updateFiles: true,
 });

@@ -1,14 +1,14 @@
 import * as fs from "fs";
 
-export const fileExists = (path: string): boolean => {
+export function fileExists(path: string): boolean {
 	return fs.existsSync(path) && fs.lstatSync(path).isFile();
-};
+}
 
-export const folderExists = (path: string): boolean => {
+export function folderExists(path: string): boolean {
 	return fs.existsSync(path) && fs.lstatSync(path).isDirectory();
-};
+}
 
-export const linkExists = (path: string): boolean => {
+export function linkExists(path: string): boolean {
 	try {
 		return fs.lstatSync(path).isSymbolicLink();
 	} catch (e) {
@@ -18,7 +18,7 @@ export const linkExists = (path: string): boolean => {
 			throw e;
 		}
 	}
-};
+}
 
 export function readFile(path: string): string {
 	return fs.readFileSync(path, 'utf8');

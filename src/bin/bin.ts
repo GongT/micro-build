@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 import "source-map-support/register";
-import "./library/common/i18n";
+import "../library/common/my-i18n";
 import {resolve} from "path";
 
-import {displayError} from "./library/common/display-error";
+import {displayError} from "../library/common/display-error";
 
 process.on('unhandledRejection', function (reason, p) {
 	console.log("unhandledRejection! %s", reason);
