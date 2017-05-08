@@ -2,6 +2,7 @@ export interface IArgument {
 	name: string;
 	description: string;
 	defaultValue: string;
+	completion?: any; // TODO
 }
 
 export interface IArgumentWithAlias extends IArgument {
@@ -24,6 +25,7 @@ export interface IArgumentCommand extends IArgumentWithAlias, IArgumentRequired 
 	subCommands: IArgumentCommand[];
 	params: IArgumentParam[];
 	callback: Function;
+	metadata?: any;
 }
 
 export interface IArgumentParam extends IArgumentRequired {

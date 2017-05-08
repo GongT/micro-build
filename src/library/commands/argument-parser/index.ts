@@ -56,6 +56,10 @@ export class SubCommandParser extends ArgumentStore {
 		this.object.alias = aliases;
 		return this;
 	}
+	
+	attachData(data: any) {
+		this.object.metadata = data;
+	}
 }
 
 export class CommandParser extends ArgumentStore {
@@ -99,7 +103,7 @@ export class CommandParser extends ArgumentStore {
 			    .description('show help message')
 			    .notAcceptValue()
 			;
-			this.object.globalOptions.push(this.object.options.pop())
+			this.object.globalOptions.push(this.object.options.pop());
 		}
 		
 		return this;
@@ -107,7 +111,7 @@ export class CommandParser extends ArgumentStore {
 	
 	globalOption(optionDefine: IArgumentOption|string) {
 		const opt = this.addOption(optionDefine);
-		this.object.globalOptions.push(this.object.options.pop())
+		this.object.globalOptions.push(this.object.options.pop());
 		return opt;
 	}
 	

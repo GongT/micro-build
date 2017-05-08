@@ -2,5 +2,6 @@
 node_modules/
 npm-debug.log
 bash_completion.d
+bash-completion
 *.log
 test-dir

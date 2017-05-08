@@ -1,4 +1,4 @@
-import {CommandParser, SubCommandParser} from "./argument-parser/index";
+import {CommandParser} from "./argument-parser/index";
 import {IArgumentOption} from "./argument-parser/base";
 import {__} from "../common/my-i18n";
 
@@ -13,6 +13,7 @@ export const optSwitchProject: IArgumentOption = {
 	alias: ['p'],
 	description: __('cmd_desc.project'),
 	defaultValue: '.',
+	completion: 'path',
 };
 
 parser.addOption(optSwitchProject);

@@ -4,6 +4,7 @@ import {NormalizedArguments} from "./commands/argument-parser/real-parse";
 let projectRoot: string = process.cwd();
 const ROOT: string = resolve(__dirname, '..');
 export const CONFIG_FILE_NAME: string = 'build.config.ts';
+export const TEMP_FOLDER_NAME: string = '.micro-build';
 
 export function switchProjectFromArguments(args: NormalizedArguments) {
 	if (args.namedOptions.project && args.namedOptions.project !== '.') {
@@ -27,7 +28,7 @@ export function getPathMicrobuild(resolveTo?: string) {
 }
 
 export function getPathTemp(resolveTo?: string) {
-	return resolveTo? resolve(projectRoot, resolveTo) : resolve(projectRoot, '.micro-build', resolveTo);
+	return resolveTo? resolve(projectRoot, TEMP_FOLDER_NAME, resolveTo) : resolve(projectRoot, TEMP_FOLDER_NAME, resolveTo);
 }
 
 export function getPathConfigFile() {

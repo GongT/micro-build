@@ -1,5 +1,6 @@
 import {CommandParser} from "./index";
-import {IArgumentCommand, IArgumentOption} from "./base";
+import {ArgumentError, IArgumentCommand, IArgumentOption} from "./base";
+import {TEMP_FOLDER_NAME} from "../../paths";
 
 export function createBashCompletion(config: CommandParser);
 export function createBashCompletion(config: IArgumentCommand);
@@ -17,7 +18,7 @@ export function createBashCompletion(config: IArgumentCommand|CommandParser) {
 # end
 complete -F _${obj.name} microbuild
 `;
-	return '#!/bin/sh\n\n' + ret;
+	return '# GENERATED FILE, DO NOT MODIFY\n\n' + ret;
 }
 
 function createFunction(obj: IArgumentCommand, path: string) {
@@ -66,11 +67,9 @@ ${indent(maps[k])}
 ;;`
 	}).join('\n');
 	
-	return `
-	case ${name} in
+	return `case ${name} in
 ${indent(body)}
-esac
-`
+	esac`
 }
 function bash_if(maps: object) {
 	const ks = Object.keys(maps);
@@ -103,28 +102,81 @@ function indent(str: string, length = 1) {
 function completion_emit(list: string) {
 	return `COMPREPLY+=( $(compgen -W ${bash_argument(list)} -- $\{INPUT}) )`;
 }
+function completion_emit_file() {
+	return `_filedir`;
+}
 
+function fullSwitchName(opt: IArgumentOption, type: ''|'same'|'diff'|'space' = ''): string {
+	const split = type === 'space'? ' ' : '|';
+	return (opt.alias || []).concat(opt.name).map((s) => {
+		const isLong = s.length > 1;
+		const needSame = type !== 'same' && type !== 'space';
+		const needDiff = type !== 'diff';
+		
+		const base = isLong? '--' + s : '-' + s;
+		let name = [];
+		if (opt.acceptValue) {
+			if (needSame) {
+				name.push(`${base}=*`);
+			}
+			if (needDiff) {
+				name.push(base);
+			}
+		}
+		return name.join(split);
+	}).filter(e => !!e).join(split);
+}
+function optionCompletionValue(paramSw: Object, opt: IArgumentOption) {
+	let name: string, value: string;
+	switch (opt.completion) {
+	case 'path':
+		name = fullSwitchName(opt, 'diff');
+		value = `${completion_emit_file()} ; return 0`;
+		paramSw[name] = value;
+		break;
+	case '':
+		return false;
+	default:
+		throw new ArgumentError('unknown completion option: ' + opt.completion);
+	}
+}
 function skipGlobalSwitch(obj: IArgumentCommand) {
 	if (obj.globalOptions.length === 0) {
 		return '';
 	}
 	
-	const names = [].concat(obj.options, obj.globalOptions).map((opt) => {
-		return (opt.alias || []).concat(opt.name).map((s) => {
-			let ret = s.length > 1? '--' + s : '-' + s;
-			if (opt.acceptValue) {
-				ret = `${ret}=*|${ret}`;
-			}
-			return ret;
-		}).join('|');
-	}).join('|');
+	const lastSwitch = {};
+	const skipNames = [];
+	const skipNames2 = [];
 	
-	return `while true; do
-	${bash_switch(bash_array_value('COMP_WORDS', '${BASE}'), {
-		[names]: `BASE=$((BASE+1))`,
-		'*':'break'
-	})}
-done`;
+	[].concat(obj.options, obj.globalOptions).map((opt) => {
+		const names = fullSwitchName(opt);
+		if (opt.acceptValue) {
+			skipNames2.push(names);
+			optionCompletionValue(lastSwitch, opt);
+		} else {
+			skipNames.push(names);
+		}
+	});
+	const switches = {};
+	if (skipNames.length) {
+		Object.assign(lastSwitch, {
+			[skipNames.join('|')]: `BASE=$((BASE+1))`,
+		});
+	}
+	if (skipNames2.length) {
+		Object.assign(lastSwitch, {
+			[skipNames2.join('|')]: `BASE=$((BASE+2))`,
+		});
+	}
+	Object.assign(switches, {
+		'*': 'break'
+	});
+	return `{ while true; do
+	${bash_switch(bash_array_value('COMP_WORDS', '${BASE}'), switches)}
+done }
+${bash_switch('${prev}', lastSwitch)}
+`;
 }
 function createSwitch(obj: IArgumentCommand, level: number = 0) {
 	let ret = '';
@@ -156,7 +208,18 @@ function createSwitch(obj: IArgumentCommand, level: number = 0) {
 			commandList.push(e.name);
 			map[e.name] = createSwitch(e, level + 1);
 		});
-		map['*'] = completion_emit(commandList.join(' '));
+		
+		const options = obj.options.map((opt) => {
+			return fullSwitchName(opt, 'space');
+		});
+		if (options.length) {
+			map['-*'] = completion_emit(options.join(' '));
+		}
+		
+		map['*'] = `[ -e "\${PROJECT}/${TEMP_FOLDER_NAME}/completion.sh" ] &&
+	source "\${PROJECT}/${TEMP_FOLDER_NAME}/completion.sh" &&
+	\${COMPLETEION_FUNCTION_NAME} "$@"
+` + completion_emit(commandList.join(' '));
 		
 		ret += bash_switch(bash_array_value('COMP_WORDS', `$((BASE+${level}))`), map);
 	}

@@ -5,7 +5,7 @@ import {__} from "../library/common/my-i18n";
 import {ArgumentError} from "../library/commands/argument-parser/base";
 import {die, exit} from "./bin";
 import {createBashCompletion} from "../library/commands/argument-parser/bash-completion";
-import {folderExists, writeFile} from "../library/file-operation/fs";
+import {folderExists, writeFile} from "../library/common/filesystem";
 import {handleCompletion} from "../library/commands/command-completion";
 import {getPathProject, switchProjectFromArguments} from "../library/paths";
 import mkdirp = require("mkdirp");

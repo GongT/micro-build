@@ -5,3 +5,5 @@
 !.npmignore
 !package.json
 !README.md
+!example/
+!example/**
