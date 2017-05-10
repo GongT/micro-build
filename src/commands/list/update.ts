@@ -1,28 +1,28 @@
-import {resolve, basename} from "path";
+import {basename, resolve} from "path";
 import {
+	existsSync,
+	lstatSync,
 	readFileSync,
-	writeFileSync,
+	readlinkSync,
 	realpathSync,
 	symlinkSync,
 	unlinkSync,
-	existsSync,
-	lstatSync,
-	readlinkSync
+	writeFileSync
 } from "fs";
 import {sync as mkdirpSync} from "mkdirp";
 import {EPlugins} from "../../library/microbuild-config";
 import {getSavePaths} from "../../replace/plugin/jspm-bundle";
 import {rmdirsSync} from "nodejs-fs-utils";
 import {CommandDefine} from "../command-library";
-import {readBuildConfig, dontRemoveReg} from "../../library/read-config";
+import {dontRemoveReg, readBuildConfig} from "../../library/read-config";
 import {defaultEnvironment} from "../../library/common/runenv";
 import {
+	getGeneratePath,
 	getProjectPath,
-	projectFileObject,
 	getTempPath,
 	MicroBuildRoot,
 	projectFile,
-	getGeneratePath
+	projectFileObject
 } from "../../library/common/file-paths";
 import {PackageJsonFile} from "../../library/config-file/package-json-file";
 
@@ -151,6 +151,7 @@ const defaultIgnores = [
 	'npm-debug.log*',
 	'coverage/',
 	'typings',
+	'screen.*',
 ];
 
 const gitIgnores = [
