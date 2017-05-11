@@ -25,6 +25,9 @@ export class UnitFileVariables extends ScriptVariables {
 			ret.push(`WatchdogSec=${sdWatch}`);
 		}
 		
+		const startTimeout = service.startTimeout || 10;
+		ret.push(`TimeoutStartSec=${startTimeout}s`);
+		
 		ret.push(`Environment=SYSTEMD_TYPE=${sdType}`);
 		ret.push(`NotifyAccess=all`);
 		ret.push(`PrivateNetwork=no`);

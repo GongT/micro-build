@@ -23,10 +23,11 @@ export interface GithubInterface {
 	token: string;
 }
 
-export type IServiceType = 'simple' | 'notify' | '';
+export type IServiceType = 'simple'|'notify'|'';
 export interface ISystemdConfig {
-	type: IServiceType;
+	type?: IServiceType;
 	watchdog?: number;
+	startTimeout?: number;
 }
 
 export interface GFWInterface {
@@ -66,16 +67,19 @@ export interface MicroServiceConfig {
 	}>;
 	gfwConfig: GFWInterface;
 	serviceDependencies: KeyValueObject<string>;
-	containerDependencies: KeyValueObject<{imageName: string, runCommandline: string|string[], appCommandline: string|string[],}>;
+	containerDependencies: KeyValueObject<{
+		imageName: string, runCommandline: string|string[], appCommandline: string
+			|string[],
+	}>;
 	environments: {
 		insideOnly: boolean;
 		name: string;
 		value: string;
-		append: boolean | string;
+		append: boolean|string;
 	}[];
 	labels: KeyValueObject<string|Object|any[]>;
 	specialLabels: KeyValueObject<string|Object|any[]>;
-	npmUpstream: NpmRegistry & {
+	npmUpstream: NpmRegistry&{
 		enabled: boolean;
 	};
 	dnsConfig: {
@@ -269,7 +273,9 @@ export class MicroBuildConfig {
 		this.storage.serviceDependencies[otherService] = otherServiceGitUrl || null;
 	}
 	
-	dependIsolate(containerName: string, imageName: string = '', runCommandline: string|string[] = '', appCommandline: string|string[] = '') {
+	dependIsolate(containerName: string, imageName: string = '', runCommandline: string|string[] = '', appCommandline:
+		string
+		|string[] = '') {
 		this.storage.containerDependencies[containerName] = {imageName, runCommandline, appCommandline};
 	}
 	
@@ -473,10 +479,16 @@ export class MicroBuildConfig {
 		this.storage.specialLabels[name] = value;
 	}
 	
+	systemd(service: ISystemdConfig) {
+		this.storage.service = service;
+	}
+	
+	/** @deprecated */
 	systemdType(type: IServiceType) {
 		this.storage.service.type = type;
 	}
 	
+	/** @deprecated */
 	systemdWatchdog(watchdog: number) {
 		this.storage.service.watchdog = watchdog;
 	}
