@@ -14,7 +14,6 @@ PrivateTmp=false
 RestartSec=5
 RestartPreventExitStatus=130
 
-TimeoutStartSec=10s
 TimeoutStopSec=5s
 StartLimitInterval=60s
 StartLimitBurst=2
