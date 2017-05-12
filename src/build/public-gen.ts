@@ -6,10 +6,12 @@ import {readBuildConfig} from "../library/read-config";
 
 export function createPublicFiles(config: MicroBuildConfig = readBuildConfig()) {
 	createFunctions(config);
+	
+	saveFilePublic('PROJECT_NAME', 'PROJECT_NAME=' + config.toJSON().projectName + '\n');
 }
 
 let functionsCreate = false;
-function createFunctions(config) {
+function createFunctions(config: MicroBuildConfig) {
 	if (functionsCreate) {
 		return;
 	}
