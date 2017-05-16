@@ -20,12 +20,17 @@ export class ConfigJsonFile<T> extends BaseFile<T> {
 		} else {
 			this._tab = '\t';
 		}
-		return JSON.parse(content.trim());
+		try {
+			return JSON.parse(content.trim());
+		} catch (e) {
+			console.log('------------\n%s\n-----------', content.trim())
+			throw e;
+		}
 	}
 	
 	stringify_file(): string {
 		return JSON.stringify(this._content, null, 1).replace(/^\s+/gm, (sp) => {
-				return (new Array(sp.length)).fill(this._tab).join('');
-			}).trim();
+			return (new Array(sp.length)).fill(this._tab).join('');
+		}).trim();
 	}
 }
