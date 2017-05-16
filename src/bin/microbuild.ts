@@ -9,6 +9,7 @@ import {folderExists, writeFile} from "../library/common/filesystem";
 import {handleCompletion} from "../library/commands/command-completion";
 import {getPathProject, switchProjectFromArguments} from "../library/paths";
 import mkdirp = require("mkdirp");
+import {runCommand} from "./command-switch";
 
 const needHandleCompletion = handleCompletion();
 
@@ -58,4 +59,4 @@ if (!folderExists(getPathProject())) {
 	}
 }
 
-console.log(args)
+runCommand(args);

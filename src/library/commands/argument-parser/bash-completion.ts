@@ -11,34 +11,42 @@ export function createBashCompletion(config: IArgumentCommand|CommandParser) {
 	} else {
 		obj = config;
 	}
-	let ret = createFunction(obj, '');
+	let ret = ['# GENERATED FILE, DO NOT MODIFY\n'];
 	
-	ret += `
-
-# end
-complete -F _${obj.name} microbuild
-`;
-	return '# GENERATED FILE, DO NOT MODIFY\n\n' + ret;
+	ret.push(createFunction(obj, '', `
+_mc_debug ""
+COMPREPLY=( )
+local cur prev words cword
+_get_comp_words_by_ref -n : cur prev words cword
+_mc_debug -e "\\ecprev=\${prev}, words=\${words}, cword=\${cword},"
+local BASE=1
+`));
+	ret.push(bash_function('_mc_debug', '[ -n "${PTS}" ] && echo "$@" > /dev/pts/${PTS}'));
+	ret.push(bash_function('_mc_debug_set', 'export PTS="${PTS_ID}"', ['PTS_ID']));
+	ret.push('');
+	ret.push('# end');
+	ret.push(`complete -F _${obj.name} microbuild`);
+	
+	return ret.join('\n');
 }
 
-function createFunction(obj: IArgumentCommand, path: string) {
-	let ret = `
-function ${path}_${obj.name} {
-	local INPUT=$2
-	COMPREPLY=( )
-	local BASE=1
-	
-${indent(skipGlobalSwitch(obj))}
+function createFunction(obj: IArgumentCommand, path: string, prepare: string = '') {
+	return bash_function(`${path}_${obj.name}`, `
+_mc_debug "call \\\`${path}_${obj.name}\\\` with: '$1' '$2' '$3' '$4'"
+${prepare? '\n' + prepare.trim() + '\n\n' : ''}# option supports
+${skipOptionFunctions()}
 
-${indent(createSwitch(obj))}
-}
-`;
-	
-	return ret;
+# main body
+${createSwitch(obj)}
+`, ['CMD', 'INPUT']);
 }
 
 function bash_array_value(name: string, index: number|string) {
-	return `"\${${name}[${bash_array_index(name, index)}]}"`;
+	if (name === '@') {
+		return `\${${index}}`
+	} else {
+		return `"\${${name}[${bash_array_index(name, index)}]}"`;
+	}
 }
 function bash_array_index(name: string, index: number|string) {
 	if (typeof index === 'string') {
@@ -60,16 +68,42 @@ function bash_array_slice(name: string, from?: number, length?: number) {
 function bash_array_shift(name: string) {
 	return `\${${name}[0]} ; ${name}=${bash_array_slice(name, 1, null)}`
 }
-function bash_switch(name: string, maps: object) {
+function bash_function(name: string, body: string, args: string[] = []) {
+	if (args.length) {
+		body = args.map((n, i) => `local ${n}=${bash_array_value('@', i + 1)}`).join('\n') + '\n' + body;
+	}
+	
+	body = body.trim();
+	return `function ${name} { # ${args.join(', ')}
+${body? indent(body) : ';'}
+}`
+}
+function bash_range(from: number, to: number, step = 1) {
+	return `{${from}..${to}..${step}}`
+}
+function bash_for(varName: string, condition: string, body: string) {
+	return `local ${varName}; for ${varName} in ${condition} ; do
+${indent(body.trim())}
+done`
+}
+function bash_while(condition: string, body: string) {
+	return `while ${condition} ; do
+${indent(body.trim())}
+done`
+}
+function bash_switch(name: string, maps: object, brk = true) {
+	const prepend = brk? '' : ' while false ; do';
+	const append = brk? ';;' : 'done ;&';
 	const body = Object.keys(maps).map((k) => {
-		return `${k})
-${indent(maps[k])}
-;;`
+		return `${k}) _mc_debug "  case ${k}"; ${prepend}
+${indent(maps[k].trim())}
+${append}`
 	}).join('\n');
 	
-	return `case ${name} in
-${indent(body)}
-	esac`
+	return `_mc_debug switch ${name.replace(/\$/g, '\\$')} = \\"${name}\\"
+case ${name} in
+${body}
+esac`
 }
 function bash_if(maps: object) {
 	const ks = Object.keys(maps);
@@ -84,13 +118,16 @@ ${indent(maps[key] || "echo empty here.")}
 	}).join('el');
 	
 	if (ret) {
-		ret += 'fi\n'
+		ret += 'fi'
 	}
 	
 	return ret;
 }
 function bash_argument(s) {
 	return JSON.stringify(s);
+}
+function START_WITH(varName) {
+	return `[ "\${${varName}#-}" != "\${${varName}}" ]`;
 }
 function indent(str: string, length = 1) {
 	if (length === 0) {
@@ -100,37 +137,57 @@ function indent(str: string, length = 1) {
 	return ts + str.replace(/\n/g, '\n' + ts);
 }
 function completion_emit(list: string) {
-	return `COMPREPLY+=( $(compgen -W ${bash_argument(list)} -- $\{INPUT}) )`;
+	return `COMPREPLY+=( $(compgen -W ${bash_argument(list)} -- $\{INPUT}) )
+_mc_debug "COMPREPLY += ${bash_argument(list)}"`;
 }
 function completion_emit_file() {
 	return `_filedir`;
 }
 
-function fullSwitchName(opt: IArgumentOption, type: ''|'same'|'diff'|'space' = ''): string {
-	const split = type === 'space'? ' ' : '|';
-	return (opt.alias || []).concat(opt.name).map((s) => {
+enum SWITCH_TYPE {
+	SHORT = 1,
+	LONG = 2,
+	SHO_LON = SHORT + LONG,
+	
+	COMBINE = 4,
+	SPLIT = 8,
+	COM_SPL = COMBINE + SPLIT,
+	
+	ALL = SHO_LON + COM_SPL,
+}
+
+function fullSwitchName(opt: IArgumentOption, type: SWITCH_TYPE): string[] {
+	const ret = [];
+	(opt.alias || []).concat(opt.name).forEach((s) => {
 		const isLong = s.length > 1;
-		const needSame = type !== 'same' && type !== 'space';
-		const needDiff = type !== 'diff';
+		const needShort = !!(SWITCH_TYPE.SHORT & type);
+		const needLong = !!(SWITCH_TYPE.LONG & type);
+		const needCombine = !!(SWITCH_TYPE.COMBINE & type);
+		const needSplit = !!(SWITCH_TYPE.SPLIT & type);
+		
+		if ((isLong && !needLong) || (!isLong && !needShort)) {
+			return;
+		}
 		
 		const base = isLong? '--' + s : '-' + s;
-		let name = [];
 		if (opt.acceptValue) {
-			if (needSame) {
-				name.push(`${base}=*`);
+			if (needCombine) {
+				ret.push(`${base}=*`);
 			}
-			if (needDiff) {
-				name.push(base);
+			if (needSplit) {
+				ret.push(base);
 			}
 		}
-		return name.join(split);
-	}).filter(e => !!e).join(split);
+	});
+	// const x = (new Error).stack.split('\n').slice(2, 3)[0].trim().replace(/.*\((.+)\).*/, '$1');
+	// console.log('%s\n%s\n', x, ret);
+	return ret;
 }
 function optionCompletionValue(paramSw: Object, opt: IArgumentOption) {
 	let name: string, value: string;
 	switch (opt.completion) {
 	case 'path':
-		name = fullSwitchName(opt, 'diff');
+		name = fullSwitchName(opt, SWITCH_TYPE.SHO_LON + SWITCH_TYPE.SPLIT).join('|');
 		value = `${completion_emit_file()} ; return 0`;
 		paramSw[name] = value;
 		break;
@@ -140,46 +197,77 @@ function optionCompletionValue(paramSw: Object, opt: IArgumentOption) {
 		throw new ArgumentError('unknown completion option: ' + opt.completion);
 	}
 }
-function skipGlobalSwitch(obj: IArgumentCommand) {
+function skipOptionFunctions(): string {
+	const ret = [];
+	const fnBodySwitch = bash_switch(bash_array_value('COMP_WORDS', '${BASE}'), {
+		'--*': 'BASE=$((BASE + 2))',
+		'-*': 'BASE=$((BASE + 2))',
+		'*': 'break',
+	});
+	ret.push(bash_for('i', bash_range(1, 50), fnBodySwitch));
+	ret.push(bash_if({
+		'[ "${BASE}" -gt "${#COMP_WORDS[@]}" ]': 'return 0'
+	}));
+	/*fnBody.push(bash_if({ // TODO
+	 [START_WITH('INPUT')]: `# start with -
+	 ${completion_emit(argList)}
+	 return 0`
+	 }));*/
+	
+	return ret.join('\n')
+}
+
+function skipSwitches(obj: IArgumentCommand): string {
 	if (obj.globalOptions.length === 0) {
 		return '';
 	}
 	
+	const ret = [];
 	const lastSwitch = {};
 	const skipNames = [];
 	const skipNames2 = [];
 	
 	[].concat(obj.options, obj.globalOptions).map((opt) => {
-		const names = fullSwitchName(opt);
 		if (opt.acceptValue) {
-			skipNames2.push(names);
 			optionCompletionValue(lastSwitch, opt);
-		} else {
-			skipNames.push(names);
 		}
+		
+		let names = fullSwitchName(opt, SWITCH_TYPE.COMBINE + SWITCH_TYPE.SHO_LON);
+		merge(skipNames, names);
+		
+		names = fullSwitchName(opt, SWITCH_TYPE.SPLIT + SWITCH_TYPE.SHO_LON);
+		merge(skipNames2, names);
 	});
-	const switches = {};
-	if (skipNames.length) {
-		Object.assign(lastSwitch, {
-			[skipNames.join('|')]: `BASE=$((BASE+1))`,
-		});
+	
+	if (Object.keys(lastSwitch).length > 0) {
+		ret.push(bash_switch('${prev}', lastSwitch));
 	}
-	if (skipNames2.length) {
-		Object.assign(lastSwitch, {
-			[skipNames2.join('|')]: `BASE=$((BASE+2))`,
+	
+	if (skipNames.length + skipNames2.length > 0) {
+		const switches = {};
+		if (skipNames.length) {
+			Object.assign(switches, {
+				[skipNames.join('|')]: `BASE=$((BASE+1))`,
+			});
+		}
+		if (skipNames2.length) {
+			Object.assign(switches, {
+				[skipNames2.join('|')]: `BASE=$((BASE+2))`,
+			});
+		}
+		Object.assign(switches, {
+			'*': 'break'
 		});
+	} else {
+		ret.push(`# TODO`);
 	}
-	Object.assign(switches, {
-		'*': 'break'
-	});
-	return `{ while true; do
-	${bash_switch(bash_array_value('COMP_WORDS', '${BASE}'), switches)}
-done }
-${bash_switch('${prev}', lastSwitch)}
-`;
+	return ret.join('\n');
 }
-function createSwitch(obj: IArgumentCommand, level: number = 0) {
-	let ret = '';
+function createSwitch(obj: IArgumentCommand, levels: string[] = []): string {
+	let ret = [`# command level ${levels.length}`];
+	ret.push(`_mc_debug level ${levels.length}`);
+	// ret.push(skipSwitches(obj));
+	
 	if (obj.options.length || (obj.globalOptions && obj.globalOptions.length)) {
 		const argList = [].concat(
 			obj.options,
@@ -193,10 +281,6 @@ function createSwitch(obj: IArgumentCommand, level: number = 0) {
 				return ret;
 			}).join(' ');
 		}).join(' ');
-		
-		ret += bash_if({
-			'[ "${INPUT#-}" != "${INPUT}" ]': completion_emit(argList) + '\nreturn 0'
-		});
 	}
 	
 	if (obj.subCommands.length) {
@@ -206,11 +290,16 @@ function createSwitch(obj: IArgumentCommand, level: number = 0) {
 			return e.description !== null;
 		}).forEach((e) => {
 			commandList.push(e.name);
-			map[e.name] = createSwitch(e, level + 1);
+			const nextFuncName = '_' + (levels.length? `${levels.join('_')}_` : '') + e.name;
+			map[e.name] = `
+local next_func=${nextFuncName}
+declare -F $next_func >/dev/null && $next_func`;
 		});
 		
-		const options = obj.options.map((opt) => {
-			return fullSwitchName(opt, 'space');
+		const options = [];
+		obj.options.forEach((opt) => {
+			const items = fullSwitchName(opt, SWITCH_TYPE.ALL);
+			merge(options, items);
 		});
 		if (options.length) {
 			map['-*'] = completion_emit(options.join(' '));
@@ -219,16 +308,26 @@ function createSwitch(obj: IArgumentCommand, level: number = 0) {
 		map['*'] = `[ -e "\${PROJECT}/${TEMP_FOLDER_NAME}/completion.sh" ] &&
 	source "\${PROJECT}/${TEMP_FOLDER_NAME}/completion.sh" &&
 	\${COMPLETEION_FUNCTION_NAME} "$@"
-` + completion_emit(commandList.join(' '));
+	${completion_emit(commandList.join(' '))}`;
 		
-		ret += bash_switch(bash_array_value('COMP_WORDS', `$((BASE+${level}))`), map);
+		ret.push(bash_switch(bash_array_value('COMP_WORDS', `$BASE`), map));
 	}
 	
 	if (obj.params.length) {
 		// TODO
 	}
 	
-	ret += 'return 0';
+	/*if (level > 0) {
+	 ret.push('break');
+	 } else {
+	 ret.push('return 0');
+	 }*/
 	
-	return indent(ret, level);
+	return ret.join('\n');
+}
+
+function merge(a1, a2) {
+	a2.forEach((e) => {
+		a1.push(e);
+	});
 }

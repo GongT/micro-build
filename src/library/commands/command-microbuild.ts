@@ -22,11 +22,15 @@ parser.addCommand('init')
       .description(__('command.init'));
 
 const create = parser.addCommand('create');
-create.addCommand('dockerfile').aliases('docker');
+create.addCommand('dockerfile');
 create.addCommand('service');
+create.addCommand('all');
 
 const run = parser.addCommand('run');
 run.addCommand('debug');
 run.addCommand('docker');
 
 parser.addCommand('build');
+
+
+parser.getCommand('build')

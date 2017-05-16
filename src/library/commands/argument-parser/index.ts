@@ -39,6 +39,12 @@ export abstract class ArgumentStore extends CommandHelper {
 		}
 		return ret;
 	}
+	
+	getCommand(name:string): SubCommandParser {
+		console.log(this.object)
+//		return this.object.
+		return null;
+	}
 }
 
 export class SubCommandParser extends ArgumentStore {
