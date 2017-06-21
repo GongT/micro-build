@@ -4,7 +4,7 @@ set -x
 
 TYPE=$1 # dep or src
 shift
-TARGET_FOLDER="$1/bundle" # save folder
+TARGET_FOLDER=$1 # save folder
 shift
 
 if [ "${TYPE}" = 'src' ]; then
