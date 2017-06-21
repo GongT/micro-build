@@ -1,11 +1,11 @@
-import {EPlugins, MicroBuildConfig} from "../../library/microbuild-config";
-import {systemInstall, systemUninstall} from "./system-install";
-import {CustomInstructions} from "../instructions-dockerfile";
-import {resolve, dirname} from "path";
-import {existsSync, writeFileSync, readFileSync} from "fs";
-import {_guid} from "./_guid";
+import {existsSync, readFileSync, writeFileSync} from "fs";
 import {sync} from "mkdirp";
+import {dirname, resolve} from "path";
 import {getProjectPath, getTempPath} from "../../library/common/file-paths";
+import {EPlugins, MicroBuildConfig} from "../../library/microbuild-config";
+import {CustomInstructions} from "../instructions-dockerfile";
+import {_guid} from "./_guid";
+import {systemInstall, systemUninstall} from "./system-install";
 
 function getJspmPackage(file: string): JspmPackageConfig {
 	const pkg = require(file);
@@ -63,10 +63,11 @@ export function jspm_bundle(replacer: CustomInstructions) {
 	jspm_plugin.forEach(({options}) => {
 		const PACKAGE = options.packageJson;
 		const targetPath = resolve('/data', PACKAGE, '..');
+		const b = options.build === false? [] : build;
 		if (unique[targetPath]) {
-			bundleSinglePackage(options, config, [], build, [[]]);
+			bundleSinglePackage(options, config, [], b, [[]]);
 		} else {
-			bundleSinglePackage(options, config, install, build, copy);
+			bundleSinglePackage(options, config, install, b, copy);
 		}
 		unique[targetPath] = true;
 	});
@@ -90,7 +91,7 @@ export function jspm_bundle(replacer: CustomInstructions) {
 			['/install/jspm/install finish'],
 			['# sys uninstall'],
 			systemUninstall(config, ['git']).map(e => `\t${e}`),
-			['/install/npm/global-installer uninstall jspm']
+			['/install/npm/global-installer uninstall jspm'],
 		).join(' && \\\n\t');
 	
 	return content;
@@ -100,6 +101,8 @@ export interface JspmBundleOptions {
 	packageJson: string;
 	target: string;
 	source: string;
+	externals: string[];
+	build: boolean;
 }
 
 function bundleSinglePackage(options: JspmBundleOptions, config: MicroBuildConfig, install: string[], build: string[], copy: string[][]) {
@@ -132,7 +135,7 @@ function bundleSinglePackage(options: JspmBundleOptions, config: MicroBuildConfi
 		config,
 		jspm,
 		targetPath,
-		copy
+		copy,
 	));
 	
 	build.push(`mkdir -p "${savePath}" && cd "${targetPath}"`);
@@ -143,6 +146,11 @@ function bundleSinglePackage(options: JspmBundleOptions, config: MicroBuildConfi
 			return JSON.stringify(e);
 		}
 	});
+	
+	options.externals.forEach((ext) => {
+		names.push(ext);
+	});
+	
 	build.push(`    /install/jspm/bundle-helper dep "${savePath}" ${addNames.join(' ')}`);
 	build.push(`    /install/jspm/bundle-helper src "${savePath}" "${SOURCE}" ${names.map(e => ' - ' + JSON.stringify(e)).join(' ')}`);
 }
@@ -158,7 +166,7 @@ export function getSavePaths(options: JspmBundleOptions) {
 	return [
 		`${savePath}/client.js`,
 		`${savePath}/full.js`,
-		`${savePath}/dependencies.js`
+		`${savePath}/dependencies.js`,
 	];
 }
 

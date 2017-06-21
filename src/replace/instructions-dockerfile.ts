@@ -222,6 +222,7 @@ ${content}`;
 	COMPILE_PLUGIN() {
 		return [
 			typescript(this.config),
+			// jspm_install_command(this.config),
 			jspm_bundle(this),
 			scss(this.config),
 			// browserify(this.config),
