@@ -8,8 +8,8 @@ import {createBashCompletion} from "../library/commands/argument-parser/bash-com
 import {folderExists, writeFile} from "../library/common/filesystem";
 import {handleCompletion} from "../library/commands/command-completion";
 import {getPathProject, switchProjectFromArguments} from "../library/paths";
-import mkdirp = require("mkdirp");
 import {runCommand} from "./command-switch";
+import {mkdirSync} from "fs";
 
 const needHandleCompletion = handleCompletion();
 
@@ -53,7 +53,7 @@ if (!args.next || args.namedOptions.help) {
 
 if (!folderExists(getPathProject())) {
 	if (args.next.name === 'init') {
-		// TODO: init
+		mkdirSync(getPathProject());
 	} else {
 		die('project directory do not exists: %s', getPathProject());
 	}
