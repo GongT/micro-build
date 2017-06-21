@@ -63,11 +63,10 @@ export function jspm_bundle(replacer: CustomInstructions) {
 	jspm_plugin.forEach(({options}) => {
 		const PACKAGE = options.packageJson;
 		const targetPath = resolve('/data', PACKAGE, '..');
-		const b = options.build === false? [] : build;
 		if (unique[targetPath]) {
-			bundleSinglePackage(options, config, [], b, [[]]);
+			bundleSinglePackage(options, config, [], build, [[]]);
 		} else {
-			bundleSinglePackage(options, config, install, b, copy);
+			bundleSinglePackage(options, config, install, build, copy);
 		}
 		unique[targetPath] = true;
 	});
@@ -152,7 +151,11 @@ function bundleSinglePackage(options: JspmBundleOptions, config: MicroBuildConfi
 	});
 	
 	build.push(`    /install/jspm/bundle-helper dep "${savePath}" ${addNames.join(' ')}`);
-	build.push(`    /install/jspm/bundle-helper src "${savePath}" "${SOURCE}" ${names.map(e => ' - ' + JSON.stringify(e)).join(' ')}`);
+	
+	if (options.build === false) {
+	} else {
+		build.push(`    /install/jspm/bundle-helper src "${savePath}" "${SOURCE}" ${names.map(e => ' - ' + JSON.stringify(e)).join(' ')}`);
+	}
 }
 
 export function getSavePaths(options: JspmBundleOptions) {

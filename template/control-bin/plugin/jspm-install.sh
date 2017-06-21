@@ -57,6 +57,7 @@ echo "HTTPS_PROXY=${HTTPS_PROXY}"
 
 jspm install -y
 jspm update
+jspm unbundle
 
 if [ -z "${IS_CONTINUE}" ]; then
 	jspm cache-clear
