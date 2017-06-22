@@ -17,15 +17,16 @@
 		"isolatedModules": false,
 		"pretty": true,
 		"sourceMap": true,
-		"baseUrl": "./",
+		"baseUrl": "../../",
 		"typeRoots": [],
 		"types": [],
-		"outDir": "../package",
+		"outDir": "../../node_modules/@gongt/micro-build/plugins",
 		"rootDir": "./",
 		"paths": {
-			"@gongt/ts-stl-library": ["node_modules/@gongt/ts-stl-library"],
-			"@gongt/ts-stl-server": ["node_modules/@gongt/ts-stl-server"]
+			"@gongt/ts-stl-library": ["./node_modules/@gongt/ts-stl-library"],
+			"@gongt/ts-stl-server": ["./node_modules/@gongt/ts-stl-server"],
+			"@gongt/micro-build": ["./node_modules/@gongt/micro-build/"]
 		}
 	},
-	"exclude": ["global.d.ts"]
+	"exclude": ["src/global.d.ts"]
 }

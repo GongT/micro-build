@@ -31,6 +31,3 @@ run.addCommand('debug');
 run.addCommand('docker');
 
 parser.addCommand('build');
-
-
-parser.getCommand('build')

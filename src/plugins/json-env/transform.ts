@@ -1,5 +1,4 @@
-import {PluginBase} from "../../library/plugins/base";
-import {PluginsHandler} from "../../library/plugins/handler";
+import {PluginBase, PluginsHandler} from "@gongt/micro-build";
 
 export class Transformer extends PluginBase<() => any> {
 	onCreate(handler: PluginsHandler) {

@@ -7,8 +7,10 @@
 		"microbuild": "./package/bin/bin.js"
 	},
 	"scripts": {
-		"prepublishOnly": "tsc -p src",
-		"postpublish": ""
+		"prepublishOnly": "sh pre-publish.sh",
+		"postinstall": "../typescript-common-library/install-here.sh",
+		"prestart": "sh prepare.sh",
+		"start": "sh tscp.sh"
 	},
 	"preferGlobal": true,
 	"repository": {
@@ -22,21 +24,23 @@
 	},
 	"homepage": "https://github.com/GongT/micro-build#readme",
 	"dependencies": {
-		"@gongt/jenv": "^2.1.9",
-		"@gongt/jenv-data": "^1.2.6",
+		"@gongt/ts-stl-library": "latest",
+		"@gongt/ts-stl-server": "latest",
+		"i18n": "^0.8.3",
+		"typescript": "^2.3.4"
+	},
+	"devDependencies": {
 		"@types/chai": "^4.0.0",
 		"@types/extend": "^2.0.30",
 		"@types/i18n": "^0.8.0",
 		"@types/mkdirp": "^0.3.29",
 		"@types/mocha": "^2.2.41",
 		"@types/node": "^8.0.1",
-		"i18n": "^0.8.3",
-		"typescript": "^2.3.4",
-		"@gongt/ts-stl-library": "latest",
-		"@gongt/ts-stl-server": "latest"
-	},
-	"devDependencies": {
 		"chai": "^4.0.2",
+		"concurrently": "^3.5.0",
 		"mocha": "^3.4.2"
+	},
+	"peerDependencies": {
+		"@gongt/micro-buid": "*"
 	}
 }

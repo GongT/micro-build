@@ -1,5 +1,5 @@
 import {mkdirSync} from "fs";
-import {NormalizedArguments} from "library/commands/argument-parser/real-parse";
+import {NormalizedArguments} from "../library/commands/argument-parser/real-parse";
 import {resolve} from "path";
 import {getPathConfigPath} from "../library/paths";
 import {die} from "./bin";

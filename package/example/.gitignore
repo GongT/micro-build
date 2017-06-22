@@ -1,3 +1,2 @@
 node_modules/
-.micro-build/
-.idea/
+build/

@@ -1,5 +1,6 @@
+import {MicrobuildCommandParser} from "@gongt/micro-build";
 
-const service = parser.addCommand('service');
+const service = MicrobuildCommandParser.addCommand('service');
 service.abstract();
 service.addCommand('status');
 service.addCommand('install');
