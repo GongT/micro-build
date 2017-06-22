@@ -1,8 +1,8 @@
-import {getPathConfigFile} from "./library/paths";
+import {CallbackList} from "@gongt/ts-stl-library/pattern/callback-list";
 import {fileExists} from "./library/common/filesystem";
-import {PluginBase} from "./library/plugins/base";
 import {BuildDependency} from "./library/dependencies/dependency";
-import {CallbackList} from "library/common/callback-list";
+import {getPathConfigFile} from "./library/paths";
+import {PluginBase} from "./library/plugins/base";
 import {PluginsHandler} from "./library/plugins/handler";
 
 export interface ConfigFileOutput {

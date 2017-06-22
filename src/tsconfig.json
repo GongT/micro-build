@@ -4,7 +4,7 @@
 		"module": "commonjs",
 		"target": "es6",
 		"lib": ["es7", "es6", "es5", "es2017.object"],
-		"moduleResolution": "classic",
+		"moduleResolution": "node",
 		"noEmitOnError": true,
 		"noImplicitThis": true,
 		"noImplicitAny": false,
@@ -19,10 +19,13 @@
 		"sourceMap": true,
 		"baseUrl": "./",
 		"typeRoots": [],
-		"types": [
-		],
+		"types": [],
 		"outDir": "../package",
-		"rootDir": "./"
+		"rootDir": "./",
+		"paths": {
+			"@gongt/ts-stl-library": ["node_modules/@gongt/ts-stl-library"],
+			"@gongt/ts-stl-server": ["node_modules/@gongt/ts-stl-server"]
+		}
 	},
 	"exclude": ["global.d.ts"]
 }
