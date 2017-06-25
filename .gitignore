@@ -5,3 +5,7 @@ bash_completion.d
 bash-completion
 *.log
 test-dir
+
+dist/
+*.d.ts
+*.js

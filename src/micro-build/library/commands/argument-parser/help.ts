@@ -1,6 +1,6 @@
+import {die, exit} from "../../common/cli-process";
 import {ArgumentError, IArgumentCommand, IArgumentOption, IArgumentParam} from "./base";
 import {CommandParser} from "./index";
-import {die, exit} from "../../../bin/bin";
 const stringWidth = require('string-width');
 
 const isOption = /^-/;
@@ -56,7 +56,7 @@ export class UsageHelper {
 	private getOptionsLines() {
 		const options = [].concat(
 			this.obj.options,
-			this.obj.globalOptions || []
+			this.obj.globalOptions || [],
 		).map((opt: IArgumentOption) => {
 			return ['--' + opt.name, opt.description];
 		});

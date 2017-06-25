@@ -14,13 +14,15 @@ process.on('unhandledRejection', function (reason, p) {
 	});
 });
 
-process.on('uncaughtException', (err) => {
-	hintErrorStack(err.stack);
-	process.exit(1);
-});
+if (!process.env.DBG) {
+	process.on('uncaughtException', (err) => {
+		hintErrorStack(err.stack);
+		process.exit(1);
+	});
+}
 
 const notifier = require('update-notifier')({
-	pkg: require(resolve(__dirname, '../package.json')),
+	pkg: require(resolve(__dirname, '../../package.json')),
 	name: 'microbuild',
 	updateCheckInterval: 1000 * 60 * 60 * 12,
 });
@@ -30,20 +32,6 @@ notifier.notify({
 
 if (notifier.update) {
 	console.log(`Update available: ${notifier.update.latest}`);
-}
-
-export function die(...args: any[]) {
-	console.error.apply(console, args);
-	exit(1);
-}
-
-export function exit(e: any = 0) {
-	if (typeof e === 'number') {
-		process.exit(e);
-	} else {
-		console.error(e);
-		process.exit(1);
-	}
 }
 
 setImmediate(() => {

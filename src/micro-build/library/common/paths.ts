@@ -1,5 +1,5 @@
 import {resolve} from "path";
-import {NormalizedArguments} from "./commands/argument-parser/real-parse";
+import {NormalizedArguments} from "../commands/argument-parser/real-parse";
 
 let projectRoot: string = process.cwd();
 const ROOT: string = resolve(__dirname, '..');
@@ -14,6 +14,8 @@ export function switchProjectFromArguments(args: NormalizedArguments) {
 	} else {
 		switchProject(process.cwd());
 	}
+	
+	
 }
 
 export function switchProject(path: string) {

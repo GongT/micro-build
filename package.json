@@ -4,7 +4,7 @@
 	"version": "3.0.1",
 	"description": "simple micro service builder system with nodejs & docker",
 	"bin": {
-		"microbuild": "./package/bin/bin.js"
+		"microbuild": "./dist/micro-build/bin/bin.js"
 	},
 	"scripts": {
 		"prepublishOnly": "sh pre-publish.sh",
@@ -27,7 +27,9 @@
 		"@gongt/ts-stl-library": "latest",
 		"@gongt/ts-stl-server": "latest",
 		"i18n": "^0.8.3",
-		"typescript": "^2.3.4"
+		"source-map-support": "^0.4.15",
+		"typescript": "^2.3.4",
+		"update-notifier": "^2.2.0"
 	},
 	"devDependencies": {
 		"@types/chai": "^4.0.0",

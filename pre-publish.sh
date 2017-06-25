@@ -2,7 +2,7 @@
 
 set -e
 
-rm -rf node_moduls/@gongt/micro-build
+rm -rf dist/micro-build
 sh prepare.sh
 
 tsc -p src/micro-build

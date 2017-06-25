@@ -1,5 +1,5 @@
 import {spawnSync, SpawnSyncOptions} from "child_process";
-import {getPathProject} from "../paths";
+import {getPathProject} from "./paths";
 
 export function runExternalCommand(cmd: string, args: string[] = [], options: SpawnSyncOptions = {}) {
 	if (options.env) {

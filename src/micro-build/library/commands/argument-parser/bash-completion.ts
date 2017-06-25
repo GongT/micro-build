@@ -1,6 +1,6 @@
-import {CommandParser} from "./index";
+import {TEMP_FOLDER_NAME} from "../../common/paths";
 import {ArgumentError, IArgumentCommand, IArgumentOption} from "./base";
-import {TEMP_FOLDER_NAME} from "../../paths";
+import {CommandParser} from "./index";
 
 export function createBashCompletion(config: CommandParser);
 export function createBashCompletion(config: IArgumentCommand);
@@ -206,7 +206,7 @@ function skipOptionFunctions(): string {
 	});
 	ret.push(bash_for('i', bash_range(1, 50), fnBodySwitch));
 	ret.push(bash_if({
-		'[ "${BASE}" -gt "${#COMP_WORDS[@]}" ]': 'return 0'
+		'[ "${BASE}" -gt "${#COMP_WORDS[@]}" ]': 'return 0',
 	}));
 	/*fnBody.push(bash_if({ // TODO
 	 [START_WITH('INPUT')]: `# start with -
@@ -256,7 +256,7 @@ function skipSwitches(obj: IArgumentCommand): string {
 			});
 		}
 		Object.assign(switches, {
-			'*': 'break'
+			'*': 'break',
 		});
 	} else {
 		ret.push(`# TODO`);
@@ -271,7 +271,7 @@ function createSwitch(obj: IArgumentCommand, levels: string[] = []): string {
 	if (obj.options.length || (obj.globalOptions && obj.globalOptions.length)) {
 		const argList = [].concat(
 			obj.options,
-			obj.globalOptions || []
+			obj.globalOptions || [],
 		).map((opt: IArgumentOption) => {
 			return (opt.alias || []).concat(opt.name).map((s) => {
 				let ret = s.length > 1? '--' + s : '-' + s;

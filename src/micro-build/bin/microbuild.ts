@@ -3,11 +3,11 @@ import {parser} from "../library/commands/command-microbuild";
 import {UsageHelper} from "../library/commands/argument-parser/help";
 import {__} from "../library/common/my-i18n";
 import {ArgumentError} from "../library/commands/argument-parser/base";
-import {die, exit} from "./bin";
+import {die, exit} from "../library/common/cli-process";
 import {createBashCompletion} from "../library/commands/argument-parser/bash-completion";
 import {folderExists, writeFile} from "../library/common/filesystem";
 import {handleCompletion} from "../library/commands/command-completion";
-import {getPathProject, switchProjectFromArguments} from "../library/paths";
+import {getPathProject, switchProjectFromArguments} from "../library/common/paths";
 import {runCommand} from "./command-switch";
 import {mkdirSync} from "fs";
 

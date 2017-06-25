@@ -20,11 +20,11 @@
 		"baseUrl": "../../",
 		"typeRoots": [],
 		"types": [],
-		"outDir": "../../node_modules/@gongt/micro-build",
+		"outDir": "../../dist/micro-build",
 		"rootDir": "./",
 		"paths": {
-			"@gongt/ts-stl-library": ["./node_modules/@gongt/ts-stl-library"],
-			"@gongt/ts-stl-server": ["./node_modules/@gongt/ts-stl-server"]
+			"@gongt/ts-stl-library": ["node_modules/@gongt/ts-stl-library"],
+			"@gongt/ts-stl-server": ["node_modules/@gongt/ts-stl-server"]
 		}
 	},
 	"exclude": ["src/global.d.ts"]
