@@ -26,6 +26,7 @@
 	"dependencies": {
 		"@gongt/ts-stl-library": "latest",
 		"@gongt/ts-stl-server": "latest",
+		"fs-extra": "^3.0.1",
 		"i18n": "^0.8.3",
 		"source-map-support": "^0.4.15",
 		"typescript": "^2.3.4",
@@ -34,8 +35,8 @@
 	"devDependencies": {
 		"@types/chai": "^4.0.0",
 		"@types/extend": "^2.0.30",
+		"@types/fs-extra": "^3.0.3",
 		"@types/i18n": "^0.8.0",
-		"@types/mkdirp": "^0.3.29",
 		"@types/mocha": "^2.2.41",
 		"@types/node": "^8.0.1",
 		"chai": "^4.0.2",

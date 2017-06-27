@@ -1,17 +1,14 @@
-import {mkdirSync} from "fs";
-import {resolve} from "path";
 import {NormalizedArguments} from "../library/commands/argument-parser/real-parse";
 import {die} from "../library/common/cli-process";
-import {getPathConfigFile, getPathConfigPath} from "../library/common/paths";
 import {ConfigFile} from "../library/config/config-file";
+import {pr} from "./prepare";
 
 export function runCommand(args: NormalizedArguments) {
 	const topCommand = args.nextConfig;
 	switch (topCommand.name) {
 	case 'init':
-		mkdirSync(resolve(getPathConfigPath()));
 		
-		const config = new ConfigFile(getPathConfigFile());
+		const config = new ConfigFile(pr);
 		if (config.exists) {
 			console.error('config file exists.');
 			return;
@@ -20,6 +17,12 @@ export function runCommand(args: NormalizedArguments) {
 		// TODO copy example config
 		// console.log(args)
 		
+		break;
+	case 'create':
+		break;
+	case 'build':
+		break;
+	case 'run':
 		break;
 	default:
 		//	pluginCommand(args);

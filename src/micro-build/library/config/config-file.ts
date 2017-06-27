@@ -1,5 +1,5 @@
 import {fileExists} from "../common/filesystem";
-import {getPathConfigFile} from "../common/paths";
+import {PathResolver} from "../common/paths";
 import {BuildDependency} from "../dependencies/dependency";
 import {PluginBase} from "../plugins/base";
 import {PluginsHandler} from "../plugins/handler";
@@ -13,12 +13,13 @@ export interface ConfigFileOutput {
 
 export class ConfigFile {
 	protected exportData: Partial<ConfigFileOutput>;
-	public readonly filePath: string;
 	public readonly exists: boolean;
 	
-	constructor(path: string = getPathConfigFile()) {
-		this.filePath = path;
-		this.exists = fileExists(path);
+	public readonly path: PathResolver;
+	
+	constructor(pr: PathResolver) {
+		this.path = pr;
+		this.exists = fileExists(pr.configFile);
 		
 		this.exportData = {
 			plugins: new PluginsHandler,
@@ -40,6 +41,6 @@ export class ConfigFile {
 	}
 	
 	private read() {
-		readConfigFile(this, this.filePath);
+		readConfigFile(this, this.pr.configFile);
 	}
 }

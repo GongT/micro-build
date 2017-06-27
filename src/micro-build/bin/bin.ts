@@ -35,5 +35,6 @@ if (notifier.update) {
 }
 
 setImmediate(() => {
+	require('./prepare');
 	require('./microbuild');
 });

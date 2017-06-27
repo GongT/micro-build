@@ -1,15 +1,15 @@
 /// <reference path="../globals.d.ts"/>
-import {parser} from "../library/commands/command-microbuild";
-import {UsageHelper} from "../library/commands/argument-parser/help";
-import {__} from "../library/common/my-i18n";
+
 import {ArgumentError} from "../library/commands/argument-parser/base";
-import {die, exit} from "../library/common/cli-process";
 import {createBashCompletion} from "../library/commands/argument-parser/bash-completion";
-import {folderExists, writeFile} from "../library/common/filesystem";
+import {UsageHelper} from "../library/commands/argument-parser/help";
 import {handleCompletion} from "../library/commands/command-completion";
-import {getPathProject, switchProjectFromArguments} from "../library/common/paths";
+import {parser} from "../library/commands/command-microbuild";
+import {die, exit} from "../library/common/cli-process";
+import {folderExists, writeFile} from "../library/common/filesystem";
+import {__} from "../library/common/my-i18n";
 import {runCommand} from "./command-switch";
-import {mkdirSync} from "fs";
+import {pr} from "./prepare";
 
 const needHandleCompletion = handleCompletion();
 
@@ -18,8 +18,8 @@ if (needHandleCompletion) {
 	writeFile('/etc/bash_completion.d/microbuild', x);
 	console.log('source /etc/bash_completion.d/microbuild ; echo "auto complete loaded." >&2');
 	
-	if (!folderExists(getPathProject())) {
-		die('project directory do not exists: %s', getPathProject());
+	if (!folderExists(pr.project)) {
+		die('project directory do not exists: %s', pr.project);
 	}
 	process.exit(0);
 }
@@ -36,7 +36,7 @@ try {
 }
 
 const args = parser.result;
-switchProjectFromArguments(args);
+pr.switchProjectFromArguments(args);
 
 if (!args.next || args.namedOptions.help) {
 	if (args.next) {
@@ -51,11 +51,11 @@ if (!args.next || args.namedOptions.help) {
 	}
 }
 
-if (!folderExists(getPathProject())) {
+if (!folderExists(pr.project)) {
 	if (args.next.name === 'init') {
-		mkdirSync(getPathProject());
+		pr.ensure();
 	} else {
-		die('project directory do not exists: %s', getPathProject());
+		die('project directory do not exists: %s', pr.project);
 	}
 }
 

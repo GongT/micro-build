@@ -1,6 +1,6 @@
-import {CommandParser} from "./argument-parser/index";
-import {IArgumentOption} from "./argument-parser/base";
 import {__} from "../common/my-i18n";
+import {IArgumentOption} from "./argument-parser/base";
+import {CommandParser} from "./argument-parser/index";
 
 export const parser = new CommandParser;
 parser.commandName('microbuild');
@@ -24,10 +24,15 @@ parser.addCommand('init')
 const create = parser.addCommand('create');
 create.addCommand('dockerfile');
 create.addCommand('service');
+create.addCommand('job');
 create.addCommand('all');
 
 const run = parser.addCommand('run');
 run.addCommand('debug');
 run.addCommand('docker');
+const service = run.addCommand('service');
+service.addOption('restart')
+       .aliases('r')
+       .description(__('command.restart'));
 
 parser.addCommand('build');

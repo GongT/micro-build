@@ -12,7 +12,7 @@ export function readConfigFile(config: ConfigFile, filePath: string) {
 	const tempFile = resolve(dirname(filePath), TEMP_FOLDER_NAME, 'config-compile.js');
 	if (!fileExists(tempFile) || isANewerThanB(filePath, tempFile)) {
 		updateConfigFileFormat(filePath);
-		runExternalCommand('tsc', [filePath, '--lib', 'es7', '--outFile', tempFile]);
+		runExternalCommand(config.path, ['tsc', filePath, '--lib', 'es7', '--outFile', tempFile]);
 	}
 	
 	const un = hideGlobal('config', config);
