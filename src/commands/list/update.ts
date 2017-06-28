@@ -152,6 +152,7 @@ const defaultIgnores = [
 	'coverage/',
 	'typings',
 	'screen.*',
+	'package-lock.json',
 ];
 
 const gitIgnores = [
