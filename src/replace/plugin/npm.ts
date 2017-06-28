@@ -44,7 +44,7 @@ COPY ${getTempPath(true)}/npm-install /install/npm
 RUN /install/npm/global-installer npm-cli-login && \\
 	npm config set registry "${npm.url}" && \\
 	sh /install/npm/prepare-user && \\
-	npm un --global npm-cli-login && \\
+	npm un -q --global npm-cli-login && \\
 	${removeCache()}
 `;
 	} else {

@@ -1,25 +1,13 @@
 #!/bin/sh
 # name jsonPath target
 
-set -x
-
 #{PREPEND_NPM_SCRIPT}
 
-echo "PWD=`pwd` ${NPM_INSTALL} --color=true --progress=true -g $@"
-printf "\033[0;2m" >&2
-${NPM_INSTALL} --color=true --progress=true -g "$@"
-RET=$?
+echo "PWD=`pwd`"
+echo "PACKAGE LIST: $@"
 
-if [ ${RET} -ne 0 ]; then
-	echo -e "\e[38;5;9m install failed... \e[0m" >&2
-	
-	echo "==================== LOG LAST 100 LINES =======================" >&2
-	tail -n 100 npm-debug.log >&2
-	echo "==================== LOG LAST 100 LINES =======================" >&2
-	
-	echo -e "\e[38;5;9m install failed... \e[0m" >&2
-	exit ${RET}
-fi
-echo -e "\e[38;5;10minstall success... \e[0m" >&2
+printf "\033[0;2m" >&2
+${NPM_INSTALL} -g "$@"
+handle_npm_error $?
 
 #{REMOVE_CACHES}
