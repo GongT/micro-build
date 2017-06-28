@@ -46,8 +46,8 @@ ${content}
 	
 	save(path: string) {
 		const absPath = resolve(getProjectPath(), path);
-		if (!existsSync(absPath) || readFileSync(absPath, 'utf-8') !== this.fileContent) {
-			writeFileSync(absPath, this.fileContent, 'utf-8');
+		if (!existsSync(absPath) || readFileSync(absPath, {encoding:'utf8'}) !== this.fileContent) {
+			writeFileSync(absPath, this.fileContent, {encoding:'utf8'});
 		}
 		this.build.registerIgnore(path);
 	}

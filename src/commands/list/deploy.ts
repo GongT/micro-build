@@ -1,14 +1,14 @@
 import {W_OK} from "constants";
 import {accessSync, existsSync, lstatSync, unlinkSync, writeFileSync} from "fs";
-import {dirname} from "path";
 import {sync as mkdirpSync} from "mkdirp";
-import {initialize} from "./initialize";
-import {CommandDefine} from "../command-library";
-import {MicroBuildConfig} from "../../library/microbuild-config";
-import {updateCurrentDir, projectPackageJson, getConfigPath} from "../../library/common/file-paths";
-import {readBuildConfig} from "../../library/read-config";
+import {dirname} from "path";
 import {createDeployScript} from "../../build/deploy-script";
+import {getConfigPath, projectPackageJson, updateCurrentDir} from "../../library/common/file-paths";
+import {MicroBuildConfig} from "../../library/microbuild-config";
+import {readBuildConfig} from "../../library/read-config";
 import {spawnMainCommand} from "../../library/system/spawn/spawn-child";
+import {CommandDefine} from "../command-library";
+import {initialize} from "./initialize";
 
 export const commandDefine: CommandDefine = {
 	command: 'deploy',
@@ -37,7 +37,7 @@ export function deploy(this: any, gitUrl: string, target: string = '/data/servic
 	updateCurrentDir(TEMP_ROOT, true);
 	if (!existsSync(projectPackageJson())) {
 		mkdirpSync(TEMP_ROOT);
-		writeFileSync(projectPackageJson(), '{"name":"temp-deploy"}', 'utf-8');
+		writeFileSync(projectPackageJson(), '{"name":"temp-deploy"}', {encoding: 'utf8'});
 	}
 	if (existsSync(getConfigPath())) {
 		unlinkSync(getConfigPath());

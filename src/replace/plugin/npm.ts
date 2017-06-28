@@ -1,13 +1,13 @@
-import {resolve} from "path";
 import {existsSync, writeFileSync} from "fs";
 import {sync as mkdirpSync} from "mkdirp";
+import {resolve} from "path";
+import {removeCache} from "../../build/scripts";
+import {getTempPath} from "../../library/common/file-paths";
+import {saveFile} from "../../library/config-file/fast-save";
 import {MicroBuildConfig} from "../../library/microbuild-config";
 import {ScriptVariables} from "../instructions-scripts";
 import {renderTemplateScripts} from "../replace-scripts";
 import {_guid} from "./_guid";
-import {removeCache} from "../../build/scripts";
-import {saveFile} from "../../library/config-file/fast-save";
-import {getGeneratePath, getTempPath} from "../../library/common/file-paths";
 
 export function getNpmScriptReplacer(config: MicroBuildConfig) {
 	const r = new ScriptVariables(config, {});
@@ -102,7 +102,7 @@ export function createTempPackageFile(json: IPackageJson) {
 	}
 	const fileName = `${_guid()}.json`;
 	
-	writeFileSync(resolve(dir, fileName), JSON.stringify(packageFileContent, null, 8), 'utf-8');
+	writeFileSync(resolve(dir, fileName), JSON.stringify(packageFileContent, null, 8), {encoding: 'utf8'});
 	
 	return fileName;
 }

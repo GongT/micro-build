@@ -1,7 +1,7 @@
 import {existsSync, lstatSync, mkdirSync} from "fs";
 import {resolve} from "path";
-import {isDockerMode} from "./common/runenv";
 import {getProjectPath} from "./common/file-paths";
+import {isDockerMode} from "./common/runenv";
 
 export interface NpmRegistry {
 	url: string;
@@ -166,7 +166,7 @@ export class MicroBuildConfig {
 		},
 		npmUpstream: {
 			enabled: false,
-			url: 'http://registry.npmjs.org'
+			url: 'http://registry.npmjs.org',
 		},
 		dnsConfig: {
 			onlyLocalCache: false,
@@ -215,7 +215,7 @@ export class MicroBuildConfig {
 		return {
 			publish(hostPort: number){
 				obj.host = hostPort;
-			}
+			},
 		}
 	}
 	
@@ -339,8 +339,8 @@ export class MicroBuildConfig {
 	
 	isInChina(proxy?: GFWInterface);
 	isInChina(is: boolean, proxy?: GFWInterface);
-	isInChina(is: boolean, proxy: GFWInterface = {}) {
-		if (is === true || is === false) {
+	isInChina(is: GFWInterface|boolean, proxy: GFWInterface = {}) {
+		if (typeof is === 'boolean') {
 			proxy.active = is;
 			this.storage.gfwConfig = proxy;
 		} else {
@@ -441,13 +441,13 @@ export class MicroBuildConfig {
 	 **/
 	environmentVariable(name: string, value: string, insideOnly = null) {
 		this.storage.environments.push({
-			name, value, insideOnly, append: false
+			name, value, insideOnly, append: false,
 		});
 	}
 	
 	environmentVariableAppend(name: string, value: string, insideOnly = null, sp?: string) {
 		this.storage.environments.push({
-			name, value, insideOnly, append: sp || true
+			name, value, insideOnly, append: sp || true,
 		});
 	}
 	

@@ -1,8 +1,8 @@
 import {existsSync, readFileSync, writeFileSync} from "fs";
-import {dirname} from "path";
 import {sync as mkdirpSync} from "mkdirp";
+import {dirname} from "path";
 
-export type BufferEncoding = "buffer" | "utf8";
+export type BufferEncoding = "buffer"|"utf8";
 
 export abstract class BaseFile<ContentType> {
 	protected _fileName: string;
@@ -36,7 +36,7 @@ export abstract class BaseFile<ContentType> {
 	
 	reload() {
 		if (existsSync(this._fileName)) {
-			this._old_content = readFileSync(this._fileName, this._charset);
+			this._old_content = readFileSync(this._fileName, {encoding: this._charset});
 			this._content = this.parse_file(this._old_content);
 			this._exists = true;
 		} else {
@@ -74,13 +74,13 @@ export abstract class BaseFile<ContentType> {
 		}
 		
 		console.error('  write to file: %s', this._fileName);
-		writeFileSync(this._fileName, content, this._charset);
+		writeFileSync(this._fileName, content, {encoding: this._charset});
 		this._exists = true;
 		return true;
 	}
 	
 	writeTo(otherFilePath: string) {
-		writeFileSync(otherFilePath, this.stringify_file(), 'utf-8');
+		writeFileSync(otherFilePath, this.stringify_file(), {encoding: 'utf8'});
 	}
 	
 	replaceContent(content: ContentType) {

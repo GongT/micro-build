@@ -15,7 +15,7 @@
 		"emitDecoratorMetadata": true,
 		"forceConsistentCasingInFileNames": true,
 		"isolatedModules": false,
-		"pretty": true,
+		"pretty": false,
 		"sourceMap": true,
 		"baseUrl": "./",
 		"typeRoots": [

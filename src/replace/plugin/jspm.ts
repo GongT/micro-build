@@ -1,12 +1,12 @@
-import {resolve} from "path";
 import {writeFileSync} from "fs";
-import {_guid} from "./_guid";
+import {resolve} from "path";
+import {getTempPath} from "../../library/common/file-paths";
+import {saveFile} from "../../library/config-file/fast-save";
 import {MicroBuildConfig} from "../../library/microbuild-config";
 import {ScriptVariables} from "../instructions-scripts";
 import {renderTemplateScripts} from "../replace-scripts";
+import {_guid} from "./_guid";
 import {systemInstall, systemUninstall} from "./system-install";
-import {saveFile} from "../../library/config-file/fast-save";
-import {getTempPath} from "../../library/common/file-paths";
 
 export function jspm_install_command(config: MicroBuildConfig) {
 	const github = config.getGithubConfig();
@@ -20,7 +20,7 @@ cat ~/.jspm/config`;
 			} else {
 				return 'echo "WARN: no github config, rate limit may reach" >&2'
 			}
-		}
+		},
 	});
 	
 	const helperScript = renderTemplateScripts('plugin', 'jspm-install.sh', replacer);
@@ -67,7 +67,7 @@ export function createJspmInstallScript(config: MicroBuildConfig, {jspm}: IPacka
 		repository: 'xxx',
 	};
 	
-	writeFileSync(resolve(getTempPath(), 'package-json', jsonFile), JSON.stringify(packageFileContent, null, 8), 'utf-8');
+	writeFileSync(resolve(getTempPath(), 'package-json', jsonFile), JSON.stringify(packageFileContent, null, 8), {encoding: 'utf8'});
 	
 	return `COPY ${getTempPath(true)}/package-json/${jsonFile} /package-json/${jsonFile}
 RUN ` + [].concat(

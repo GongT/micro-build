@@ -1,23 +1,23 @@
-import {existsSync, writeFileSync, readFileSync} from "fs";
-import {resolve} from "path";
+import {existsSync, readFileSync, writeFileSync} from "fs";
 import {sync as mkdirpSync} from "mkdirp";
-import {CommandDefine, die} from "../command-library";
-import {update} from "./update";
-import {NormalizedArguments} from "../argument-parser/real-parse";
+import {resolve} from "path";
 import {
-	updateCurrentDir,
 	assertCurrentDirOk,
-	getProjectPath,
 	getConfigPath,
-	projectPackageJson,
+	getProjectPath,
 	getTempPath,
+	MicroBuildTemplateRoot,
 	projectFile,
 	projectFileObject,
+	projectPackageJson,
 	templateFileObject,
-	MicroBuildTemplateRoot
+	updateCurrentDir,
 } from "../../library/common/file-paths";
-import {spawnExternalCommand} from "../../library/system/spawn/spawn-child";
 import {PackageJsonFile} from "../../library/config-file/package-json-file";
+import {spawnExternalCommand} from "../../library/system/spawn/spawn-child";
+import {NormalizedArguments} from "../argument-parser/real-parse";
+import {CommandDefine, die} from "../command-library";
+import {update} from "./update";
 
 export const commandDefine: CommandDefine = {
 	command: 'initialize',
@@ -35,7 +35,7 @@ export const commandDefine: CommandDefine = {
 	},
 };
 
-export function initialize(this: NormalizedArguments | any, target: string = '.') {
+export function initialize(this: NormalizedArguments|any, target: string = '.') {
 	const opt = this && this.namedOptions || {};
 	console.error('initialize new project in ', target);
 	updateCurrentDir(target, true);
@@ -71,8 +71,8 @@ export function initialize(this: NormalizedArguments | any, target: string = '.'
 		
 		const source = resolve(MicroBuildTemplateRoot, 'default-build-config.ts');
 		console.error('copy template build file %s to %s', source, getConfigPath());
-		const content = readFileSync(source, 'utf-8').replace(/your-project-name/g, pkg.name);
-		writeFileSync(getConfigPath(), content, 'utf-8');
+		const content = readFileSync(source, {encoding: 'utf8'}).replace(/your-project-name/g, pkg.name);
+		writeFileSync(getConfigPath(), content, {encoding: 'utf8'});
 		
 		update();
 	}

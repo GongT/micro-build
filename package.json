@@ -1,6 +1,6 @@
 {
 	"name": "@gongt/micro-build",
-	"version": "3.0.2",
+	"version": "3.0.3",
 	"description": "simple micro service builder system with nodejs & docker",
 	"bin": {
 		"microbuild": "./dist/microbuild.js"
@@ -9,7 +9,7 @@
 		"start": "echo -e '\\ec' ; tsc -w -p src | sed 's/^.*File change detected/\\x1Bc\\0/g'",
 		"build": "tsc -p src",
 		"test": "mocha --timeout 10s --slow 1000 --bail bin/test.js || true",
-		"prepublish": "tsc -p src && bash -c ./template/create-symlinks.sh",
+		"prepublishOnly": "tsc -p src && bash -c ./template/create-symlinks.sh",
 		"preinstall": "bash install-golang-module-systemd-docker.sh"
 	},
 	"preferGlobal": true,
@@ -26,11 +26,6 @@
 	"dependencies": {
 		"@gongt/jenv": "*",
 		"@gongt/jenv-data": "*",
-		"@types/chai": "^3.4.34",
-		"@types/extend": "^2.0.30",
-		"@types/mkdirp": "^0.3.29",
-		"@types/mocha": "^2.2.38",
-		"@types/node": "^7.0.0",
 		"app-module-path": "^2.2.0",
 		"concurrently": "^3.1.0",
 		"debug": "^2.6.0",
@@ -43,6 +38,11 @@
 		"string-width": "^2.0.0"
 	},
 	"devDependencies": {
+		"@types/chai": "^3.4.34",
+		"@types/extend": "^2.0.30",
+		"@types/mkdirp": "^0.3.29",
+		"@types/mocha": "^2.2.38",
+		"@types/node": "^7.0.0",
 		"chai": "^3.5.0",
 		"mocha": "^3.2.0"
 	}

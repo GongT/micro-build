@@ -150,7 +150,9 @@ function bundleSinglePackage(options: JspmBundleOptions, config: MicroBuildConfi
 		names.push(ext);
 	});
 	
-	build.push(`    /install/jspm/bundle-helper dep "${savePath}" ${addNames.join(' ')}`);
+	if (addNames.length) {
+		build.push(`    /install/jspm/bundle-helper dep "${savePath}" ${addNames.join(' ')}`);
+	}
 	
 	if (options.build === false) {
 	} else {
@@ -210,7 +212,8 @@ function createJspmBundlePackage(config: MicroBuildConfig, jspm: JspmPackageConf
 		throw new Error(`jspm config file not exists: ${source}`);
 	}
 	
-	const target = getConfigFileRelative(jspm) + '.overwrite';
+	let target = getConfigFileRelative(jspm) + '.overwrite';
+	target = target.replace(/\.\.\//g, '');
 	
 	const packageFileContent = Object.assign({}, jspm, {
 		name: 'installing-jspm-package',
@@ -226,8 +229,9 @@ function createJspmBundlePackage(config: MicroBuildConfig, jspm: JspmPackageConf
 	if (!existsSync(dirname(configFileTempPath))) {
 		sync(dirname(configFileTempPath));
 	}
-	writeFileSync(configFileTempPath, readFileSync(source, 'utf-8'));
-	writeFileSync(resolve(tempDir, 'package.json'), JSON.stringify(packageFileContent, null, 8), 'utf-8');
+	
+	writeFileSync(configFileTempPath, readFileSync(source, {encoding: 'utf8'}));
+	writeFileSync(resolve(tempDir, 'package.json'), JSON.stringify(packageFileContent, null, 8), {encoding: 'utf8'});
 	
 	copy.push([`${getTempPath(true)}/package-json/${id}`, `/install/package-json/${id}`]);
 	

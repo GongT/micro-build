@@ -1,4 +1,3 @@
-import {basename, resolve} from "path";
 import {
 	existsSync,
 	lstatSync,
@@ -7,24 +6,25 @@ import {
 	realpathSync,
 	symlinkSync,
 	unlinkSync,
-	writeFileSync
+	writeFileSync,
 } from "fs";
 import {sync as mkdirpSync} from "mkdirp";
-import {EPlugins} from "../../library/microbuild-config";
-import {getSavePaths} from "../../replace/plugin/jspm-bundle";
 import {rmdirsSync} from "nodejs-fs-utils";
-import {CommandDefine} from "../command-library";
-import {dontRemoveReg, readBuildConfig} from "../../library/read-config";
-import {defaultEnvironment} from "../../library/common/runenv";
+import {basename, resolve} from "path";
 import {
 	getGeneratePath,
 	getProjectPath,
 	getTempPath,
 	MicroBuildRoot,
 	projectFile,
-	projectFileObject
+	projectFileObject,
 } from "../../library/common/file-paths";
+import {defaultEnvironment} from "../../library/common/runenv";
 import {PackageJsonFile} from "../../library/config-file/package-json-file";
+import {EPlugins} from "../../library/microbuild-config";
+import {dontRemoveReg, readBuildConfig} from "../../library/read-config";
+import {getSavePaths} from "../../replace/plugin/jspm-bundle";
+import {CommandDefine} from "../command-library";
 
 export const commandDefine: CommandDefine = {
 	command: 'update',
@@ -126,8 +126,8 @@ export function update() {
 	}
 	
 	const configFile = resolve(getProjectPath(), 'build.config.ts');
-	const cfgContent = readFileSync(configFile, 'utf-8');
-	const currentContent = readFileSync(resolve(MicroBuildRoot, 'template/default-build-config.ts'), 'utf-8');
+	const cfgContent = readFileSync(configFile, {encoding: 'utf8'});
+	const currentContent = readFileSync(resolve(MicroBuildRoot, 'template/default-build-config.ts'), {encoding: 'utf8'});
 	const xxx = dontRemoveReg.exec(currentContent);
 	const yyy = dontRemoveReg.exec(cfgContent);
 	if (!yyy) {
@@ -136,7 +136,7 @@ export function update() {
 	}
 	if (xxx[0] !== yyy[0]) {
 		const newContent = cfgContent.replace(dontRemoveReg, xxx[0]);
-		writeFileSync(configFile, newContent, 'utf-8');
+		writeFileSync(configFile, newContent, {encoding: 'utf8'});
 	}
 }
 
