@@ -146,9 +146,11 @@ function bundleSinglePackage(options: JspmBundleOptions, config: MicroBuildConfi
 		}
 	});
 	
-	options.externals.forEach((ext) => {
-		names.push(ext);
-	});
+	if (options.externals) {
+		options.externals.forEach((ext) => {
+			names.push(ext);
+		});
+	}
 	
 	if (addNames.length) {
 		build.push(`    /install/jspm/bundle-helper dep "${savePath}" ${addNames.join(' ')}`);
