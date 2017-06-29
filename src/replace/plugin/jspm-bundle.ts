@@ -80,16 +80,24 @@ export function jspm_bundle(replacer: CustomInstructions) {
 			}).join(' ');
 		}).join('\nCOPY ');
 	
+	const installGit = systemInstall(config, ['git']).map(e => `\t\t\t${e}`);
+	const uninstallGit = systemUninstall(config, ['git']).map(e => `\t\t\t${e}`);
+	
+	installGit[0] = '{ ! command -v git && export CLEAN_INSTALL_GIT=yes && \\\n\t' + installGit[0];
+	installGit[installGit.length - 1] += ' \\\n\t\t || true ; }';
+	uninstallGit[0] = '{ [ -n "${CLEAN_INSTALL_GIT}" ] && \\\n\t' + uninstallGit[0];
+	uninstallGit[uninstallGit.length - 1] += ' \\\n\t\t || true ; }';
+	
 	content += '\n';
 	content += 'RUN ' + ['set -x'].concat(
 			['/install/npm/global-installer jspm@beta',],
 			['# sys install'],
-			systemInstall(config, ['git']).map(e => `\t${e}`),
+			installGit,
 			install,
 			build,
 			['/install/jspm/install finish'],
 			['# sys uninstall'],
-			systemUninstall(config, ['git']).map(e => `\t${e}`),
+			uninstallGit,
 			['/install/npm/global-installer uninstall jspm'],
 		).join(' && \\\n\t');
 	
