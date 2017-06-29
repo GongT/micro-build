@@ -16,7 +16,7 @@ export function createDockerRunArgument(config: MicroBuildConfig) {
 		}
 	});
 	
-	if (storage.dnsConfig.onlyLocalCache) {
+	if (storage.dnsConfig.onlyLocalCacheRunning) {
 		ret.push('--dns=${HOST_LOOP_IP}');
 		ret.push('--env=HOST_LOOP_IP=${HOST_LOOP_IP}');
 		ret.push('--env=USE_LOCAL_DNS=yes');

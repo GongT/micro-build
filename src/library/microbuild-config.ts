@@ -84,6 +84,7 @@ export interface MicroServiceConfig {
 	};
 	dnsConfig: {
 		onlyLocalCache: boolean;
+		onlyLocalCacheRunning: boolean;
 	};
 	systemInstall: string[];
 	systemMethod: string;
@@ -170,6 +171,7 @@ export class MicroBuildConfig {
 		},
 		dnsConfig: {
 			onlyLocalCache: false,
+			onlyLocalCacheRunning: false,
 		},
 		disableCopyFolder: false,
 		disableBinfiles: false,
@@ -356,8 +358,9 @@ export class MicroBuildConfig {
 		this.storage.disableBinfiles = noBin;
 	}
 	
-	forceLocalDns(force: boolean = true) {
-		this.storage.dnsConfig.onlyLocalCache = force;
+	forceLocalDns(use: boolean = true, runStillUse: boolean = true) {
+		this.storage.dnsConfig.onlyLocalCache = use;
+		this.storage.dnsConfig.onlyLocalCacheRunning = runStillUse;
 	}
 	
 	/** @deprecated */
