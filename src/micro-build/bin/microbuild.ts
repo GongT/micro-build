@@ -1,5 +1,7 @@
 /// <reference path="../globals.d.ts"/>
 
+import {escapeRegExp} from "@gongt/ts-stl-library/strings/escape-regexp";
+import {createErrorStackHint} from "../../../../typescript-common-library/build-package/library/strings/hint-error-stack";
 import {ArgumentError} from "../library/commands/argument-parser/base";
 import {createBashCompletion} from "../library/commands/argument-parser/bash-completion";
 import {UsageHelper} from "../library/commands/argument-parser/help";
@@ -8,9 +10,11 @@ import {parser} from "../library/commands/command-microbuild";
 import {die, exit} from "../library/common/cli-process";
 import {folderExists, writeFile} from "../library/common/filesystem";
 import {__} from "../library/common/my-i18n";
-import {runCommand} from "./command-switch";
-import {pr} from "./prepare";
+import {DEBUG_MICROBUILD_SOURCE} from "../library/common/paths";
+import {ExitStatus, runCommand} from "./command-switch";
+import {config} from "./prepare";
 
+const pr = config.path;
 const needHandleCompletion = handleCompletion();
 
 if (needHandleCompletion) {
@@ -51,12 +55,26 @@ if (!args.next || args.namedOptions.help) {
 	}
 }
 
-if (!folderExists(pr.project)) {
-	if (args.next.name === 'init') {
-		pr.ensure();
-	} else {
-		die('project directory do not exists: %s', pr.project);
-	}
+if (args.next.name === 'init') {
+	pr.ensure();
+} else if (!folderExists(pr.project)) {
+	die('project directory do not exists: %s', pr.project);
 }
 
-runCommand(args);
+runCommand(args).then(() => {
+	process.exit(0);
+}, (err: ExitStatus) => {
+	let errorLines: number = Infinity;
+	if (err.stringify) {
+		console.error(err.stringify());
+		errorLines = 3;
+	} else if (err.code) {
+		console.error(`Error ${err.code}:\n\t${err.message}`);
+	} else {
+		console.error(`Error ${err.name}:\n\t${err.message}`);
+	}
+	const r = new RegExp(escapeRegExp(DEBUG_MICROBUILD_SOURCE), 'g');
+	console.error('\x1B[0;2m%s\x1B[0m', createErrorStackHint(err.stack, errorLines, 1)
+		.join('\n').replace(r, '@MB'));
+	process.exit(err.code || 1);
+});

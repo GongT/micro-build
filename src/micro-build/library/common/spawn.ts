@@ -1,11 +1,12 @@
 import {spawnSync, SpawnSyncOptions} from "child_process";
 import {PathResolver} from "./paths";
 
-export function runExternalCommand(pr: PathResolver, commands: string[] = [], options: SpawnSyncOptions = {}) {
+export function runExternalCommand(pr: PathResolver, commands: string[] = [], options: SpawnSyncOptions = {}): [number, string] {
 	if (options.env) {
 		Object.assign(options.env, process.env);
 	}
 	const [cmd, ...args] = commands;
+	console.error("\x1B[2m%s %s\x1B[0m", cmd, args.join(" "));
 	const p = spawnSync(cmd, args, Object.assign({
 		encoding: 'utf8',
 		cwd: pr.project,
@@ -18,5 +19,5 @@ export function runExternalCommand(pr: PathResolver, commands: string[] = [], op
 		throw p.error;
 	}
 	
-	return p.stdout;
+	return [p.status, p.stdout.toString('utf8')];
 }

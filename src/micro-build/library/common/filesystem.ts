@@ -27,10 +27,6 @@ export function writeFile(path: string, data: string) {
 	writeFileSync(path, data, 'utf8');
 }
 
-export function isANewerThanB(a: string, b: string) {
-	return lstatSync(a).mtime > lstatSync(b).mtime;
-}
-
 export function contentSame(a: string, b: string) {
 	return readFileSync(a, 'utf8') === readFileSync(b, 'utf8');
 }

@@ -3,6 +3,10 @@ export function die(...args: any[]) {
 	exit(1);
 }
 
+export function output(message: string, ...args: any[]) {
+	console.error('\x1B[2m' + message + '\x1B[0m', ...args);
+}
+
 export function exit(e: any = 0) {
 	if (typeof e === 'number') {
 		process.exit(e);

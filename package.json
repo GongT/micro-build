@@ -1,15 +1,16 @@
 {
-	"name": "@gongt/micro-build-source",
+	"name": "@gongt/micro-build",
 	"private": true,
 	"version": "3.0.1",
 	"description": "simple micro service builder system with nodejs & docker",
+	"main": "./dist/micro-build/index.js",
+	"types":"./dist/micro-build/index.d.ts",
 	"bin": {
-		"microbuild": "./dist/micro-build/bin/bin.js"
+		"microbuild": "./dist/bin.js"
 	},
 	"scripts": {
 		"prepublishOnly": "sh pre-publish.sh",
 		"postinstall": "../typescript-common-library/install-here.sh",
-		"prestart": "sh prepare.sh",
 		"start": "sh tscp.sh"
 	},
 	"preferGlobal": true,
@@ -23,22 +24,22 @@
 		"url": "https://github.com/GongT/micro-build/issues"
 	},
 	"homepage": "https://github.com/GongT/micro-build#readme",
+	"@gongt/ts-stl-library": "latest",
+	"@gongt/ts-stl-server": "latest",
 	"dependencies": {
-		"@gongt/ts-stl-library": "latest",
-		"@gongt/ts-stl-server": "latest",
 		"fs-extra": "^3.0.1",
 		"i18n": "^0.8.3",
 		"source-map-support": "^0.4.15",
-		"typescript": "^2.3.4",
+		"typescript": "^2.4.1",
 		"update-notifier": "^2.2.0"
 	},
 	"devDependencies": {
-		"@types/chai": "^4.0.0",
+		"@types/chai": "^4.0.1",
 		"@types/extend": "^2.0.30",
 		"@types/fs-extra": "^3.0.3",
 		"@types/i18n": "^0.8.0",
 		"@types/mocha": "^2.2.41",
-		"@types/node": "^8.0.1",
+		"@types/node": "^8.0.7",
 		"chai": "^4.0.2",
 		"concurrently": "^3.5.0",
 		"mocha": "^3.4.2"

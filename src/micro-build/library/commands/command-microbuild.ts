@@ -13,7 +13,7 @@ export const optSwitchProject: IArgumentOption = {
 	alias: ['p'],
 	description: __('cmd_desc.project'),
 	defaultValue: '.',
-	completion: 'path',
+	completion: 'pr',
 };
 
 parser.addOption(optSwitchProject);

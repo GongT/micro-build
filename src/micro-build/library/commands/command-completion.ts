@@ -1,6 +1,5 @@
 import {CommandParser} from "./argument-parser/index";
 import {optSwitchProject} from "./command-microbuild";
-import {switchProjectFromArguments} from "../common/paths";
 
 export function handleCompletion() {
 	const comp_parser = new CommandParser;
@@ -22,8 +21,6 @@ export function handleCompletion() {
 	if (comp_parser.result.next.name !== 'completion') {
 		return false;
 	}
-	
-	switchProjectFromArguments(comp_parser.result);
 	
 	return true;
 }

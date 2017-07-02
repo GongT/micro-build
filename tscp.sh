@@ -24,6 +24,12 @@ function handle_fail () {
 	echo "not completed."
 }
 
+mkdir -p dist
+cp package/bin.js dist/bin.js
+for i in package/* ; do
+	[ ! -e "dist/$(basename "$i")" ] && ln -s "../$i" dist/
+done
+
 timing tsc -p src/micro-build || handle_fail
 echo "compile spent ${LAST_TIMING}s"
 TIME_MAIN=$( echo "$LAST_TIMING + 0.5" | bc )

@@ -2,8 +2,11 @@
 
 set -e
 
-rm -rf dist/micro-build
-sh prepare.sh
+rm -rf dist/
+
+mkdir -p dist
+
+cp -vur --dereference -p package/. -t dist/
 
 tsc -p src/micro-build
 tsc -p src/plugins

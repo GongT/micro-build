@@ -1,24 +1,31 @@
+import {EventEmitter} from "events";
 import {ensureDirSync, mkdirpSync, removeSync, unlinkSync} from "fs-extra";
 import {resolve} from "path";
 import {NormalizedArguments} from "../commands/argument-parser/real-parse";
 
-export const MICROBUILD_ROOT: string = resolve(__dirname, '..');
+export const MICROBUILD_ROOT: string = resolve(__dirname, '../../..');
+export const DEBUG_MICROBUILD_SOURCE: string = resolve(MICROBUILD_ROOT, '../src');
 
-const BUILD_CONFIG_FILENAME: string = 'config.ts';
-const BUILD_FOLDER_NAME: string = 'build';
+export const BUILD_CONFIG_FILENAME: string = 'config.ts';
+export const BUILD_FOLDER_NAME: string = 'build';
 const TEMP_FOLDER_NAME: string = '.temp';
 const CONTENT_FOLDER_NAME: string = 'store';
 
+export const TEMP_FOLDER_REL = 'build/.temp/';
+
 export class PathResolver {
 	protected basePath: string;
+	private _event: EventEmitter;
 	
 	constructor() {
+		this._event = new EventEmitter;
 		this.switchProject(process.cwd());
 	}
 	
 	ensure() {
+		mkdirpSync(this.resolveHelperFile('.'));
+		mkdirpSync(this.resolveContent('.'));
 		mkdirpSync(this.getTempFileFolder('.'));
-		mkdirpSync(this.contentDir);
 	}
 	
 	switchProjectFromArguments(args: NormalizedArguments) {
@@ -32,7 +39,15 @@ export class PathResolver {
 	
 	/* basic - project */
 	switchProject(path: string) {
+		if (this.basePath === path) {
+			return;
+		}
 		this.basePath = path;
+		this._event.emit('change');
+	}
+	
+	onChange(fn: () => void) {
+		this._event.addListener('change', fn);
 	}
 	
 	get project() {
@@ -40,7 +55,7 @@ export class PathResolver {
 	}
 	
 	get buildPath() {
-		return this.resolve();
+		return this.resolveBuild();
 	}
 	
 	/* temp */
@@ -55,7 +70,7 @@ export class PathResolver {
 			knownName = '';
 		}
 		
-		const temp = this.resolve(
+		const temp = this.resolveBuild(
 			TEMP_FOLDER_NAME,
 			knownName || (this.random() + ext),
 		);
@@ -68,7 +83,7 @@ export class PathResolver {
 	}
 	
 	getTempFileFolder(knownName?: string) {
-		const temp = this.resolve(
+		const temp = this.resolveBuild(
 			TEMP_FOLDER_NAME,
 			knownName || (this.random() + '.d'),
 		);
@@ -83,23 +98,23 @@ export class PathResolver {
 	
 	/* contents */
 	get configFile() {
-		return this.resolve(BUILD_CONFIG_FILENAME);
-	}
-	
-	get contentDir() {
-		return this.contentPath();
-	}
-	
-	public contentPath(...paths: string[]) {
-		return this.resolve(CONTENT_FOLDER_NAME, ...paths);
+		return this.resolveBuild(BUILD_CONFIG_FILENAME);
 	}
 	
 	/* helper */
+	public resolveHelperFile(name: string) {
+		return this.resolveBuild('_', name);
+	}
+	
+	public resolveContent(...paths: string[]) {
+		return this.resolveBuild(CONTENT_FOLDER_NAME, ...paths);
+	}
+	
 	public resolveProject(...paths: string[]) {
 		return resolve(this.project, ...paths);
 	}
 	
-	public resolve(...paths: string[]) {
+	public resolveBuild(...paths: string[]) {
 		return this.resolveProject(BUILD_FOLDER_NAME, ...paths);
 	}
 }

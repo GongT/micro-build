@@ -1,4 +1,4 @@
-import {fileExists} from "../common/filesystem";
+import {pathExistsSync} from "fs-extra";
 import {PathResolver} from "../common/paths";
 import {BuildDependency} from "../dependencies/dependency";
 import {PluginBase} from "../plugins/base";
@@ -12,24 +12,30 @@ export interface ConfigFileOutput {
 }
 
 export class ConfigFile {
-	protected exportData: Partial<ConfigFileOutput>;
-	public readonly exists: boolean;
+	protected exportData: ConfigFileOutput;
+	protected pr: PathResolver;
 	
-	public readonly path: PathResolver;
+	private _exists: boolean;
+	
+	private static $current: ConfigFile;
 	
 	constructor(pr: PathResolver) {
-		this.path = pr;
-		this.exists = fileExists(pr.configFile);
-		
-		this.exportData = {
-			plugins: new PluginsHandler,
-			dependencies: [],
-			project: '',
-		};
-		
-		if (this.exists) {
-			this.read();
+		if (ConfigFile.$current && pr === ConfigFile.$current.pr) {
+			return ConfigFile.$current;
 		}
+		this.pr = pr;
+		
+		this.load = this.load.bind(this);
+		pr.onChange(this.load);
+		this.load();
+	}
+	
+	get path() {
+		return this.pr.configFile;
+	}
+	
+	public get exists() {
+		return this._exists;
 	}
 	
 	plugin<ParamType>(plugin: PluginBase<ParamType>) {
@@ -40,7 +46,17 @@ export class ConfigFile {
 		this.exportData.dependencies.push(depend);
 	}
 	
-	private read() {
-		readConfigFile(this, this.pr.configFile);
+	public load() {
+		this._exists = pathExistsSync(this.pr.configFile);
+		
+		this.exportData = {
+			plugins: new PluginsHandler,
+			dependencies: [],
+			project: '',
+		};
+		
+		if (this._exists) {
+			readConfigFile(this.pr, this);
+		}
 	}
 }

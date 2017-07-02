@@ -1,4 +1,4 @@
-import {TEMP_FOLDER_NAME} from "../../common/paths";
+import {TEMP_FOLDER_REL} from "../../common/paths";
 import {ArgumentError, IArgumentCommand, IArgumentOption} from "./base";
 import {CommandParser} from "./index";
 
@@ -186,7 +186,7 @@ function fullSwitchName(opt: IArgumentOption, type: SWITCH_TYPE): string[] {
 function optionCompletionValue(paramSw: Object, opt: IArgumentOption) {
 	let name: string, value: string;
 	switch (opt.completion) {
-	case 'path':
+	case 'pr':
 		name = fullSwitchName(opt, SWITCH_TYPE.SHO_LON + SWITCH_TYPE.SPLIT).join('|');
 		value = `${completion_emit_file()} ; return 0`;
 		paramSw[name] = value;
@@ -305,8 +305,8 @@ declare -F $next_func >/dev/null && $next_func`;
 			map['-*'] = completion_emit(options.join(' '));
 		}
 		
-		map['*'] = `[ -e "\${PROJECT}/${TEMP_FOLDER_NAME}/completion.sh" ] &&
-	source "\${PROJECT}/${TEMP_FOLDER_NAME}/completion.sh" &&
+		map['*'] = `[ -e "\${PROJECT}/${TEMP_FOLDER_REL}/completion.sh" ] &&
+	source "\${PROJECT}/${TEMP_FOLDER_REL}/completion.sh" &&
 	\${COMPLETEION_FUNCTION_NAME} "$@"
 	${completion_emit(commandList.join(' '))}`;
 		

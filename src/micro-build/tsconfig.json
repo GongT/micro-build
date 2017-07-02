@@ -24,7 +24,9 @@
 		"rootDir": "./",
 		"paths": {
 			"@gongt/ts-stl-library": ["node_modules/@gongt/ts-stl-library"],
-			"@gongt/ts-stl-server": ["node_modules/@gongt/ts-stl-server"]
+			"@gongt/ts-stl-server": ["node_modules/@gongt/ts-stl-server"],
+			"node": ["node_modules/@types/node"],
+			"fs-extra": ["node_modules/@types/fs-extra"]
 		}
 	},
 	"exclude": ["src/global.d.ts"]
