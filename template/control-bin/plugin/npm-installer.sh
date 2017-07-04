@@ -35,6 +35,9 @@ RET=$?
 echo "npm exit: $RET"
 handle_npm_error ${RET}
 
+${NPM_EXEC} ${NPM_ARGUMENTS} prune &>/dev/null
+${NPM_EXEC} ${NPM_ARGUMENTS} dedupe &>/dev/null
+
 unlink package.json
 unlink node_modules
 

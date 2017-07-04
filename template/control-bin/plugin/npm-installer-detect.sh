@@ -9,6 +9,8 @@ die () {
 
 update-resolve
 
+export NODE_ENV="production"
+
 export NPM_RC_PATH=$HOME
 mkdir -p "${NPM_RC_PATH}"
 export NPM_RC_FILE=${NPM_RC_PATH}/.npmrc
@@ -23,6 +25,7 @@ else
 fi
 
 NPM_ARGUMENTS="${NPM_ARGUMENTS} \
+--production \
 --unsafe-perm \
 --registry=${NPM_REGISTRY} \
 --cache=/install/npm/npm-cache \

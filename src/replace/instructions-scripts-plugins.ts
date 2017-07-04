@@ -1,10 +1,10 @@
-import {ScriptVariables} from "./instructions-scripts";
-import {EPlugins} from "../library/microbuild-config";
 import {resolve} from "path";
-import {renderTemplateScripts} from "./replace-scripts";
 import createGuid from "../library/common/guid";
-import {getProjectPath} from "../library/common/file-paths";
 import {PackageJsonFile} from "../library/config-file/package-json-file";
+import {EPlugins} from "../library/microbuild-config";
+import {ScriptVariables} from "./instructions-scripts";
+import {typescriptNormalizeArguments} from "./plugin/typescript";
+import {renderTemplateScripts} from "./replace-scripts";
 
 export class ScriptVariablesPlugins extends ScriptVariables {
 	DEBUG_PLUGIN_WATCHES() {
@@ -17,9 +17,10 @@ export class ScriptVariablesPlugins extends ScriptVariables {
 	private typescript() {
 		const ts_guid = createGuid();
 		return this.walk(this.config.getPluginList(EPlugins.typescript), ({options}) => {
+			options = typescriptNormalizeArguments(options);
 			return renderTemplateScripts('plugin', 'typescript.sh', new ScriptVariables(this.config, {
 				SOURCE() {
-					return options.source || './src';
+					return options.tsconfig || options.source || './src';
 				},
 				TARGET() {
 					return options.target || './dist';
