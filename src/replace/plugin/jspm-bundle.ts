@@ -136,7 +136,7 @@ function bundleSinglePackage(options: JspmBundleOptions, config: MicroBuildConfi
 	const savePath = resolve(targetPath, options.target || './public/bundles');
 	
 	const names = Object.keys(jspm.dependencies || {}).filter((n) => {
-		return n !== 'babel-runtime';
+		return n !== 'babel-runtime' && n !== 'plugin-babel' ;
 	});
 	
 	install.push(createJspmInstall(
@@ -167,7 +167,7 @@ function bundleSinglePackage(options: JspmBundleOptions, config: MicroBuildConfi
 	
 	if (options.build === false) {
 	} else {
-		build.push(`    /install/jspm/bundle-helper src ${JSON.stringify(options.buildOptions || '')} "${savePath}" "${SOURCE}" ${names.map(e => ' - ' + JSON.stringify(e)).join(' ')}`);
+		build.push(`    /install/jspm/bundle-helper src "${savePath}" ${JSON.stringify(options.buildOptions || '')} "${SOURCE}" ${names.map(e => ' - ' + JSON.stringify(e)).join(' ')}`);
 	}
 }
 
