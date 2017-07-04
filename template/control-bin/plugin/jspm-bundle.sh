@@ -8,9 +8,12 @@ TARGET_FOLDER=$1 # save folder
 shift
 
 if [ "${TYPE}" = 'src' ]; then
+	OPTIONS=${1-"--format umd"}
+	shift
+	
 	MAIN_FILE=$1 # app main file
 	jspm bundle "$@" ${TARGET_FOLDER}/client.js --inject # --minify --no-mangle
-	jspm build "$MAIN_FILE" ${TARGET_FOLDER}/full.js --format umd # --minify
+	jspm build "$MAIN_FILE" ${TARGET_FOLDER}/full.js ${OPTIONS} # --minify
 else
 	jspm bundle "$@" ${TARGET_FOLDER}/dependencies.js --inject # --minify --no-mangle
 	

@@ -105,6 +105,7 @@ export function jspm_bundle(replacer: CustomInstructions) {
 }
 
 export interface JspmBundleOptions {
+	buildOptions: string;
 	packageJson: string;
 	target: string;
 	source: string;
@@ -166,7 +167,7 @@ function bundleSinglePackage(options: JspmBundleOptions, config: MicroBuildConfi
 	
 	if (options.build === false) {
 	} else {
-		build.push(`    /install/jspm/bundle-helper src "${savePath}" "${SOURCE}" ${names.map(e => ' - ' + JSON.stringify(e)).join(' ')}`);
+		build.push(`    /install/jspm/bundle-helper src ${JSON.stringify(options.buildOptions || '')} "${savePath}" "${SOURCE}" ${names.map(e => ' - ' + JSON.stringify(e)).join(' ')}`);
 	}
 }
 

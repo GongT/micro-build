@@ -17,7 +17,7 @@ export class ScriptVariablesPlugins extends ScriptVariables {
 	private typescript() {
 		const ts_guid = createGuid();
 		return this.walk(this.config.getPluginList(EPlugins.typescript), ({options}) => {
-			options = typescriptNormalizeArguments(options);
+			typescriptNormalizeArguments(options);
 			return renderTemplateScripts('plugin', 'typescript.sh', new ScriptVariables(this.config, {
 				SOURCE() {
 					return options.tsconfig || options.source || './src';
