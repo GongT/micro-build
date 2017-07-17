@@ -9,16 +9,19 @@ function s_disable {
 	systemctl disable "@{SERVICE_NAME}"
 }
 function s_start {
+	systemctl reset-failed "@{SERVICE_NAME}"
 	systemctl start "@{SERVICE_NAME}"
 }
 function sys_status_started {
 	systemctl is-active $1
 }
 function sys_start {
+	systemctl reset-failed "$1"
 	echo "systemctl start $1"
 	systemctl start $1
 }
 function sys_restart {
+	systemctl reset-failed "$1"
 	echo "systemctl start $1"
 	systemctl restart $1
 }
@@ -36,6 +39,7 @@ function s_status_started {
 	systemctl is-active "@{SERVICE_NAME}"
 }
 function s_restart {
+	systemctl reset-failed "@{SERVICE_NAME}"
 	systemctl restart "@{SERVICE_NAME}"
 }
 function s_install {
