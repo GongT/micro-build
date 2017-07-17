@@ -91,6 +91,6 @@ esac
 
 RET=$?
 if [ -t 0 -a -t 1 ] ; then
-	s_status
+	s_status || true
 fi
 exit ${RET}
