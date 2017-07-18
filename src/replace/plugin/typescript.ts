@@ -48,19 +48,24 @@ export function typescriptNormalizeArguments(options: any, findDeps: boolean = f
 			path = resolvePath(path, '../');
 			try {
 				const pkg = new PackageJsonFile(resolvePath(path, 'package.json'), 'utf8', false);
-				deps = Object.keys(pkg.content.devDependencies || {});
-			} catch (e) {
-			}
-			if (deps) {
+				const pkgDevDeps = pkg.content.devDependencies || {};
+				deps = Object.keys(pkgDevDeps).filter((name) => {
+					return name.startsWith('@types/');
+				}).map((name) => {
+					let version = pkgDevDeps[name];
+					if (version === '*') {
+						version = 'latest';
+					}
+					return `${name}@${version}`;
+				});
 				break;
+			} catch (e) {
 			}
 		} while (path !== '/');
 		if (!deps) {
 			throw new Error('can not found a package.json file for: ' + options.tsconfig);
 		}
-		options.deps = deps.filter((name) => {
-			return name.startsWith('@types/');
-		});
+		options.deps = deps;
 	}
 }
 
