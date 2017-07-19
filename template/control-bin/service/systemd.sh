@@ -1,10 +1,12 @@
 #!/bin/sh
 
 function s_enable {
+	s_masked "@{SERVICE_NAME}" && return
 	echo "enabling service @{SERVICE_NAME} thru systemctl"
 	systemctl enable "@{SERVICE_NAME}"
 }
 function s_disable {
+	s_masked "@{SERVICE_NAME}" && return
 	echo "disabling service @{SERVICE_NAME} thru systemctl"
 	systemctl disable "@{SERVICE_NAME}"
 }
