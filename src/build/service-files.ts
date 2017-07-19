@@ -21,7 +21,7 @@ export function createServiceConfig(config: MicroBuildConfig = readBuildConfig()
 export function createServiceControl(config: MicroBuildConfig = readBuildConfig()) {
 	let adminScript;
 	
-	const replacer = new ScriptVariables(config, {});
+	const replacer = new UnitFileVariables(config, {});
 	adminScript = renderTemplateScripts('run-control', 'start.sh', replacer);
 	saveFilePublic('start-docker.sh', adminScript, '0755');
 	adminScript = renderTemplateScripts('run-control', 'stop.sh', replacer);
