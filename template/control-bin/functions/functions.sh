@@ -51,7 +51,7 @@ function require_loop_ip() {
 		return 0
 	fi
 	echo "detecting server ip." >&2
-	IP=$(ifconfig "@{DEFINED_INTERFACE}" | grep 'inet ' | head -1 | awk '{ print $2 }')
+	IP=$(ifconfig "@{DEFINED_INTERFACE}" | grep 'inet ' | head -1 | awk '{ print $2 }' | grep -oE '[0-9.]+' )
 	echo "    IP=${IP}" >&2
 	if [ -z "${IP}" ]; then
 		echo "Fatal Error: can't detect host ip address." >&2
