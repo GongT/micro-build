@@ -5,9 +5,9 @@ import {run_script} from "./system/shim-require-file";
 import {injectJsonEnv} from "./cli/json-env-cli";
 import {getConfigPath, getTempPath} from "./common/file-paths";
 
-export const dontRemoveReg = /^[\s\S]*\|\s+<\*\*DON'T EDIT ABOVE THIS LINE\*\*>\s+\|/;
+export const dontRemoveReg = /^[\s\S]*\|\s+<?\*\*DON'T EDIT ABOVE THIS LINE\*\*>?\s+\|/;
 export const dontRemoveString = ` +==================================+
- | <**DON'T EDIT ABOVE THIS LINE**> |`;
+ |  **DON'T EDIT ABOVE THIS LINE**  |`;
 let _cached: string;
 let lastBuilder: MicroBuildConfig;
 
