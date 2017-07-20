@@ -1,8 +1,8 @@
+import {resolve} from "path";
+import {safeScriptValue, walkValueKey} from "../../replace/parts/wrapper";
+import {getGeneratePath} from "../common/file-paths";
 import {MicroBuildConfig} from "../microbuild-config";
 import {isSystemdRunning} from "../system/detect-system-type";
-import {walkValueKey, safeScriptValue} from "../../replace/parts/wrapper";
-import {getGeneratePath} from "../common/file-paths";
-import {resolve} from "path";
 
 export function createDockerRunArgument(config: MicroBuildConfig) {
 	const ret: string[] = [];
@@ -22,7 +22,15 @@ export function createDockerRunArgument(config: MicroBuildConfig) {
 		ret.push('--env=USE_LOCAL_DNS=yes');
 	}
 	
-	ret.push(`--net=${storage.networking.bridge? 'bridge' : 'host'}`);
+	if (storage.networking.bridge) {
+		if (storage.networking.bridgeName) {
+			ret.push(`--net=${storage.networking.bridgeName}`);
+		} else {
+			ret.push(`--net=bridge`);
+		}
+	} else {
+		ret.push(`--net=host`);
+	}
 	
 	walkValueKey(storage.dockerRunArguments, (arg) => {
 		ret.push(arg);

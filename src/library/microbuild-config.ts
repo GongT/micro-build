@@ -95,6 +95,7 @@ export interface MicroServiceConfig {
 		hostIp: string;
 		hostIp6: string;
 		bridge: boolean;
+		bridgeName: string;
 		ifName: string;
 	};
 	disableCopyFolder: boolean;
@@ -160,6 +161,7 @@ export class MicroBuildConfig {
 			hostIp6: '',
 			bridge: true,
 			ifName: 'docker0',
+			bridgeName: '',
 		},
 		gfwConfig: {
 			active: false,
@@ -187,6 +189,14 @@ export class MicroBuildConfig {
 		}
 	}
 	
+	netBridge(brName: string) {
+		this.storage.networking.hostIp = '';
+		this.storage.networking.hostIp6 = '';
+		this.storage.networking.ifName = '';
+		this.storage.networking.bridge = true;
+		this.storage.networking.bridgeName = 'bridgeName';
+	}
+	
 	netInterface(ifName: string) {
 		this.storage.networking.hostIp = '';
 		this.storage.networking.hostIp6 = '';
@@ -201,6 +211,7 @@ export class MicroBuildConfig {
 	
 	netAddress(ipaddr: string, ipaddr6?: string) {
 		this.storage.networking.ifName = '';
+		this.storage.networking.bridgeName = '';
 		this.storage.networking.bridge = true;
 		this.storage.networking.hostIp = ipaddr;
 		this.storage.networking.hostIp6 = ipaddr6;
@@ -275,9 +286,11 @@ export class MicroBuildConfig {
 		this.storage.serviceDependencies[otherService] = otherServiceGitUrl || null;
 	}
 	
-	dependIsolate(containerName: string, imageName: string = '', runCommandline: string|string[] = '', appCommandline:
-		string
-		|string[] = '') {
+	dependIsolate(containerName: string,
+	              imageName: string = '',
+	              runCommandline: string|string[] = '',
+	              appCommandline: string
+		              |string[] = '') {
 		this.storage.containerDependencies[containerName] = {imageName, runCommandline, appCommandline};
 	}
 	
