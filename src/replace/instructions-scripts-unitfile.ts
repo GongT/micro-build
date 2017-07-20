@@ -1,3 +1,5 @@
+import {resolve} from "path";
+import {getProjectPath} from "../library/common/file-paths";
 import {ScriptVariables} from "./instructions-scripts";
 
 export class UnitFileVariables extends ScriptVariables {
@@ -25,12 +27,25 @@ export class UnitFileVariables extends ScriptVariables {
 			ret.push(`WatchdogSec=${sdWatch}`);
 		}
 		
-		const startTimeout = service.startTimeout || 25;
+		const startTimeout = service.startTimeout || 10;
 		ret.push(`TimeoutStartSec=${startTimeout}s`);
 		
 		ret.push(`Environment=SYSTEMD_TYPE=${sdType}`);
 		ret.push(`NotifyAccess=all`);
 		ret.push(`PrivateNetwork=no`);
+		
+		if (service.commands) {
+			const fullCmd = (cmd) => {
+				if (/^\.\//.test(cmd)) {
+					return '/bin/bash -c ' + JSON.stringify(resolve(getProjectPath(), cmd));
+				} else {
+					return '/bin/bash -c ' + JSON.stringify(cmd);
+				}
+			};
+			if (service.commands.postStart) {
+				ret.push(`ExecStartPost=-${fullCmd(service.commands.postStart)}`);
+			}
+		}
 		
 		return ret.join('\n');
 	}

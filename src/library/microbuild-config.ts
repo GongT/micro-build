@@ -28,6 +28,9 @@ export interface ISystemdConfig {
 	type?: IServiceType;
 	watchdog?: number;
 	startTimeout?: number;
+	commands?: {
+		postStart?: string
+	};
 }
 
 export interface GFWInterface {
@@ -496,7 +499,17 @@ export class MicroBuildConfig {
 	}
 	
 	systemd(service: ISystemdConfig) {
-		this.storage.service = service;
+		if (!this.storage.service) {
+			this.storage.service = {}
+		}
+		if (!this.storage.service.commands) {
+			this.storage.service.commands = {}
+		}
+		if (service.commands) {
+			Object.assign(this.storage.service.commands, service.commands);
+			delete service.commands;
+		}
+		Object.assign(this.storage.service, service);
 	}
 	
 	/** @deprecated */

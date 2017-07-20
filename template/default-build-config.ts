@@ -1,6 +1,6 @@
 /// <reference path="./.jsonenv/_current_result.json.d.ts"/>
 import {JsonEnv} from "@gongt/jenv-data";
-import {ELabelNames, EPlugins, MicroBuildConfig} from "./.micro-build/x/microbuild-config";
+import {EPlugins, MicroBuildConfig} from "./.micro-build/x/microbuild-config";
 import {MicroBuildHelper} from "./.micro-build/x/microbuild-helper";
 declare const build: MicroBuildConfig;
 declare const helper: MicroBuildHelper;
@@ -20,6 +20,12 @@ const projectName = 'your-project-name';
 build.baseImage('node', 'alpine');
 build.projectName(projectName);
 build.domainName(projectName + '.' + JsonEnv.baseDomainName);
+
+// build.systemd({
+// 	type: 'notify',
+// 	watchdog: 10,
+// 	startTimeout: 15,
+// });
 
 build.isInChina(JsonEnv.gfw.isInChina, JsonEnv.gfw);
 build.npmCacheLayer(JsonEnv.gfw.npmRegistry);

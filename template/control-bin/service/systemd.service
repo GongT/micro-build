@@ -25,7 +25,6 @@ ExecStartPre=-/usr/bin/env sh -c 'docker rm -f "@{SERVICE_NAME}" ; true'
 ExecStart=@{PWD}/start-docker.sh
 
 # ExecReload=#{RELOAD_DOCKER_COMMAND}
-# ExecStartPost=-start-deps?
 
 ExecStop=@{PWD}/kill-docker.sh
 ExecStopPost=-/usr/bin/env sh -c 'docker rm -f "@{SERVICE_NAME}" ; true'
