@@ -194,7 +194,7 @@ export class MicroBuildConfig {
 		this.storage.networking.hostIp6 = '';
 		this.storage.networking.ifName = '';
 		this.storage.networking.bridge = true;
-		this.storage.networking.bridgeName = 'bridgeName';
+		this.storage.networking.bridgeName = brName;
 	}
 	
 	netInterface(ifName: string) {
