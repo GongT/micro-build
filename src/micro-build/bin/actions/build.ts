@@ -1,6 +1,5 @@
 import {IArgumentCommand} from "../../library/commands/argument-parser/base";
-import {ApplicationConfig} from "../../library/config/application-config";
-import {ExitCode} from "../command-switch";
+import {ConfigFile} from "../../library/config/config-file";
 
-export function handleBuild(mb: ApplicationConfig, cmd: IArgumentCommand) {
+export function handleBuild(mb: ConfigFile, cmd: IArgumentCommand) {
 }

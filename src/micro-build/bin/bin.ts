@@ -1,8 +1,10 @@
-import {hintErrorStack} from "@gongt/ts-stl-library/strings/hint-error-stack";
 import {pathExistsSync} from "fs-extra";
 import {resolve} from "path";
 import "source-map-support/register";
 import "../library/common/my-i18n";
+import {criticalErrorHandler, exit, handleError, programSection, programSectionEnd} from "./error";
+
+programSection('early init');
 
 process.on('unhandledRejection', function (reason, p) {
 	console.log("unhandledRejection! %s", reason);
@@ -13,13 +15,11 @@ process.on('unhandledRejection', function (reason, p) {
 	});
 });
 
-if (!process.env.DBG) {
-	process.on('uncaughtException', (err) => {
-		hintErrorStack(err.stack);
-		process.exit(1);
-	});
-}
-const selfPackage = resolve(__dirname, '../../package.json')
+process.on('uncaughtException', (err) => {
+	exit(handleError(err))
+});
+
+const selfPackage = resolve(__dirname, '../../package.json');
 if (pathExistsSync(selfPackage)) {
 	const notifier = require('update-notifier')({
 		pkg: require(selfPackage),
@@ -35,7 +35,12 @@ if (pathExistsSync(selfPackage)) {
 	}
 }
 
+programSectionEnd();
+
 setImmediate(() => {
-	require('./prepare');
-	require('./microbuild');
+	programSection('load source code');
+	const main = require('./microbuild').default;
+	programSectionEnd();
+	
+	main().catch(criticalErrorHandler);
 });

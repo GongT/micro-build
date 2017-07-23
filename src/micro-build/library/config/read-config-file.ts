@@ -1,38 +1,33 @@
 import {hideGlobal} from "@gongt/ts-stl-library/pattern/hide-global";
 import {FileChange} from "@gongt/ts-stl-server/file-operation/file-change";
-import {readFileSync} from "fs";
 import {pathExistsSync} from "fs-extra";
-import {ExitCode, ExitStatus} from "../../bin/command-switch";
-import {output} from "../common/cli-process";
+import {println, programSection, programSectionEnd} from "../../bin/error";
+import {createTsConfig} from "../action-function/prepare/create-tsconfig";
 import {PathResolver} from "../common/paths";
-import {runExternalCommand} from "../common/spawn";
+import {ScriptsRunner} from "../engine/script-run";
 import {ConfigFile} from "./config-file";
 
-export function readConfigFile(path: PathResolver, config: ConfigFile) {
+export async function readConfigFile(path: PathResolver, config: ConfigFile) {
 	const filePath = path.configFile;
-	process.stderr.write('read config: ' + filePath);
-	
-	const tempFile = path.getTempFile('config.js');
-	const changer = new FileChange(filePath, path.getTempFile('config.md5'));
+	const tempFile = path.resolveTempFile('config.js');
+	const changer = new FileChange(filePath, path.resolveTempFile('config.md5'));
 	
 	if (!pathExistsSync(tempFile) || changer.changed) {
-		process.stderr.write(', recompiling...\r');
-		const [ret, stdout] = runExternalCommand(path, [
-			'tsc', '-p', path.resolveHelperFile('tsconfig.json'),
-		]);
-		if (ret !== 0) {
-			output('\n\n' + stdout);
-			throw new ExitStatus(ExitCode.config_error, 'compile failed');
-		}
+		programSection('recompile config file');
+		println('compiling config file...');
+		const runner = new ScriptsRunner('tscp');
+		createTsConfig(path);
+		await runner.assumeSuccess(path.resolveHelperFile('tsconfig.json'));
 		changer.store();
-		console.error('compiled: %s\x1B[K', tempFile);
-	} else {
-		output(' -> %s', tempFile);
+		println('config file compiled.');
+		programSectionEnd();
 	}
 	
 	const un = hideGlobal('config', config);
 	try {
+		programSection('run config file');
 		require(tempFile);
+		programSectionEnd();
 	} catch (e) {
 		throw e;
 	}

@@ -1,39 +1,28 @@
 import {NormalizedArguments} from "../library/commands/argument-parser/real-parse";
+import {MB_COMMAND} from "../library/commands/command-microbuild";
+import {ConfigFile} from "../library/config/config-file";
 import {handleBuild} from "./actions/build";
+import {handleControl} from "./actions/control";
 import {handleCreateFile} from "./actions/create";
 import {handleInit} from "./actions/init";
 import {handleRun} from "./actions/run";
-import {config} from "./prepare";
+import {ExitCode, ExitStatus} from "./error";
 
-export enum ExitCode{
-	success = 0,
-	input,
-	config_exists,
-	config_error,
-}
-export class ExitStatus extends Error {
-	constructor(public readonly code: ExitCode, message: string) {
-		super(message);
-	}
-	
-	stringify() {
-		return `\nError \x1B[38;5;11m${ExitCode[this.code]}\x1B[0m:\n\t${this.message}`;
-	}
-}
-
-export async function runCommand(args: NormalizedArguments): Promise<void> {
+export async function runCommand(config: ConfigFile, args: NormalizedArguments): Promise<void> {
 	const topCommand = args.nextConfig;
 	switch (topCommand.name) {
-	case 'init':
+	case MB_COMMAND.INIT:
 		return await handleInit(config, topCommand);
-	case 'create':
+	case MB_COMMAND.CREATE:
 		return await handleCreateFile(config, topCommand);
-	case 'build':
+	case MB_COMMAND.BUILD:
 		return await handleBuild(config, topCommand);
-	case 'run':
+	case MB_COMMAND.RUN:
 		return await handleRun(config, topCommand);
+	case MB_COMMAND.CONTROL:
+		return await handleControl(config, topCommand);
 	default:
-		throw new ExitStatus(ExitCode.input, `unknown top level command: ${topCommand.name}`)
 		//	pluginCommand(args);
+		throw new ExitStatus(ExitCode.input, `unknown top level command: ${topCommand.name}`)
 	}
 }

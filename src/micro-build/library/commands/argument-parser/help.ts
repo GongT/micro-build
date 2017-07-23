@@ -1,6 +1,7 @@
-import {die, exit} from "../../common/cli-process";
+import {exit, printRed} from "../../../bin/error";
 import {ArgumentError, IArgumentCommand, IArgumentOption, IArgumentParam} from "./base";
 import {CommandParser} from "./index";
+
 const stringWidth = require('string-width');
 
 const isOption = /^-/;
@@ -127,7 +128,11 @@ export class UsageHelper {
 		if (e.helpObject) {
 			self = new UsageHelper(e.helpObject);
 		}
-		die('%s\n\n\x1B[38;5;9mError:\n\t%s\x1B[0m\n', self.getString(), e.message);
+		console.error('');
+		console.error(self.getString() + '\n');
+		process.stderr.write('Error:\n\t');
+		printRed(e.message);
+		console.error('');
 	}
 }
 

@@ -19,6 +19,7 @@
 		"typeRoots": [],
 		"types": [],
 		"rootDir": "../",
+		"outDir": "../.temp/",
 		"paths": {
 			"@gongt/micro-build": ["./dist"],
 			"@gongt/micro-build/*": ["./dist/*"]

@@ -1,10 +1,9 @@
 import {prepareToRun} from "../../library/action-function/prepare";
 import {IArgumentCommand} from "../../library/commands/argument-parser/base";
-import {ApplicationConfig} from "../../library/config/application-config";
+import {ConfigFile} from "../../library/config/config-file";
 
-export function handleCreateFile(mb: ApplicationConfig, cmd: IArgumentCommand) {
+export function handleCreateFile(mb: ConfigFile, cmd: IArgumentCommand) {
 	prepareToRun(mb);
 	
-	mb.currentConfigFile();
 	
 }

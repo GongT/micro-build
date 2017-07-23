@@ -12,7 +12,7 @@ Object.defineProperty(module.exports, 'config', {
 });
 
 export {PluginBase} from "./library/plugins/base";
-export {PluginsHandler} from "./library/plugins/handler";
+export {PluginList} from "./library/plugins/handler";
 
 export const MicrobuildCommandParser: CommandParser = parser;
 

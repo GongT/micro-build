@@ -1,4 +1,4 @@
-import {PluginBase} from "./base";
+import {PluginBase, PluginMeta, PluginOptionBase} from "./base";
 
 export interface PluginsData<T> {
 	before: string[];
@@ -7,7 +7,7 @@ export interface PluginsData<T> {
 	id: string;
 }
 
-export class PluginsHandler {
+export class PluginList {
 	protected list: PluginBase<any>[] = [];
 	protected nameMap: Map<string, PluginBase<any>[]> = new Map;
 	protected idMap: Map<string, PluginBase<any>> = new Map;
@@ -39,5 +39,13 @@ export class PluginsHandler {
 		plugin.onCreate(this);
 		
 		return this.list.push(plugin);
+	}
+	
+	serialize(): (PluginMeta&PluginOptionBase)[] {
+		const ret = [];
+		for (let i of this.list) {
+			ret.push(i.serialize());
+		}
+		return ret;
 	}
 }

@@ -1,12 +1,9 @@
-import {copySync} from "fs-extra";
-import {resolve} from "path";
-import {prepareToRun} from "../../library/action-function/prepare";
+import {prepareToRun, updateBuildFolder} from "../../library/action-function/prepare";
 import {IArgumentCommand} from "../../library/commands/argument-parser/base";
-import {MICROBUILD_ROOT} from "../../library/common/paths";
-import {ApplicationConfig} from "../../library/config/application-config";
+import {ConfigFile} from "../../library/config/config-file";
 
-export function handleInit(mb: ApplicationConfig, cmd: IArgumentCommand) {
-	const cpConf = {
+export function handleInit(mb: ConfigFile, cmd: IArgumentCommand) {
+	/*const cpConf = {
 		dereference: true,
 		overwrite: true,
 		preserveTimestamps: true,
@@ -15,8 +12,8 @@ export function handleInit(mb: ApplicationConfig, cmd: IArgumentCommand) {
 	const filesToCopy = [];
 	for (let file of filesToCopy) {
 		copySync(resolve(MICROBUILD_ROOT, 'template/', file), mb.path.resolveBuild(file), cpConf);
-	}
-	
+	}*/
+	updateBuildFolder(mb);
 	prepareToRun(mb);
 	
 	// pluginEvent.emit(topCommand)

@@ -1,13 +1,29 @@
-import {PluginsHandler} from "./handler";
-export abstract class PluginBase<ParamType> {
-	public readonly id: string;
+import {PluginList} from "./handler";
+
+export interface PluginMeta {
+	readonly id: string;
+	readonly name: string;
+}
+
+export interface PluginOptionBase {
+
+}
+
+export abstract class PluginBase<ParamType extends PluginOptionBase> {
+	public abstract readonly id: string;
 	readonly name: string;
 	
 	constructor(protected options: ParamType) {
 		this.name = this.constructor.name;
-		this.id = this.name + '-' + (Math.random() * 10000).toFixed(0);
+		Object.freeze(options);
 	}
 	
-	abstract onCreate(handler: PluginsHandler);
+	abstract onCreate(handler: PluginList);
 	
+	serialize(): PluginMeta&ParamType {
+		return Object.assign({}, this.options, {
+			id: this.id,
+			name: this.name,
+		});
+	}
 }

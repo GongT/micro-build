@@ -29,6 +29,7 @@ cp package/bin.js dist/bin.js
 for i in package/* ; do
 	[ ! -e "dist/$(basename "$i")" ] && ln -s "../$i" dist/
 done
+chmod a+x -R dist/scripts/*
 
 timing tsc -p src/micro-build || handle_fail
 echo "compile spent ${LAST_TIMING}s"

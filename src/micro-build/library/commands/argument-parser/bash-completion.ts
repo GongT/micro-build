@@ -186,7 +186,7 @@ function fullSwitchName(opt: IArgumentOption, type: SWITCH_TYPE): string[] {
 function optionCompletionValue(paramSw: Object, opt: IArgumentOption) {
 	let name: string, value: string;
 	switch (opt.completion) {
-	case 'pr':
+	case 'path':
 		name = fullSwitchName(opt, SWITCH_TYPE.SHO_LON + SWITCH_TYPE.SPLIT).join('|');
 		value = `${completion_emit_file()} ; return 0`;
 		paramSw[name] = value;

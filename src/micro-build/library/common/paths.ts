@@ -2,6 +2,7 @@ import {EventEmitter} from "events";
 import {ensureDirSync, mkdirpSync, removeSync, unlinkSync} from "fs-extra";
 import {resolve} from "path";
 import {NormalizedArguments} from "../commands/argument-parser/real-parse";
+import {programSection, programSectionEnd} from "../../bin/error";
 
 export const MICROBUILD_ROOT: string = resolve(__dirname, '../../..');
 export const DEBUG_MICROBUILD_SOURCE: string = resolve(MICROBUILD_ROOT, '../src');
@@ -42,8 +43,14 @@ export class PathResolver {
 		if (this.basePath === path) {
 			return;
 		}
+		programSection('switching project root');
 		this.basePath = path;
 		this._event.emit('change');
+		programSectionEnd();
+	}
+	
+	get id(){
+		return this.basePath;
 	}
 	
 	onChange(fn: () => void) {
@@ -63,7 +70,7 @@ export class PathResolver {
 		return Date.now().toString() + '' + (Math.random() * 10000).toFixed(0);
 	}
 	
-	getTempFile(knownName?: string) {
+	resolveTempFile(knownName?: string) {
 		let ext = '';
 		if (/^\./.test(knownName)) {
 			ext = knownName;
@@ -99,6 +106,11 @@ export class PathResolver {
 	/* contents */
 	get configFile() {
 		return this.resolveBuild(BUILD_CONFIG_FILENAME);
+	}
+	
+	/* template */
+	public resolveTemplateFile(f: string) {
+		return resolve(MICROBUILD_ROOT, 'template', f);
 	}
 	
 	/* helper */
