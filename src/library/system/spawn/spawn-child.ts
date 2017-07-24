@@ -1,5 +1,5 @@
-import {resolve, basename} from "path";
 import {spawnSync} from "child_process";
+import {basename, resolve} from "path";
 import {getProjectPath, getTempPath} from "../../common/file-paths";
 import extend = require("extend");
 
@@ -19,7 +19,7 @@ export function spawnMainCommand(command, args: string[] = []) {
 		cwd: getProjectPath(),
 		stdio: 'inherit',
 		env: Object.assign({}, process.env, {
-			PATH: process.env.PATH + ':' + resolve(getProjectPath(), 'node_modules/.bin')
+			PATH: process.env.PATH + ':' + resolve(getProjectPath(), 'node_modules/.bin'),
 		}),
 		encoding: 'utf8',
 		shell: '/bin/bash',
@@ -27,13 +27,16 @@ export function spawnMainCommand(command, args: string[] = []) {
 	return ret.status;
 }
 
-export function spawnRun(docker_env: string, args: string[] = [], otherEnv: {[id: string]: string} = {}, script = 'start.sh') {
+export function spawnRun(docker_env: string,
+                         args: string[] = [],
+                         otherEnv: {[id: string]: string} = {},
+                         script = 'start.sh') {
 	const fullPath = resolve(getTempPath(), script);
 	const ret = spawnSyncWrap(fullPath, args, {
 		cwd: getProjectPath(),
 		stdio: 'inherit',
 		env: extend({}, process.env, {
-			DOCKER_START_ARGS: docker_env
+			DOCKER_START_ARGS: docker_env,
 		}, otherEnv),
 		encoding: 'utf8',
 		shell: '/bin/bash',
@@ -54,9 +57,13 @@ function spawnSyncWrap(path: string, args: any[], options: any) {
 	process.on('SIGINT', prevent_parent_process_exit);
 	
 	process.stdin.pause();
-	process.stdin['setRawMode'](false);
+	if (process.stdin['setRawMode']) {
+		process.stdin['setRawMode'](false);
+	}
 	const ret = spawnSync(path, args, options);
-	process.stdin['setRawMode'](true);
+	if (process.stdin['setRawMode']) {
+		process.stdin['setRawMode'](true);
+	}
 	process.stdin.resume();
 	
 	if (ret.error) {
