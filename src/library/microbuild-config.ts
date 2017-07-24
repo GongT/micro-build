@@ -505,6 +505,10 @@ export class MicroBuildConfig {
 		if (!this.storage.service.commands) {
 			this.storage.service.commands = {}
 		}
+		if (process.env.NOT_SUPPORT_SYSTEMD_NOTIFY) {
+			service.type = "simple";
+			service.watchdog = 0;
+		}
 		if (service.commands) {
 			Object.assign(this.storage.service.commands, service.commands);
 			delete service.commands;
@@ -514,11 +518,17 @@ export class MicroBuildConfig {
 	
 	/** @deprecated */
 	systemdType(type: IServiceType) {
+		if (type === "notify" && process.env.NOT_SUPPORT_SYSTEMD_NOTIFY) {
+			return;
+		}
 		this.storage.service.type = type;
 	}
 	
 	/** @deprecated */
 	systemdWatchdog(watchdog: number) {
+		if (process.env.NOT_SUPPORT_SYSTEMD_NOTIFY) {
+			return;
+		}
 		this.storage.service.watchdog = watchdog;
 	}
 	
