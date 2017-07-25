@@ -14,9 +14,6 @@ cd ${TARGET}
 
 echo "PWD=`pwd`"
 
-cd .inst
-echo "CWD=`pwd`"
-
 if [ -e "package-lock.json" ]; then
 	echo "Warn: package-lock.json exists - remove it" >&2
 	unlink package-lock.json
