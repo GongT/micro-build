@@ -6,7 +6,9 @@
 NAME="$1"
 SOURCE_JSON="/install/package-json/${2}"
 TARGET="/data/${3}"
-LOG_FILE="${NAME}.log"
+LOG_FILE="/install/logs/npm-${NAME}.log"
+
+mkdir -p /install/logs/
 
 cd /install/npm
 
@@ -16,6 +18,7 @@ mkdir -p ${TARGET}node_modules
 
 mkdir -p .inst
 cd .inst
+echo "CWD=`pwd`"
 
 if [ -e "node_modules" ]; then
 	unlink node_modules
@@ -35,8 +38,10 @@ RET=$?
 echo "npm exit: $RET"
 handle_npm_error ${RET}
 
-${NPM_EXEC} ${NPM_ARGUMENTS} prune &>/dev/null
-${NPM_EXEC} ${NPM_ARGUMENTS} dedupe &>/dev/null
+echo "npm prune"
+${NPM_EXEC} ${NPM_ARGUMENTS} prune
+echo "npm dedupe"
+${NPM_EXEC} ${NPM_ARGUMENTS} dedupe
 
 unlink package.json
 unlink node_modules
