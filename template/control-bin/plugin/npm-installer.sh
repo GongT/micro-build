@@ -10,43 +10,41 @@ LOG_FILE="/install/logs/npm-${NAME}.log"
 
 mkdir -p /install/logs/
 
-cd /install/npm
+cd ${TARGET}
 
 echo "PWD=`pwd`"
 
-mkdir -p ${TARGET}node_modules
-
-mkdir -p .inst
 cd .inst
 echo "CWD=`pwd`"
 
-if [ -e "node_modules" ]; then
-	unlink node_modules
+if [ -e "package-lock.json" ]; then
+	echo "Warn: package-lock.json exists - remove it" >&2
+	unlink package-lock.json
 fi
-echo "+ ln -s ${TARGET}node_modules ./node_modules"
-ln -s ${TARGET}node_modules ./node_modules
+
+# package.json
 if [ -e "package.json" ]; then
-	echo "+ unlink package.json"
-	unlink package.json
+	mv package.json /tmp/hide_package.json
 fi
 echo "+ ln -s ${SOURCE_JSON} ./package.json"
 ln -s ${SOURCE_JSON} ./package.json
 
+# REAL INSTALL
 echo ""
 ${NPM_INSTALL}
 RET=$?
 echo "npm exit: $RET"
 handle_npm_error ${RET}
 
-echo "npm prune"
-${NPM_EXEC} ${NPM_ARGUMENTS} prune
-echo "npm dedupe"
-${NPM_EXEC} ${NPM_ARGUMENTS} dedupe
-
+# package.json
 unlink package.json
-unlink node_modules
+if [ -e "/tmp/hide_package.json" ]; then
+	mv /tmp/hide_package.json ./package.json
+fi
 
-cd /install/npm
-rm -rf .inst
+echo "running npm prune..."
+${NPM_EXEC} ${NPM_ARGUMENTS} prune &>/dev/null
+echo "running npm prune..."
+${NPM_EXEC} ${NPM_ARGUMENTS} dedupe &>/dev/null
 
 #{REMOVE_CACHES}
