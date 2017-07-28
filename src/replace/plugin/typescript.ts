@@ -43,7 +43,7 @@ export function typescriptNormalizeArguments(options: any, findDeps: boolean = f
 	
 	if (findDeps) {
 		let path = options.tsconfig;
-		let deps: string[];
+		let deps: {name: string, version: string}[];
 		do {
 			path = resolvePath(path, '../');
 			try {
@@ -56,7 +56,7 @@ export function typescriptNormalizeArguments(options: any, findDeps: boolean = f
 					if (version === '*') {
 						version = 'latest';
 					}
-					return `${name}@${version}`;
+					return {name, version};
 				});
 				break;
 			} catch (e) {
@@ -88,9 +88,21 @@ export default function typescript(config: MicroBuildConfig) {
 	let content = '# typescript compile \n';
 	
 	const pathAdded: string[] = [];
+	const depsMap: {[id: string]: string} = {};
 	const all_deps = [].concat(...ts_plugin.map(({options}) => {
 		return options.deps;
-	})).map(e => JSON.stringify(e));
+	})).filter(({name, version}) => {
+		if (depsMap[name]) {
+			if (depsMap[name] === version) {
+				return false;
+			} else {
+				throw new Error(`found dependency version conflict: ${name}: ${depsMap[name]} and ${version}`);
+			}
+		} else {
+			depsMap[name] = version;
+			return true;
+		}
+	}).map(({name, version}) => JSON.stringify(`${name}@${version}`));
 	
 	content += ts_plugin.map(({options}) => {
 			const SOURCE = options.source || './src';
