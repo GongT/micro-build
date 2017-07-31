@@ -13,17 +13,6 @@ elif [ -z "@{IMAGE_NAME}" ]; then
 	don't know how to start it."
 		exit 200
 else
-	if ! is_image_exists "@{IMAGE_NAME}" ; then
-		echo " >>> run docker pull @{IMAGE_NAME}"
-		docker pull "@{IMAGE_NAME}"
-		if [ "${MICRO_BUILD_RUN_MODE}" = 'docker' ]; then
-			exit 1
-		fi
-		sleep 1
-		echo " >>> docker pull complete: @{IMAGE_NAME}"
-		echo ""
-	fi
-	
 	echo " >>> running dependence @{CONTAINER_NAME}"
 	set -x
 	docker run -d --name "@{CONTAINER_NAME}" @{DOCKER_CONFIG} "@{IMAGE_NAME}" @{COMMAND_LINE}

@@ -5,6 +5,8 @@ echo "starting........"
 export CURRENT_ENV=docker
 source "@{PWD}/functions.sh"
 
+#{START_DEPENDENCY}
+
 if [ -t 0 -a -t 1 ] ; then
 	# this shell has a std-input
 	t_arg='t'
