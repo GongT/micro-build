@@ -1,6 +1,6 @@
 {
 	"name": "@gongt/micro-build",
-	"version": "3.0.5",
+	"version": "3.0.6",
 	"description": "simple micro service builder system with nodejs & docker",
 	"bin": {
 		"microbuild": "./dist/microbuild.js"
@@ -24,26 +24,28 @@
 	},
 	"homepage": "https://github.com/GongT/micro-build#readme",
 	"dependencies": {
-		"@gongt/jenv": "*",
-		"@gongt/jenv-data": "*",
+		"@gongt/jenv-data": "^1.2.7",
 		"app-module-path": "^2.2.0",
-		"concurrently": "^3.1.0",
-		"debug": "^2.6.0",
-		"extend": "^3.0.0",
+		"concurrently": "^3.5.0",
+		"debug": "^2.6.8",
+		"extend": "^3.0.1",
 		"mkdirp": "^0.5.1",
 		"nodejs-fs-utils": "^1.0.26",
 		"nodemon": "^1.11.0",
-		"readline-sync": "^1.4.5",
-		"source-map-support": "^0.4.10",
-		"string-width": "^2.0.0"
+		"readline-sync": "^1.4.7",
+		"source-map-support": "^0.4.15",
+		"string-width": "^2.1.1"
 	},
 	"devDependencies": {
-		"@types/chai": "^3.4.34",
+		"@types/chai": "^4.0.1",
 		"@types/extend": "^2.0.30",
-		"@types/mkdirp": "^0.3.29",
-		"@types/mocha": "^2.2.38",
-		"@types/node": "^7.0.0",
-		"chai": "^3.5.0",
-		"mocha": "^3.2.0"
+		"@types/mkdirp": "^0.5.0",
+		"@types/mocha": "^2.2.41",
+		"@types/node": "^8.0.17",
+		"chai": "^4.1.0",
+		"mocha": "^3.4.2"
+	},
+	"peerDependencies": {
+		"@gongt/jenv": "*"
 	}
 }
