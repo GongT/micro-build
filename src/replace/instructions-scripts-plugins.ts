@@ -50,8 +50,10 @@ export class ScriptVariablesPlugins extends ScriptVariables {
 	}
 	
 	NODEMON_BIN() {
-		const pacDir = require.resolve('nodemon')
-		                      .replace(/(\/node_modules\/.+?\/).+?$/, '/node_modules/nodemon');
+		const pacDir = [
+			...require.resolve('nodemon').split('/node_modules/').slice(0, -1),
+			'nodemon',
+		].join('/node_modules/');
 		const binPath = (new PackageJsonFile(resolve(pacDir, 'package.json'))).content.bin['nodemon'];
 		return JSON.stringify(resolve(pacDir, binPath));
 	}
