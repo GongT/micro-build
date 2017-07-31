@@ -57,8 +57,10 @@ export class ScriptVariablesPlugins extends ScriptVariables {
 	}
 	
 	CONCURRENTLY_BIN() {
-		const pacDir = require.resolve('concurrently')
-		                      .replace(/(\/node_modules\/.+?\/).+?$/, '/node_modules/concurrently');
+		const pacDir = [
+			...require.resolve('concurrently').split('/node_modules/').slice(0, -1),
+			'concurrently',
+		].join('/node_modules/');
 		const binPath = (new PackageJsonFile(resolve(pacDir, 'package.json'))).content.bin['concurrently'];
 		return resolve(pacDir, binPath);
 	}
