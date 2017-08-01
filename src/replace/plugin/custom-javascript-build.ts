@@ -105,7 +105,7 @@ export default function custom_javascript_build(config: MicroBuildConfig) {
 		'cd /data',
 		...build_plugin.map(({options}) => {
 			return [
-				`SOURCE=${s(options.source)} TARGET=${s(options.target)}`,
+				`SOURCE=${s(options.source[0])} TARGET=${s(options.target)}`,
 				options.command,
 			];
 		}),
