@@ -120,6 +120,7 @@ export enum EPlugins{
 	browserify,
 	jspm_bundle,
 	npm_publish,
+	custom_javascript_build,
 }
 
 export interface KeyValueObject<T> {

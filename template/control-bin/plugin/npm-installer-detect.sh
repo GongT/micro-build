@@ -25,12 +25,15 @@ else
 fi
 
 NPM_ARGUMENTS="${NPM_ARGUMENTS} \
---production \
 --unsafe-perm \
 --registry=${NPM_REGISTRY} \
 --cache=/install/npm/npm-cache \
 --userconfig=${NPM_RC_FILE} \
 --loglevel warn"
+
+if ! echo "$*" | grep -q -- "--only=" ; then
+	NPM_ARGUMENTS="${NPM_ARGUMENTS} --only=production"
+fi
 
 TYPE=install
 if [ "$1" = "uninstall" ] ; then
@@ -47,6 +50,9 @@ if command -v git 2>&1 >/dev/null ; then
 			cat /etc/gitconfig
 		fi
 		
+		echo -e "$E[38;5;3m"
+		echo "npm $*"
+		echo -e "$E[0m"
 		echo "npm is running..."
 		LAST_COMMAND="$*"
 		npm "$@"
@@ -62,6 +68,9 @@ if command -v git 2>&1 >/dev/null ; then
 	}
 else
 	wrap_npm () {
+		echo -e "$E[38;5;3m"
+		echo "npm $*"
+		echo -e "$E[0m"
 		echo "npm is running..."
 		LAST_COMMAND="$*"
 		npm "$@"

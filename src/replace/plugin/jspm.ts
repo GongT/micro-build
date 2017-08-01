@@ -3,6 +3,7 @@ import {resolve} from "path";
 import {getTempPath} from "../../library/common/file-paths";
 import {saveFile} from "../../library/config-file/fast-save";
 import {MicroBuildConfig} from "../../library/microbuild-config";
+import {DOCKERFILE_RUN_SPLIT} from "../base";
 import {ScriptVariables} from "../instructions-scripts";
 import {renderTemplateScripts} from "../replace-scripts";
 import {_guid} from "./_guid";
@@ -30,7 +31,7 @@ cat ~/.jspm/config`;
 	
 	if (actions.length) {
 		return `COPY ${getTempPath(true)}/jspm-install /install/jspm
-RUN ${actions.join(' && \\ \n\t')}
+RUN ${actions.join(DOCKERFILE_RUN_SPLIT)}
 `;
 	} else {
 		return `COPY ${getTempPath(true)}/jspm-install /install/jspm
@@ -74,7 +75,7 @@ RUN ` + [].concat(
 			systemInstall(config, ['git']),
 			[`/install/jspm/install ${jsonFile} "${targetPath}" "${packageDir}"`],
 			systemUninstall(config, ['git']),
-		).join(' && \\\n\t');
+		).join(DOCKERFILE_RUN_SPLIT);
 }
 
 function create_helper_script(config: MicroBuildConfig) {

@@ -161,7 +161,7 @@ function tokenizeOptions(argv: string[], config: IArgumentCommand): NormalizedAr
 		if (config.multipleTimes) {
 			if (config.acceptValue) {
 				if (ret.namedOptions.hasOwnProperty(name)) {
-					ret.namedOptions[name].push(value);
+					ret.namedOptions[name].copyPath(value);
 				} else {
 					ret.namedOptions[name] = [value];
 				}

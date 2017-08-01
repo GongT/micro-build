@@ -1,11 +1,11 @@
-import {CustomInstructions} from "../instructions-dockerfile";
+import {resolve} from "path";
+import {getTempPath} from "../../library/common/file-paths";
+import {saveFile} from "../../library/config-file/fast-save";
 import {EPlugins, MicroBuildConfig} from "../../library/microbuild-config";
+import {DOCKERFILE_RUN_SPLIT} from "../base";
+import {CustomInstructions} from "../instructions-dockerfile";
 import {renderTemplateScripts} from "../replace-scripts";
 import {getNpmScriptReplacer} from "./npm";
-import {existsSync} from "fs";
-import {resolve} from "path";
-import {saveFile} from "../../library/config-file/fast-save";
-import {getProjectPath, getTempPath} from "../../library/common/file-paths";
 
 export function npm_publish_command(config: MicroBuildConfig) {
 	const replacer = getNpmScriptReplacer(config);
@@ -30,20 +30,19 @@ export function npm_publish_after(replacer: CustomInstructions) {
 			Object.keys(options.copy).forEach((from) => {
 				const sourceFile = resolve('/data', from);
 				const targetPath = resolve('/data', options.copy[from]);
-				copyInstructions.push(`{ if [ ! -e ${JSON.stringify(sourceFile)} ]; then echo "No ${sourceFile} for copy" >&2; exit 1; fi ; } && \\
-	cp -rv ${JSON.stringify(sourceFile)} ${JSON.stringify(targetPath)} && \\
-	`);
+				copyInstructions.push(`{ if [ ! -e ${JSON.stringify(sourceFile)} ]; then echo "No ${sourceFile} for copy" >&2; exit 1; fi ; }` +
+				                      `${DOCKERFILE_RUN_SPLIT}\tcp -rv ${JSON.stringify(sourceFile)} ${JSON.stringify(targetPath)}${DOCKERFILE_RUN_SPLIT}\t`);
 			});
 		}
 		
 		const target = `/data/${options.path}`;
-		ret.push(`${copyInstructions.join('')}cd ${JSON.stringify(target)} && \\
-	{ if [ ! -e "./package.json" ]; then echo "No package.json for publish" >&2; exit 1; fi ; } && \\
-	/install/npm/npm-publish-private`)
+		ret.push(`${copyInstructions.join('')}cd ${JSON.stringify(target)}${DOCKERFILE_RUN_SPLIT}` +
+		         `  { if [ ! -e "./package.json" ]; then echo "No package.json for publish" >&2; exit 1; fi ; }${DOCKERFILE_RUN_SPLIT}` +
+		         `  /install/npm/npm-publish-private`)
 	});
 	
 	if (ret.length) {
-		return 'RUN ' + ret.join('&& \\\n\t');
+		return 'RUN ' + ret.join(DOCKERFILE_RUN_SPLIT);
 	} else {
 		return '# no npm publish';
 	}

@@ -1,7 +1,11 @@
 import {readFileSync} from "fs";
-import {MicroBuildConfig, EPlugins} from "../library/microbuild-config";
 import {injectJsonEnv} from "../library/cli/json-env-cli";
-import {walkValueKey, safeEnvStringInValue, safeScriptValue} from "./parts/wrapper";
+import {EPlugins, MicroBuildConfig} from "../library/microbuild-config";
+import {safeEnvStringInValue, safeScriptValue, walkValueKey} from "./parts/wrapper";
+
+export const RSPLIT_END = '\\';
+export const RSPLIT_START = ' && ';
+export const DOCKERFILE_RUN_SPLIT = RSPLIT_END + '\n' + RSPLIT_START;
 
 export class TemplateRender {
 	private tpl;

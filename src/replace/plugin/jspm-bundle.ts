@@ -3,6 +3,7 @@ import {sync} from "mkdirp";
 import {dirname, resolve} from "path";
 import {getProjectPath, getTempPath} from "../../library/common/file-paths";
 import {EPlugins, MicroBuildConfig} from "../../library/microbuild-config";
+import {DOCKERFILE_RUN_SPLIT} from "../base";
 import {CustomInstructions} from "../instructions-dockerfile";
 import {_guid} from "./_guid";
 import {systemInstall, systemUninstall} from "./system-install";
@@ -42,7 +43,7 @@ export function jspm_bundle_after(replacer: CustomInstructions) {
 		content.push(`mv ${JSON.stringify(`${target}.overwrite`)} ${JSON.stringify(target)}`);
 	});
 	if (content.length) {
-		return 'RUN ' + content.join('&& \\\n\t');
+		return 'RUN ' + content.join(DOCKERFILE_RUN_SPLIT);
 	} else {
 		return '';
 	}
@@ -83,9 +84,9 @@ export function jspm_bundle(replacer: CustomInstructions) {
 	const installGit = systemInstall(config, ['git']).map(e => `\t\t\t${e}`);
 	const uninstallGit = systemUninstall(config, ['git']).map(e => `\t\t\t${e}`);
 	
-	installGit[0] = '{ ! command -v git && export CLEAN_INSTALL_GIT=yes && \\\n\t' + installGit[0];
+	installGit[0] = '{ ! command -v git && export CLEAN_INSTALL_GIT=yes' + DOCKERFILE_RUN_SPLIT + installGit[0];
 	installGit[installGit.length - 1] += ' \\\n\t\t || true ; }';
-	uninstallGit[0] = '{ [ -n "${CLEAN_INSTALL_GIT}" ] && \\\n\t' + uninstallGit[0];
+	uninstallGit[0] = '{ [ -n "${CLEAN_INSTALL_GIT}" ]' + DOCKERFILE_RUN_SPLIT + uninstallGit[0];
 	uninstallGit[uninstallGit.length - 1] += ' \\\n\t\t || true ; }';
 	
 	content += '\n';
@@ -99,7 +100,7 @@ export function jspm_bundle(replacer: CustomInstructions) {
 			['# sys uninstall'],
 			uninstallGit,
 			['/install/npm/global-installer uninstall jspm'],
-		).join(' && \\\n\t');
+		).join(DOCKERFILE_RUN_SPLIT);
 	
 	return content;
 }
@@ -113,7 +114,11 @@ export interface JspmBundleOptions {
 	build: boolean;
 }
 
-function bundleSinglePackage(options: JspmBundleOptions, config: MicroBuildConfig, install: string[], build: string[], copy: string[][]) {
+function bundleSinglePackage(options: JspmBundleOptions,
+                             config: MicroBuildConfig,
+                             install: string[],
+                             build: string[],
+                             copy: string[][]) {
 	const SOURCE = options.source;
 	if (!SOURCE) {
 		throw new Error('EPlugins.jspm_bundle: require `source` argument. (to main file)')
@@ -136,7 +141,7 @@ function bundleSinglePackage(options: JspmBundleOptions, config: MicroBuildConfi
 	const savePath = resolve(targetPath, options.target || './public/bundles');
 	
 	const names = Object.keys(jspm.dependencies || {}).filter((n) => {
-		return n !== 'babel-runtime' && n !== 'plugin-babel' ;
+		return n !== 'babel-runtime' && n !== 'plugin-babel';
 	});
 	
 	install.push(createJspmInstall(
@@ -167,7 +172,8 @@ function bundleSinglePackage(options: JspmBundleOptions, config: MicroBuildConfi
 	
 	if (options.build === false) {
 	} else {
-		build.push(`    /install/jspm/bundle-helper src "${savePath}" ${JSON.stringify(options.buildOptions || '')} "${SOURCE}" ${names.map(e => ' - ' + JSON.stringify(e)).join(' ')}`);
+		build.push(`    /install/jspm/bundle-helper src "${savePath}" ${JSON.stringify(options.buildOptions || '')} "${SOURCE}" ${names.map(
+			e => ' - ' + JSON.stringify(e)).join(' ')}`);
 	}
 }
 
@@ -216,7 +222,10 @@ function getPackageDir(jspm) {
 		return './jspm_packages';
 	}
 }
-function createJspmBundlePackage(config: MicroBuildConfig, jspm: JspmPackageConfig, targetPath: string, copy: string[][]) {
+function createJspmBundlePackage(config: MicroBuildConfig,
+                                 jspm: JspmPackageConfig,
+                                 targetPath: string,
+                                 copy: string[][]) {
 	const id = `jspm-${_guid()}`;
 	const source = getConfigFileSource(jspm, targetPath);
 	if (!existsSync(source)) {

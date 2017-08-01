@@ -5,6 +5,7 @@ import {removeCache} from "../../build/scripts";
 import {getTempPath} from "../../library/common/file-paths";
 import {saveFile} from "../../library/config-file/fast-save";
 import {MicroBuildConfig} from "../../library/microbuild-config";
+import {DOCKERFILE_RUN_SPLIT} from "../base";
 import {ScriptVariables} from "../instructions-scripts";
 import {renderTemplateScripts} from "../replace-scripts";
 import {_guid} from "./_guid";
@@ -40,13 +41,14 @@ ENV NPM_LAYER_ENABLED=${npm.enabled? 'yes' : 'no'} \\
 COPY ${getTempPath(true)}/npm-install /install/npm
 `;
 	if (npm.enabled) {
-		npmPrependIns += `# private npm
-RUN /install/npm/global-installer npm-cli-login && \\
-	npm config set registry "${npm.url}" && \\
-	sh /install/npm/prepare-user && \\
-	npm un -q --global npm-cli-login && \\
-	${removeCache()}
-`;
+		npmPrependIns += '# private npm\n';
+		npmPrependIns += 'RUN ' + [
+				'/install/npm/global-installer npm-cli-login',
+				`npm config set registry "${npm.url}"`,
+				'sh /install/npm/prepare-user',
+				'npm uninstall -q --global npm-cli-login',
+				removeCache(),
+			].join(DOCKERFILE_RUN_SPLIT);
 	} else {
 		npmPrependIns += `# no private npm
 RUN npm config set registry "${npm.url}"

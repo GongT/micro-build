@@ -1,4 +1,5 @@
-import {MicroBuildConfig, EPlugins} from "../../library/microbuild-config";
+import {DOCKERFILE_RUN_SPLIT} from "../base";
+import {EPlugins, MicroBuildConfig} from "../../library/microbuild-config";
 
 export default function scss(config: MicroBuildConfig) {
 	const scss_plugin = config.getPluginList(EPlugins.node_scss);
@@ -25,8 +26,8 @@ export default function scss(config: MicroBuildConfig) {
 	content += '\nRUN ' + ['set -x'].concat(
 			['/install/npm/global-installer node-sass'],
 			build,
-			['/install/npm/global-installer uninstall node-sass']
-		).join(' && \\\n\t');
+			['/install/npm/global-installer uninstall node-sass'],
+		).join(DOCKERFILE_RUN_SPLIT);
 	
 	return content;
 }

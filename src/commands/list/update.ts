@@ -48,6 +48,15 @@ export function update() {
 			extraFolders.push(slashEnd(options.target));
 		}
 	});
+	const hasRc = builder.getPluginList(EPlugins.custom_javascript_build).filter(({options}) => {
+		if (options && options.target) {
+			extraFolders.push(slashEnd(options.target));
+		}
+		return options && options.rcFile;
+	});
+	if(hasRc){
+		extraFolders.push('!.babelrc');
+	}
 	builder.getPluginList(EPlugins.jspm_bundle).forEach(({options}) => {
 		getSavePaths(options).forEach((path) => {
 			extraFolders.push(path);
