@@ -97,7 +97,6 @@ export function jspm_bundle(replacer: CustomInstructions) {
 			install,
 			build,
 			['/install/jspm/install finish'],
-			['# sys uninstall'],
 			uninstallGit,
 			['/install/npm/global-installer uninstall jspm'],
 		).join(DOCKERFILE_RUN_SPLIT);

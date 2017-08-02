@@ -9,8 +9,9 @@
 		"node_modules",
 		"jspm_packages",
 		".npm",
-		"typings",
-		"public"
+		"public",
+		"package.json",
+		"package-lock.json"
 	],
 	"verbose": false,
 	"execMap": {
