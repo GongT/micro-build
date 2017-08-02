@@ -92,7 +92,6 @@ export function jspm_bundle(replacer: CustomInstructions) {
 	content += '\n';
 	content += 'RUN ' + ['set -x'].concat(
 			['/install/npm/global-installer jspm@beta',],
-			['# sys install'],
 			installGit,
 			install,
 			build,
