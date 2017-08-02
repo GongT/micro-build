@@ -11,10 +11,9 @@ Restart=always
 RestartPreventExitStatus=101
 PrivateTmp=false
 
-RestartSec=5
+RestartSec=10
 RestartPreventExitStatus=130
 
-TimeoutStopSec=10s
 StartLimitInterval=60s
 StartLimitBurst=2
 

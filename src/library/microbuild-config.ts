@@ -28,6 +28,7 @@ export interface ISystemdConfig {
 	type?: IServiceType;
 	watchdog?: number;
 	startTimeout?: number;
+	stopTimeout?: number;
 	commands?: {
 		postStart?: string
 	};
