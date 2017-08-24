@@ -12,9 +12,9 @@ fi
 if [ "${IS_IN_CHINA}" = "yes" ] ; then
 	echo "http://mirrors.aliyun.com/alpine/v${VERSION}/main" > /etc/apk/repositories
 	echo "http://mirrors.aliyun.com/alpine/v${VERSION}/community" >> /etc/apk/repositories
-	echo "http://mirrors.aliyun.com/alpine/v${VERSION}/testing" >> /etc/apk/repositories
+	echo "http://mirrors.aliyun.com/alpine/edge/testing" >> /etc/apk/repositories
 else
 	echo "" >> /etc/apk/repositories
-	echo "http://dl-cdn.alpinelinux.org/alpine/v${VERSION}/testing" >> /etc/apk/repositories
+	echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
 	echo "update-alpine: not in china"
 fi
