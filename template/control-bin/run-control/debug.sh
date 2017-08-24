@@ -57,10 +57,11 @@ if [ "${RET}" = "" ]; then
 fi
 echo -e "\n\e[38;5;14m[micro-build]\e[0m exit..."
 trap - SIGTERM EXIT
-JOBS=$(jobs -p)
+JOBS="$(jobs -p)"
 if [ -n "${JOBS}" ]; then
-	echo "killing job commands:"
-	kill -2 -- ${JOBS} 2>/dev/null
+	echo "killing job commands: $$"
+	kill -s 2 -- ${JOBS}
+	command -v pkill &>/dev/null && pkill -P $$
 	echo "  waitting... ${JOBS}"
 	echo -en "\e]0;MICRO-BUILD: quitting ... (press Ctrl-C if no response) \007"
 	wait -- ${JOBS} 2>/dev/null
@@ -100,6 +101,7 @@ else
 		${WAIT_COMPILE} -d 2 --config "${TEMP_ENV}/nodemon.json" -x "${SHELL[@]}" -- \
 		"${COMMAND[@]}" "${DEBUG_RUN_ARGUMENTS[@]}" "${@}"
 	RET=$?
+	echo "nodemon return with ${RET}">&2
 fi
 
 kill -2 -- $$

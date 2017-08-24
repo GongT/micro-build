@@ -24,6 +24,7 @@ export interface GithubInterface {
 }
 
 export type IServiceType = 'simple'|'notify'|'';
+
 export interface ISystemdConfig {
 	type?: IServiceType;
 	watchdog?: number;
@@ -108,13 +109,13 @@ export interface MicroServiceConfig {
 	onConfig?: (isDebug?: boolean) => void;
 }
 
-export enum ELabelNames{
+export enum ELabelNames {
 	sync_hosts,
 	proxy,
 	alias,
 }
 
-export enum EPlugins{
+export enum EPlugins {
 	jenv,
 	node_scss,
 	typescript,
@@ -148,7 +149,10 @@ export class MicroBuildConfig {
 		arguments: {},
 		serviceDependencies: {},
 		containerDependencies: {},
-		environments: [],
+		environments: [
+			{insideOnly: true, name: 'NODE_ENV', value: 'production', append: false},
+			{insideOnly: false, name: 'NODE_ENV', value: 'development', append: false},
+		],
 		labels: {},
 		specialLabels: {},
 		systemInstall: [],
@@ -231,7 +235,7 @@ export class MicroBuildConfig {
 		
 		this.storage.forwardPort.push(obj);
 		return {
-			publish(hostPort: number){
+			publish(hostPort: number) {
 				obj.host = hostPort;
 			},
 		}
