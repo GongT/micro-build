@@ -6,6 +6,34 @@ source "@{PWD}/functions.sh"
 #{START_DEPENDENCY}
 #{BUILD_DEPEND_SERVICE}
 
+function list_all {
+	local CHILDREN=($(pgrep -P "$1"))
+	if [ -z "$CHILDREN" ]; then
+		return
+	fi
+	local i
+	for i in "${CHILDREN[@]}"; do
+		list_all "$i"
+		echo "$i"
+	done
+}
+function kill_all {
+	echo "killing job commands: $$"
+	local LIST=($(list_all $$))
+	if [ -z "${LIST}" ]; then
+		echo "    no children"
+		return
+	fi
+	echo "    children: ${LIST[@]}"
+	kill -s 2 "${LIST[@]}" 2>&1 | grep -v 'No such process'
+	echo "  waitting..."
+	echo -en "\e]0;MICRO-BUILD: quitting ... (press Ctrl-C if no response) \007"
+	wait -- ${LIST[ $(( ${#LIST}-1 )) ]} 2>/dev/null
+	echo "  killed."
+}
+
+export -f list_all kill_all
+
 export CONFIG_FILE="@{PWD}/json-env-data.json"
 
 SHELL=(@{SHELL_COMMAND})
@@ -57,16 +85,7 @@ if [ "${RET}" = "" ]; then
 fi
 echo -e "\n\e[38;5;14m[micro-build]\e[0m exit..."
 trap - SIGTERM EXIT
-JOBS="$(jobs -p)"
-if [ -n "${JOBS}" ]; then
-	echo "killing job commands: $$"
-	kill -s 2 -- ${JOBS}
-	command -v pkill &>/dev/null && pkill -P $$
-	echo "  waitting... ${JOBS}"
-	echo -en "\e]0;MICRO-BUILD: quitting ... (press Ctrl-C if no response) \007"
-	wait -- ${JOBS} 2>/dev/null
-	echo "  killed."
-fi
+kill_all $$
 echo -e "\e[38;5;14m[micro-build]\e[0m finished."
 echo -e "\e[38;5;14m[micro-build]\e[0m exit code ${RET}.\n"
 exit ${RET}
@@ -104,8 +123,7 @@ else
 	echo "nodemon return with ${RET}">&2
 fi
 
-kill -2 -- $$
-sleep .5
+kill_all $$
 
 echo -e "\e[38;5;14m[micro-build]\e[0m finished."
 echo -e "\e[38;5;14m[micro-build]\e[0m exit code ${RET}.\n"
