@@ -16,7 +16,7 @@ export function getNpmScriptReplacer(config: MicroBuildConfig) {
 	const npm = config.getNpmConfig();
 	
 	return new ScriptVariables(config, {
-		PREPEND_NPM_SCRIPT () {
+		PREPEND_NPM_SCRIPT() {
 			return `NPM_USER=${wrapVal(npm.user)}
 NPM_PASS=${wrapVal(npm.pass)}
 NPM_EMAIL=${wrapVal(npm.email)}
@@ -37,21 +37,21 @@ export function npm_install_command(config: MicroBuildConfig) {
 	
 	let npmPrependIns = `# set cache layer env
 ENV NPM_LAYER_ENABLED=${npm.enabled? 'yes' : 'no'} \\
-    NPM_REGISTRY=${wrapVal(npm.url)}
+    NPM_REGISTRY=${wrapVal(npm.enabled? npm.url : npm.upstream)}
 COPY ${getTempPath(true)}/npm-install /install/npm
 `;
 	if (npm.enabled) {
 		npmPrependIns += '# private npm\n';
 		npmPrependIns += 'RUN ' + [
-				'/install/npm/global-installer npm-cli-login',
-				`npm config set registry "${npm.url}"`,
-				'sh /install/npm/prepare-user',
-				'npm uninstall -q --global npm-cli-login',
-				removeCache(),
-			].join(DOCKERFILE_RUN_SPLIT);
+			'/install/npm/global-installer npm-cli-login',
+			`npm config set registry "${npm.url}"`,
+			'sh /install/npm/prepare-user',
+			'npm uninstall -q --global npm-cli-login',
+			removeCache(),
+		].join(DOCKERFILE_RUN_SPLIT);
 	} else {
 		npmPrependIns += `# no private npm
-RUN npm config set registry "${npm.url}"
+RUN npm config set registry "${npm.upstream || npm.url}"
 `;
 	}
 	
@@ -110,6 +110,7 @@ export function createTempPackageFile(json: IPackageJson) {
 }
 
 const literal = ['string', 'number', 'boolean', ''];
+
 function wrapVal(s) {
 	if (literal.indexOf(typeof s) > -1 || s === null || s === undefined) {
 		return '' + JSON.stringify(s);
