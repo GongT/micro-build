@@ -66,6 +66,7 @@ stop)
 status)
 	s_status
 	echo ""
+	exit 0
 	;;
 restart)
 	s_restart
