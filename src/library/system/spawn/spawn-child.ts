@@ -13,6 +13,20 @@ export function spawnExternalCommand(command, args: string[] = []) {
 	});
 	return ret.status;
 }
+export function readExternalCommand(command, args: string[] = []) {
+	const ret = spawnSyncWrap(command, args, {
+		cwd: getProjectPath(),
+		stdio: 'pipe',
+		env: process.env,
+		encoding: 'utf8',
+		shell: '/bin/bash',
+	});
+	if (ret.status === 0) {
+		return ret.stdout;
+	} else {
+		throw new Error('command failed: ' + command);
+	}
+}
 export function spawnMainCommand(command, args: string[] = []) {
 	const fullPath = resolve(getTempPath(), command);
 	const ret = spawnSyncWrap(fullPath, args, {

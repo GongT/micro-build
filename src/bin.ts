@@ -1,29 +1,30 @@
 /// <reference path="./globals.d.ts"/>
 import {UsageHelper} from "./commands/argument-parser/help";
-import {
-	startDefine,
-	stopDefine,
-	restartDefine,
-	statusDefine,
-	psDefine,
-	enableDefine,
-	disableDefine,
-	uninstallDefine,
-	installDefine
-} from "./commands/list/control";
-import {createCommand, parser, callCommandFunction} from "./commands/command-library";
-import {debug, commandDefine as cmdDebug} from "./commands/list/debug";
+import {callCommandFunction, createCommand, parser} from "./commands/command-library";
 import {build, commandDefine as cmdBuild} from "./commands/list/build";
-import {exec, commandDefine as cmdExec} from "./commands/list/exec";
-import {dist_clean, commandDefine as cmdDistClean} from "./commands/list/dist_clean";
 import {clean, commandDefine as cmdClean} from "./commands/list/clean";
-import {update, commandDefine as cmdUpdate} from "./commands/list/update";
-import {initialize, commandDefine as cmdInitialize} from "./commands/list/initialize";
-import {run, commandDefine as cmdRun} from "./commands/list/run";
-import {foreground, commandDefine as cmdForeground} from "./commands/list/foreground";
-import {reload, commandDefine as cmdReload} from "./commands/list/reload";
-import {mkconfig, commandDefine as cmdMkConfig} from "./commands/list/mkconfig";
-import {deploy, commandDefine as cmdDeploy} from "./commands/list/deploy";
+import {
+	disableDefine,
+	enableDefine,
+	installDefine,
+	psDefine,
+	restartDefine,
+	startDefine,
+	statusDefine,
+	stopDefine,
+	uninstallDefine,
+} from "./commands/list/control";
+import {commandDefine as cmdDebug, debug} from "./commands/list/debug";
+import {commandDefine as cmdDeploy, deploy} from "./commands/list/deploy";
+import {commandDefine as cmdDistClean, dist_clean} from "./commands/list/dist_clean";
+import {commandDefine as cmdExec, exec} from "./commands/list/exec";
+import {commandDefine as cmdForeground, foreground} from "./commands/list/foreground";
+import {commandDefine as cmdInitialize, initialize} from "./commands/list/initialize";
+import {commandDefine as cmdMkConfig, mkconfig} from "./commands/list/mkconfig";
+import {commandDefine as cmdUpToDate, up_to_date} from "./commands/list/up-to-date";
+import {commandDefine as cmdReload, reload} from "./commands/list/reload";
+import {commandDefine as cmdRun, run} from "./commands/list/run";
+import {commandDefine as cmdUpdate, update} from "./commands/list/update";
 import {updateCurrentDir} from "./library/common/file-paths";
 
 createCommand(debug, cmdDebug);
@@ -52,6 +53,8 @@ createCommand(deploy, cmdDeploy);
 
 createCommand(clean, cmdClean);
 createCommand(dist_clean, cmdDistClean);
+
+createCommand(up_to_date, cmdUpToDate);
 
 const argv = process.argv.slice(2);
 const args = parser.parse(argv);
