@@ -152,7 +152,7 @@ function formatColumn(aoa: string[][]) {
 }
 
 function terminalWidth() {
-	return parseInt(process.stdout['columns']);
+	return parseInt(process.stdout.columns.toString());
 }
 
 function positionStringPack(string, left = 4, right = 0) {
