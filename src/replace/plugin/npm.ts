@@ -36,6 +36,7 @@ export function npm_install_command(config: MicroBuildConfig) {
 	const npm = config.getNpmConfig();
 	
 	let npmPrependIns = `# set cache layer env
+ARG NPM_LOG_LEVEL="warn"
 ENV NPM_LAYER_ENABLED=${npm.enabled? 'yes' : 'no'} \\
     NPM_REGISTRY=${wrapVal(npm.enabled? npm.url : npm.upstream || npm.url)}
 COPY ${getTempPath(true)}/npm-install /install/npm

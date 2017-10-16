@@ -21,13 +21,16 @@ BUILD_DOCKER_ARGUMENTS=()
 
 echo -e "-- RUN BUILD -
 WD=$(pwd)
-docker build \\
+\e[38;5;14mdocker build \\
 	${BUILD_DOCKER_ARGUMENTS} \\
 	$@ \\
 	--build-arg HOST_LOOP_IP=${HOST_LOOP_IP} \\
 	-f=\"@{PWD}/Dockerfile\" \\
 	-t=\"@{DOCKER_IMAGE_TAG_NAME}\" \\
-	."
+	.
+\e[0m"
+
+sleep 2
 
 docker build \
 	${BUILD_DOCKER_ARGUMENTS} \

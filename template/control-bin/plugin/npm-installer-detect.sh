@@ -24,12 +24,16 @@ else
 	NPM_ARGUMENTS=""
 fi
 
+if [ -z "${NPM_LOG_LEVEL}" ]; then
+	NPM_LOG_LEVEL="warn"
+fi
+
 NPM_ARGUMENTS="${NPM_ARGUMENTS} \
 --unsafe-perm \
 --registry=${NPM_REGISTRY} \
 --cache=/install/npm/npm-cache \
 --userconfig=${NPM_RC_FILE} \
---loglevel warn"
+--loglevel ${NPM_LOG_LEVEL}"
 
 if ! echo "$*" | grep -q -- "--only=" ; then
 	NPM_ARGUMENTS="${NPM_ARGUMENTS} --only=production"
