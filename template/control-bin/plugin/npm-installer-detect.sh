@@ -109,6 +109,8 @@ handle_npm_error () {
 		echo "info: "
 		echo "    $E[38;5;11mPWD$E[0m: `pwd`"
 		echo "    $E[38;5;11mcommand$E[0m: ${LAST_COMMAND}"
+		echo "    $E[38;5;11mnode version$E[0m: $(node -v)"
+		echo "    $E[38;5;11mnpm version$E[0m: $(npm -v)"
 		if [ -e ./package.json ]; then
 			echo "$E[38;5;11mpackage.json content:$E[0;2m"
 			cat ./package.json
