@@ -96,11 +96,13 @@ echo "NPM_INSTALL=${NPM_INSTALL}"
 handle_npm_error () {
 	RET=$1
 	if [ "${RET}" -ne 0 ]; then
-		echo "${E}c$E[38;5;11mnpm install failed with ${RET}... $E[0m"
-		
 		if [ "${NPM_LOG_LEVEL}" != "sill" ]; then
+			echo "${E}c$E[38;5;11mnpm install failed with ${RET}... $E[0m"
 			echo "---- log ----"
 			cat /install/npm/npm-cache/_logs/*.log
+		else
+			echo "$E[38;5;11m=============================="
+			echo "npm install failed with ${RET}... $E[0m"
 		fi
 		
 		echo ""
