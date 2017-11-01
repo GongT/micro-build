@@ -1,4 +1,5 @@
 import {ArgumentError, IArgumentCommand, IArgumentOption, IArgumentParam} from "./base";
+
 const stringWidth = require('string-width');
 
 const isOption = /^-/;
@@ -36,7 +37,7 @@ export class UsageHelper {
 	private getOptionsLines() {
 		const options = [].concat(
 			this.obj.options,
-			this.obj.globalOptions || []
+			this.obj.globalOptions || [],
 		).map((opt: IArgumentOption) => {
 			return ['--' + opt.name, opt.description];
 		});
@@ -152,7 +153,11 @@ function formatColumn(aoa: string[][]) {
 }
 
 function terminalWidth() {
-	return parseInt(process.stdout.columns.toString());
+	if (process.stdout['columns']) {
+		return parseInt(process.stdout['columns'].toString());
+	}else{
+		return 80;
+	}
 }
 
 function positionStringPack(string, left = 4, right = 0) {
